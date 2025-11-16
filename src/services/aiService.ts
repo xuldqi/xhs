@@ -57,11 +57,14 @@ class AIService {
           }
           
           const data = await response.json()
-          const content = data.choices[0]?.message?.content
+          let content = data.choices[0]?.message?.content
           
           if (!content) {
             throw new Error('AI 返回内容为空')
           }
+          
+          // 清理 Markdown 代码块标记
+          content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
           
           const accountData = JSON.parse(content) as AccountData
           
@@ -448,9 +451,16 @@ class AIService {
   }
   
   /**
-   * 检查 API 密钥是否配置
+   * 检查 API 是否可用
+   * 代理模式下总是返回 true（后端负责API Key）
+   * 直接调用模式下检查前端API Key
    */
   isConfigured(): boolean {
+    // 代理模式下，不需要前端配置 API Key
+    if (this.useProxy) {
+      return true
+    }
+    // 直接调用模式下，需要前端配置 API Key
     return !!this.apiKey && this.apiKey !== ''
   }
   

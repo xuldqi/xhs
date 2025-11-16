@@ -1,60 +1,86 @@
 import fetch from 'node-fetch'
 
 export class AIService {
-  private apiKey: string
+  private deepseekApiKey: string
+  private geminiApiKey: string
   private baseUrl: string
 
   constructor() {
-    this.apiKey = process.env.DEEPSEEK_API_KEY || ''
+    this.deepseekApiKey = process.env.DEEPSEEK_API_KEY || ''
+    this.geminiApiKey = process.env.GEMINI_API_KEY || ''
     this.baseUrl = process.env.API_BASE_URL || 'https://api.deepseek.com'
 
-    if (!this.apiKey) {
+    if (!this.deepseekApiKey) {
       console.warn('⚠️ Warning: DEEPSEEK_API_KEY is not configured')
+    }
+    if (!this.geminiApiKey) {
+      console.warn('⚠️ Warning: GEMINI_API_KEY is not configured')
     }
   }
 
   /**
-   * 分析图片
+   * 分析图片 - 使用 Gemini 2.5 Flash
    */
   async analyzeImage(prompt: string, imageBase64: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
+    console.log('🔍 使用 Gemini 2.5 Flash 分析图片...')
+    
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`
+    
+    const response = await fetch(geminiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
+        'x-goog-api-key': this.geminiApiKey
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: prompt },
-              {
-                type: 'image_url',
-                image_url: { url: `data:image/jpeg;base64,${imageBase64}` }
+        contents: [{
+          parts: [
+            { text: prompt },
+            {
+              inline_data: {
+                mime_type: 'image/jpeg',
+                data: imageBase64
               }
-            ]
-          }
-        ],
-        max_tokens: 2000,
-        temperature: 0.7
+            }
+          ]
+        }]
       })
     })
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`DeepSeek API error (${response.status}): ${errorText}`)
+      throw new Error(`Gemini API error (${response.status}): ${errorText}`)
     }
 
-    return await response.json()
+    const data = await response.json()
+    
+    // 提取 Gemini 返回的文本内容
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text
+    
+    if (!content) {
+      throw new Error('Gemini 返回内容为空')
+    }
+    
+    console.log('✅ Gemini 分析完成')
+    
+    // 转换为统一格式
+    return {
+      choices: [{
+        message: {
+          content: content
+        }
+      }],
+      usage: {
+        total_tokens: 0
+      }
+    }
   }
 
   /**
-   * 生成内容
+   * 生成内容 - 使用 DeepSeek
    */
   async generateContent(systemPrompt: string, userPrompt: string): Promise<any> {
-    console.log('🔑 API Key:', this.apiKey ? `${this.apiKey.substring(0, 10)}...` : 'NOT SET')
+    console.log('🔑 DeepSeek API Key:', this.deepseekApiKey ? `${this.deepseekApiKey.substring(0, 10)}...` : 'NOT SET')
     console.log('🔗 Base URL:', this.baseUrl)
     
     const requestBody = {
@@ -73,7 +99,7 @@ export class AIService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
+        'Authorization': `Bearer ${this.deepseekApiKey}`
       },
       body: JSON.stringify(requestBody)
     })
@@ -93,6 +119,6 @@ export class AIService {
    * 检查配置
    */
   isConfigured(): boolean {
-    return !!this.apiKey
+    return !!this.deepseekApiKey && !!this.geminiApiKey
   }
 }

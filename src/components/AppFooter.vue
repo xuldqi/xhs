@@ -31,7 +31,7 @@
         <div class="footer-section">
           <h3 class="footer-title">联系我们</h3>
           <ul class="footer-links">
-            <li><a href="mailto:support@example.com">support@example.com</a></li>
+            <li><a href="mailto:novemeber11@gmail.com">novemeber11@gmail.com</a></li>
           </ul>
         </div>
       </div>

@@ -279,14 +279,20 @@ const analyzeImage = async (imageDataUrl: string) => {
     const { aiService } = await import('@/services/aiService')
     const { IMAGE_ANALYSIS_PROMPT } = await import('@/services/promptTemplates')
     
+    console.log('🔍 开始图像分析...')
+    console.log('📡 API 配置状态:', aiService.isConfigured())
+    
     // 检查 API 配置
     if (!aiService.isConfigured()) {
+      console.warn('⚠️ API 未配置，使用模拟数据')
       analysisProgress.value = 100
       isAnalyzing.value = false
       // 使用模拟数据
       useMockData()
       return
     }
+    
+    console.log('✅ API 已配置，开始调用...')
     
     analysisProgress.value = 40
     
@@ -295,18 +301,24 @@ const analyzeImage = async (imageDataUrl: string) => {
     
     analysisProgress.value = 60
     
+    console.log('📤 发送图像分析请求...')
+    
     // 调用 AI 分析
     const response = await aiService.analyzeImage({
       image: base64,
       prompt: IMAGE_ANALYSIS_PROMPT
     })
     
+    console.log('📥 收到分析响应:', response)
+    
     analysisProgress.value = 90
     
     if (response.success && response.data) {
+      console.log('✅ 分析成功:', response.data)
       accountData.value = response.data
       Object.assign(formData, response.data)
     } else {
+      console.warn('⚠️ 分析失败，使用模拟数据')
       // 分析失败，使用模拟数据
       useMockData()
     }
@@ -317,9 +329,10 @@ const analyzeImage = async (imageDataUrl: string) => {
     }, 300)
     
   } catch (error) {
-    console.error('分析失败:', error)
+    console.error('❌ 分析失败:', error)
     isAnalyzing.value = false
     // 使用模拟数据
+    console.warn('⚠️ 出错，使用模拟数据')
     useMockData()
   }
 }

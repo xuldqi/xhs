@@ -5,9 +5,6 @@
     <div class="container">
       <!-- 顶部标题区域 -->
       <div class="hero-header">
-        <div class="hero-badge">
-          <span>AI 驱动 · 专业可靠</span>
-        </div>
         <h1 class="main-title">小红书涨粉实操指南生成器</h1>
         <p class="main-description">
           上传你的小红书主页截图，AI 自动分析账号数据，生成专属的 12 章节涨粉实操指南
@@ -19,8 +16,8 @@
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <div class="stat-number">30s</div>
-            <div class="stat-label">快速生成</div>
+            <div class="stat-number">5分钟</div>
+            <div class="stat-label">智能生成</div>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
@@ -212,7 +209,7 @@
           
           <div class="faq-item">
             <h3>❓ 生成需要多久？</h3>
-            <p>通常 30-60 秒即可完成。包括图像分析和 12 个章节的内容生成。</p>
+            <p>图像分析约 10 秒，12 个章节内容生成约 3-5 分钟。整个过程大约需要 5 分钟左右。</p>
           </div>
         </div>
       </div>
@@ -355,19 +352,6 @@ const showPrivacy = () => {
 .hero-header {
   text-align: center;
   margin-bottom: 48px;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 24px;
 }
 
 .main-title {
