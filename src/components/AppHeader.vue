@@ -1,0 +1,89 @@
+<template>
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-section">
+        <span class="logo-text">小红书涨粉助手</span>
+      </div>
+      
+      <nav class="nav-links">
+        <a href="#features" class="nav-link">功能介绍</a>
+        <a href="#privacy" class="nav-link">隐私政策</a>
+      </nav>
+    </div>
+  </header>
+</template>
+
+<script setup lang="ts">
+import { Link } from '@element-plus/icons-vue'
+</script>
+
+<style scoped>
+.app-header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-link {
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-link:hover {
+  color: #409EFF;
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    padding: 12px 16px;
+  }
+  
+  .logo-text {
+    font-size: 1.125rem;
+  }
+  
+  .nav-links {
+    gap: 16px;
+  }
+  
+  .nav-link {
+    font-size: 0.875rem;
+  }
+}
+</style>
