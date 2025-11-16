@@ -1,0 +1,13 @@
+# robots.txt for 小红书涨粉助手
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://xhs-helper.vercel.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow sensitive paths
+Disallow: /api/
+Disallow: /*.json$
