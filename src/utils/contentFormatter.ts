@@ -78,11 +78,11 @@ function getBlockType(icon: string): ContentBlock['type'] {
 }
 
 /**
- * 生成块的 HTML - 使用新的卡片布局
+ * 生成块的 HTML - 使用卡片布局
  */
 function generateBlocksHtml(blocks: ContentBlock[]): string {
   return blocks.map(block => {
-    const className = `guide-card ${block.type}-card`
+    const className = `content-block ${block.type}-block`
     const contentHtml = block.content.map(line => {
       // 处理列表项
       if (line.match(/^[•\-]\s/)) {
@@ -97,16 +97,16 @@ function generateBlocksHtml(blocks: ContentBlock[]): string {
     // 如果有列表项，包装在 ul 中
     const hasListItems = block.content.some(line => line.match(/^[•\-\d+\.]\s/))
     const wrappedContent = hasListItems 
-      ? `<ul class="card-list">${contentHtml}</ul>`
+      ? `<ul>${contentHtml}</ul>`
       : contentHtml
     
     return `
       <div class="${className}">
-        <div class="card-header">
-          <span class="card-icon">${block.icon}</span>
-          <h4 class="card-title">${block.title}</h4>
+        <div class="block-header">
+          <span class="block-icon">${block.icon}</span>
+          <span class="block-title">${block.title}</span>
         </div>
-        <div class="card-body">
+        <div class="block-content">
           ${wrappedContent}
         </div>
       </div>

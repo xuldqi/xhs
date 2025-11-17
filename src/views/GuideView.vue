@@ -720,131 +720,89 @@ const goBack = () => {
   line-height: 1.8;
 }
 
-/* 新的卡片布局样式 */
-.section-content :deep(.guide-card) {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
+/* 内容块卡片样式 - 完整实现 */
+.section-content :deep(.content-block) {
+  background: #f8f9fa;
+  border-left: 4px solid #409EFF;
+  border-radius: 8px;
+  padding: 20px 24px;
   margin: 16px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border-left: 4px solid #e0e0e0;
   transition: all 0.3s ease;
 }
 
-.section-content :deep(.guide-card:hover) {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+.section-content :deep(.content-block:hover) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
-.section-content :deep(.card-header) {
+/* 成功类型 - 绿色渐变 */
+.section-content :deep(.success-block) {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+  border-left-color: #52c41a;
+}
+
+/* 警告类型 - 橙色渐变 */
+.section-content :deep(.warning-block) {
+  background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+  border-left-color: #faad14;
+}
+
+/* 提示类型 - 蓝色渐变 */
+.section-content :deep(.info-block) {
+  background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
+  border-left-color: #1890ff;
+}
+
+/* 普通类型 */
+.section-content :deep(.default-block) {
+  background: #f8f9fa;
+  border-left-color: #d9d9d9;
+}
+
+/* 块标题样式 */
+.section-content :deep(.block-header) {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 12px;
 }
 
-.section-content :deep(.card-icon) {
-  font-size: 1.8rem;
+.section-content :deep(.block-icon) {
+  font-size: 1.4rem;
   line-height: 1;
 }
 
-.section-content :deep(.card-title) {
-  font-size: 1.1rem;
+.section-content :deep(.block-title) {
+  font-size: 1.05rem;
   font-weight: 600;
   color: #333;
-  margin: 0;
   flex: 1;
 }
 
-.section-content :deep(.card-body) {
+/* 块内容样式 */
+.section-content :deep(.block-content) {
   color: #666;
   line-height: 1.8;
   font-size: 15px;
 }
 
-.section-content :deep(.card-body p) {
-  font-size: 15px;
-  margin: 12px 0;
+.section-content :deep(.block-content p) {
+  margin: 8px 0;
   line-height: 1.8;
+  font-size: 15px;
 }
 
-.section-content :deep(.card-list) {
+.section-content :deep(.block-content ul) {
+  margin: 8px 0;
   padding-left: 24px;
-  margin: 12px 0;
-  list-style-type: none;
+  list-style-type: disc;
 }
 
-.section-content :deep(.card-list li) {
-  position: relative;
-  padding-left: 20px;
-  margin: 10px 0;
+.section-content :deep(.block-content li) {
+  color: #666;
   line-height: 1.8;
+  margin: 6px 0;
   font-size: 15px;
-}
-
-.section-content :deep(.card-list li::before) {
-  content: "•";
-  position: absolute;
-  left: 0;
-  color: #409EFF;
-  font-weight: bold;
-  font-size: 1.2em;
-}
-
-/* 不同类型的卡片样式 */
-.section-content :deep(.success-card) {
-  border-left-color: #52c41a;
-  background: linear-gradient(to right, #f6ffed 0%, white 100%);
-}
-
-.section-content :deep(.success-card .card-icon) {
-  color: #52c41a;
-}
-
-.section-content :deep(.warning-card) {
-  border-left-color: #faad14;
-  background: linear-gradient(to right, #fffbe6 0%, white 100%);
-}
-
-.section-content :deep(.warning-card .card-icon) {
-  color: #faad14;
-}
-
-.section-content :deep(.info-card) {
-  border-left-color: #1890ff;
-  background: linear-gradient(to right, #e6f7ff 0%, white 100%);
-}
-
-.section-content :deep(.info-card .card-icon) {
-  color: #1890ff;
-}
-
-.section-content :deep(.default-card) {
-  border-left-color: #d9d9d9;
-  background: white;
-}
-
-/* 保留旧的块样式以兼容 */
-.section-content :deep(.success-block) {
-  background: #f6ffed;
-  border-left-color: #52c41a;
-}
-
-.section-content :deep(.warning-block) {
-  background: #fffbe6;
-  border-left-color: #faad14;
-}
-
-.section-content :deep(.info-block) {
-  background: #e6f7ff;
-  border-left-color: #1890ff;
-}
-
-.section-content :deep(.default-block) {
-  background: #fafafa;
-  border-left-color: #d9d9d9;
 }
 
 /* 列表样式优化 */
