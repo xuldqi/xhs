@@ -48,10 +48,11 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
 类别：{contentCategory}
 
 输出格式要求（严格遵守）：
-1. 使用卡片化格式，每个要点用 emoji 开头独立成段
+1. 必须使用卡片化格式，每个要点用 emoji 开头（✅⚠️💡📊📅🎯等）
 2. 格式：emoji + 空格 + 标题（不要用**加粗**）
-3. 标题下方用列表展开细节（用 "- " 开头）
+3. 标题下方必须用列表展开细节（用 "- " 开头）
 4. 避免"建议"、"推荐"等AI味重的词，直接说做法
+5. 不要使用Markdown标题（不要用##或###）
 
 示例格式：
 ✅ 账号优势
@@ -77,10 +78,14 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     id: 2,
     title: '起号三天计划（Day 1-3详细步骤）',
     promptTemplate: `
-为账号"{username}"（{contentCategory}类别）制定起号三天计划。
+为账号"{username}"（{contentCategory}类别）制定起号3天计划。
 
-输出格式（卡片化）：
-📅 Day 1 - 账号优化
+输出格式要求（严格遵守）：
+1. 必须使用 emoji 开头（📅💡🎯📝🎨💰等）
+2. 不要使用Markdown标题（不要用##或###）
+3. 每个内容块必须用列表展开（用 "- " 开头）
+
+输出内容（卡片化）：📅 Day 1 - 账号优化
 - 具体步骤1
 - 具体步骤2
 
@@ -123,8 +128,12 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 为"{contentCategory}"类别账号提供对标账号拆解方法。
 
-输出格式（卡片化）：
-🎯 对标账号特征
+输出格式要求（严格遵守）：
+1. 必须使用 emoji 开头（🎯📊💡✅等）
+2. 不要使用Markdown标题（不要用##或###）
+3. 每个内容块必须用列表展开（用 "- " 开头）
+
+输出内容（卡片化）：🎯 对标账号特征
 - 粉丝量：当前的10倍左右
 - 内容风格：具体描述
 - 更新频率：具体频率
