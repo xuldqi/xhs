@@ -761,6 +761,13 @@ const goBack = () => {
 .section-content :deep(.card-body) {
   color: #666;
   line-height: 1.8;
+  font-size: 15px;
+}
+
+.section-content :deep(.card-body p) {
+  font-size: 15px;
+  margin: 12px 0;
+  line-height: 1.8;
 }
 
 .section-content :deep(.card-list) {
@@ -774,6 +781,7 @@ const goBack = () => {
   padding-left: 20px;
   margin: 10px 0;
   line-height: 1.8;
+  font-size: 15px;
 }
 
 .section-content :deep(.card-list li::before) {
