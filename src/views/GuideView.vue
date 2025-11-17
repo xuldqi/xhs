@@ -4,12 +4,10 @@
       <!-- 生成中 -->
       <div v-if="isGenerating" class="generating-section">
         <div class="generating-icon">
-          <el-icon class="rotating" :size="80" color="#409EFF">
-            <Loading />
-          </el-icon>
+          <img src="/favicon.svg" alt="小红书学院" class="logo-pulse" />
         </div>
         
-        <h2>正在生成您的专属涨粉指南...</h2>
+        <h2>小红书学院正在为您生成专属涨粉指南...</h2>
         
         <div class="progress-info">
           <div class="current-section">
@@ -559,8 +557,29 @@ const goBack = () => {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
+.generating-icon {
+  margin-bottom: 2rem;
+}
+
+.logo-pulse {
+  width: 80px;
+  height: 80px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
 .generating-section h2 {
-  font-size: 2rem;
+  font-size: 1.75rem;
   color: #333;
   margin-bottom: 2rem;
 }
