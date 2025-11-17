@@ -2,7 +2,8 @@
   <header class="app-header">
     <div class="header-container">
       <div class="logo-section" @click="$router.push('/')">
-        <span class="logo-text">小红书涨粉助手</span>
+        <img src="/favicon.svg" alt="小红书学院" class="logo-icon" />
+        <span class="logo-text">小红书学院</span>
       </div>
       
       <nav class="nav-links">
@@ -42,6 +43,12 @@ import { Link } from '@element-plus/icons-vue'
   align-items: center;
   gap: 12px;
   cursor: pointer;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
 }
 
 .logo-text {
