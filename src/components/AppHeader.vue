@@ -1,13 +1,14 @@
 <template>
   <header class="app-header">
     <div class="header-container">
-      <div class="logo-section">
+      <div class="logo-section" @click="$router.push('/')">
         <span class="logo-text">小红书涨粉助手</span>
       </div>
       
       <nav class="nav-links">
-        <a href="#features" class="nav-link">功能介绍</a>
-        <a href="#privacy" class="nav-link">隐私政策</a>
+        <router-link to="/" class="nav-link">首页</router-link>
+        <router-link to="/about" class="nav-link">关于工具</router-link>
+        <router-link to="/privacy" class="nav-link">隐私政策</router-link>
       </nav>
     </div>
   </header>
