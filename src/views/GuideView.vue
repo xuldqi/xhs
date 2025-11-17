@@ -3,25 +3,66 @@
     <div class="guide-container">
       <!-- 生成中 -->
       <div v-if="isGenerating" class="generating-section">
+        <div class="generating-icon">
+          <el-icon class="rotating" :size="80" color="#409EFF">
+            <Loading />
+          </el-icon>
+        </div>
+        
         <h2>正在生成您的专属涨粉指南...</h2>
         
         <div class="progress-info">
-          <p class="current-section">
-            当前进度：{{ currentSection }} / 12
-          </p>
+          <div class="current-section">
+            <span class="section-number">{{ currentSection }}</span>
+            <span class="divider">/</span>
+            <span class="total-sections">12</span>
+          </div>
           <p class="section-name">
-            {{ SECTION_TITLES[currentSection - 1] || '准备中...' }}
+            <el-icon class="pulse"><Document /></el-icon>
+            {{ currentSection === 0 ? '正在准备...' : SECTION_TITLES[currentSection - 1] }}
+          </p>
+          <p class="estimated-time">
+            预计剩余时间：{{ estimatedTime }}
           </p>
         </div>
         
         <el-progress
           :percentage="generationProgress"
-          :stroke-width="12"
+          :stroke-width="16"
           :color="progressColor"
+          :show-text="false"
         />
         
+        <div class="progress-percentage">{{ generationProgress }}%</div>
+        
         <div class="tips">
-          <p>💡 小贴士：生成过程需要约30秒，请耐心等待</p>
+          <div class="tip-item">
+            <el-icon color="#67C23A"><CircleCheck /></el-icon>
+            <span>AI 正在分析您的账号特点</span>
+          </div>
+          <div class="tip-item">
+            <el-icon color="#67C23A"><CircleCheck /></el-icon>
+            <span>生成个性化的涨粉策略</span>
+          </div>
+          <div class="tip-item">
+            <el-icon color="#409EFF"><Clock /></el-icon>
+            <span>预计需要 3-5 分钟，请耐心等待</span>
+          </div>
+        </div>
+        
+        <!-- 已完成的章节列表 -->
+        <div v-if="currentSection > 0" class="completed-sections">
+          <h4>已生成章节</h4>
+          <div class="section-list">
+            <div
+              v-for="i in currentSection"
+              :key="i"
+              class="completed-item"
+            >
+              <el-icon color="#67C23A"><SuccessFilled /></el-icon>
+              <span>{{ i }}. {{ SECTION_TITLES[i - 1] }}</span>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -113,7 +154,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Download, Refresh } from '@element-plus/icons-vue'
+import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled } from '@element-plus/icons-vue'
 import { SECTION_TITLES } from '@/types'
 import type { GuideContent } from '@/types'
 
@@ -125,12 +166,29 @@ const currentSection = ref(0)
 const generationProgress = ref(0)
 const guideContent = ref<GuideContent | null>(null)
 const activeNames = ref<number[]>([1]) // 默认展开第一个章节
+const startTime = ref<number>(0)
 
 // 进度条颜色
 const progressColor = computed(() => {
   if (generationProgress.value < 30) return '#409EFF'
   if (generationProgress.value < 70) return '#67C23A'
   return '#E6A23C'
+})
+
+// 预计剩余时间
+const estimatedTime = computed(() => {
+  if (currentSection.value === 0) return '计算中...'
+  if (currentSection.value >= 12) return '即将完成'
+  
+  const elapsed = Date.now() - startTime.value
+  const avgTimePerSection = elapsed / currentSection.value
+  const remainingSections = 12 - currentSection.value
+  const remainingMs = avgTimePerSection * remainingSections
+  
+  const seconds = Math.ceil(remainingMs / 1000)
+  if (seconds < 60) return `${seconds} 秒`
+  const minutes = Math.ceil(seconds / 60)
+  return `${minutes} 分钟`
 })
 
 // 开始生成
@@ -152,6 +210,7 @@ const generateGuide = async () => {
     isGenerating.value = true
     currentSection.value = 0
     generationProgress.value = 0
+    startTime.value = Date.now()
     
     const { useAppStore } = await import('@/stores/appStore')
     const store = useAppStore()
@@ -175,10 +234,18 @@ const generateGuide = async () => {
     
     store.setGuideContent(guideContent.value)
     generationProgress.value = 100
+    currentSection.value = 12
+    
+    // 显示成功提示
+    const { ElMessage } = await import('element-plus')
+    ElMessage.success({
+      message: '指南生成成功！',
+      duration: 2000
+    })
     
     setTimeout(() => {
       isGenerating.value = false
-    }, 500)
+    }, 800)
     
   } catch (error) {
     console.error('生成失败:', error)

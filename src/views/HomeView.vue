@@ -9,6 +9,10 @@
         <p class="main-description">
           上传你的小红书主页截图，AI 自动分析账号数据，生成专属的 12 章节涨粉实操指南
         </p>
+        <el-button type="primary" plain @click="showExample">
+          <el-icon><View /></el-icon>
+          查看示例指南
+        </el-button>
         <div class="hero-stats">
           <div class="stat-item">
             <div class="stat-number">12</div>
@@ -32,7 +36,7 @@
         <!-- 上传区域 -->
         <div
           class="upload-zone"
-          :class="{ 'is-dragging': isDragging, 'has-preview': previewUrl }"
+          :class="{ 'is-dragging': isDragging, 'has-images': uploadedImages.length > 0 }"
           @drop.prevent="handleDrop"
           @dragover.prevent="handleDragOver"
           @dragleave.prevent="handleDragLeave"
@@ -42,17 +46,42 @@
             ref="fileInputRef"
             type="file"
             accept=".png,.jpg,.jpeg"
+            multiple
             style="display: none"
             @change="handleFileSelect"
           />
           
           <!-- 有预览图 -->
-          <div v-if="previewUrl" class="preview-wrapper">
-            <img :src="previewUrl" alt="预览" class="preview-img" />
-            <div class="preview-mask">
-              <el-button type="primary" size="large" @click.stop="triggerFileInput">
-                重新选择
+          <div v-if="uploadedImages.length > 0" class="preview-grid">
+            <div
+              v-for="(img, index) in uploadedImages"
+              :key="index"
+              class="preview-item"
+            >
+              <img :src="img.dataUrl" alt="预览" class="preview-img" />
+              <div class="preview-badge">{{ index + 1 }}</div>
+              <el-button
+                class="remove-btn"
+                circle
+                size="small"
+                type="danger"
+                @click.stop="removeImage(index)"
+              >
+                <el-icon><Close /></el-icon>
               </el-button>
+            </div>
+            
+            <!-- 添加更多按钮 -->
+            <div
+              v-if="uploadedImages.length < 3"
+              class="add-more"
+              @click.stop="triggerFileInput"
+            >
+              <el-icon :size="32" color="#409EFF">
+                <Plus />
+              </el-icon>
+              <p>添加图片</p>
+              <p class="hint">{{ uploadedImages.length }}/3</p>
             </div>
           </div>
           
@@ -61,8 +90,13 @@
             <el-icon :size="64" color="#409EFF">
               <Upload />
             </el-icon>
-            <p class="upload-text">点击或拖拽上传小红书主页截图</p>
-            <p class="upload-hint">支持 PNG、JPG、JPEG 格式，不超过 10MB</p>
+            <p class="upload-text">上传 1-3 张小红书主页截图</p>
+            <p class="upload-hint">
+              <el-icon><InfoFilled /></el-icon>
+              第一张必须包含主页信息（账号名、粉丝数、笔记数）
+            </p>
+            <p class="upload-hint">其他图片可以是笔记列表，帮助分析内容风格</p>
+            <p class="upload-hint-small">支持 PNG、JPG、JPEG 格式，单张不超过 10MB</p>
           </div>
         </div>
 
@@ -84,13 +118,13 @@
 
         <!-- 开始按钮 -->
         <el-button
-          v-if="previewUrl && !isUploading"
+          v-if="uploadedImages.length > 0 && !isUploading"
           type="primary"
           size="large"
           class="start-button"
           @click="handleStartAnalysis"
         >
-          开始 AI 分析
+          开始 AI 分析（{{ uploadedImages.length }} 张图片）
         </el-button>
 
         <!-- 底部提示 -->
@@ -113,6 +147,9 @@
           </div>
         </div>
       </div>
+
+      <!-- 历史记录 -->
+      <HistoryPanel ref="historyPanelRef" />
 
       <!-- 功能介绍区域 -->
       <div id="features" class="features-section">
@@ -233,26 +270,36 @@
     </div>
     
     <AppFooter />
+    
+    <ExampleModal ref="exampleModalRef" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Upload, Lock, CircleCheck } from '@element-plus/icons-vue'
+import { Upload, Lock, CircleCheck, View, Close, Plus, InfoFilled } from '@element-plus/icons-vue'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
+import HistoryPanel from '@/components/HistoryPanel.vue'
+import ExampleModal from '@/components/ExampleModal.vue'
 
 const router = useRouter()
+const historyPanelRef = ref()
+const exampleModalRef = ref()
+
+interface UploadedImage {
+  file: File
+  dataUrl: string
+}
 
 // 状态
 const isDragging = ref(false)
 const isUploading = ref(false)
 const uploadProgress = ref(0)
-const previewUrl = ref<string | null>(null)
+const uploadedImages = ref<UploadedImage[]>([])
 const error = ref<string | null>(null)
 const fileInputRef = ref<HTMLInputElement>()
-const currentFile = ref<File | null>(null)
 
 // 进度文本
 const progressText = computed(() => {
@@ -269,18 +316,20 @@ const triggerFileInput = () => {
 // 处理文件选择
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    processFile(file)
+  const files = target.files
+  if (files && files.length > 0) {
+    processFiles(Array.from(files))
   }
+  // 清空 input，允许重复选择同一文件
+  target.value = ''
 }
 
 // 处理拖拽
 const handleDrop = (event: DragEvent) => {
   isDragging.value = false
-  const file = event.dataTransfer?.files[0]
-  if (file) {
-    processFile(file)
+  const files = event.dataTransfer?.files
+  if (files && files.length > 0) {
+    processFiles(Array.from(files))
   }
 }
 
@@ -292,30 +341,44 @@ const handleDragLeave = () => {
   isDragging.value = false
 }
 
-// 处理文件
-const processFile = async (file: File) => {
+// 处理多个文件
+const processFiles = async (files: File[]) => {
   error.value = null
+  
+  // 检查数量限制
+  const remainingSlots = 3 - uploadedImages.value.length
+  if (files.length > remainingSlots) {
+    error.value = `最多只能上传 3 张图片，当前还可以上传 ${remainingSlots} 张`
+    return
+  }
   
   try {
     const { validateFile } = await import('@/utils/fileValidator')
-    const validation = validateFile(file)
-    
-    if (!validation.valid) {
-      error.value = validation.error || '文件验证失败'
-      return
-    }
+    const { compressImage } = await import('@/utils/imageProcessor')
     
     isUploading.value = true
-    uploadProgress.value = 20
     
-    const { compressImage } = await import('@/utils/imageProcessor')
-    uploadProgress.value = 50
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      uploadProgress.value = Math.floor(((i + 0.5) / files.length) * 100)
+      
+      // 验证文件
+      const validation = validateFile(file)
+      if (!validation.valid) {
+        error.value = `${file.name}: ${validation.error || '文件验证失败'}`
+        continue
+      }
+      
+      // 压缩图片
+      const compressed = await compressImage(file, 1920, 1920, 0.85)
+      
+      // 添加到列表
+      uploadedImages.value.push({
+        file,
+        dataUrl: compressed.dataUrl
+      })
+    }
     
-    const compressed = await compressImage(file, 1920, 1920, 0.85)
-    uploadProgress.value = 90
-    
-    previewUrl.value = compressed.dataUrl
-    currentFile.value = file
     uploadProgress.value = 100
     
     setTimeout(() => {
@@ -330,14 +393,30 @@ const processFile = async (file: File) => {
   }
 }
 
+// 移除图片
+const removeImage = (index: number) => {
+  uploadedImages.value.splice(index, 1)
+}
+
 // 开始分析
 const handleStartAnalysis = async () => {
-  if (previewUrl.value && currentFile.value) {
-    const { useAppStore } = await import('@/stores/appStore')
-    const store = useAppStore()
-    store.setUploadedImage(previewUrl.value, currentFile.value)
-    router.push('/analysis')
-  }
+  if (uploadedImages.value.length === 0) return
+  
+  const { useAppStore } = await import('@/stores/appStore')
+  const store = useAppStore()
+  
+  // 保存所有图片，第一张作为主图
+  store.setUploadedImages(uploadedImages.value.map(img => ({
+    dataUrl: img.dataUrl,
+    file: img.file
+  })))
+  
+  router.push('/analysis')
+}
+
+// 显示示例
+const showExample = () => {
+  exampleModalRef.value?.show()
 }
 </script>
 
@@ -374,7 +453,7 @@ const handleStartAnalysis = async () => {
   font-size: 1.125rem;
   color: #6b7280;
   line-height: 1.75;
-  margin: 0 0 32px 0;
+  margin: 0 0 24px 0;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -441,40 +520,90 @@ const handleStartAnalysis = async () => {
   transform: scale(1.01);
 }
 
-.upload-zone.has-preview {
-  padding: 0;
-  border: none;
-  background: transparent;
+.upload-zone.has-images {
+  padding: 20px;
+  border: 2px solid #409EFF;
+  background: #f0f9ff;
 }
 
-.preview-wrapper {
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.preview-item {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
+  border: 2px solid #e5e7eb;
+  aspect-ratio: 9/16;
+  background: #fafafa;
 }
 
 .preview-img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 
-.preview-mask {
+.preview-badge {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  top: 8px;
+  left: 8px;
+  background: #409EFF;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s;
+  font-weight: 700;
+  font-size: 0.875rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.preview-wrapper:hover .preview-mask {
+.remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.preview-item:hover .remove-btn {
   opacity: 1;
+}
+
+.add-more {
+  border: 2px dashed #409EFF;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  aspect-ratio: 9/16;
+}
+
+.add-more:hover {
+  background: #f0f9ff;
+  border-color: #66b1ff;
+}
+
+.add-more p {
+  margin: 8px 0 0 0;
+  color: #409EFF;
+  font-size: 0.875rem;
+}
+
+.add-more .hint {
+  color: #9ca3af;
+  font-size: 0.75rem;
 }
 
 .upload-placeholder {
@@ -493,8 +622,18 @@ const handleStartAnalysis = async () => {
 
 .upload-hint {
   font-size: 0.875rem;
+  color: #6b7280;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.upload-hint-small {
+  font-size: 0.75rem;
   color: #9ca3af;
-  margin: 0;
+  margin: 4px 0 0 0;
 }
 
 /* 进度 */

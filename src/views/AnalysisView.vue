@@ -123,14 +123,34 @@
       <div v-else class="error-section">
         <el-result
           icon="error"
-          title="分析失败"
-          sub-title="AI 无法识别图片中的账号信息，请手动输入"
+          title="图像识别失败"
+          sub-title="可能原因：网络连接问题、图片不清晰、或 AI 服务暂时不可用"
         >
           <template #extra>
-            <el-button type="primary" @click="showManualInput">
-              手动输入账号信息
-            </el-button>
-            <el-button @click="goBack">返回重新上传</el-button>
+            <div class="error-actions">
+              <el-button type="primary" size="large" @click="showManualInput">
+                <el-icon><Edit /></el-icon>
+                手动输入账号信息
+              </el-button>
+              <el-button size="large" @click="handleRetry">
+                <el-icon><Refresh /></el-icon>
+                重新识别
+              </el-button>
+              <el-button size="large" @click="goBack">
+                <el-icon><Back /></el-icon>
+                返回重新上传
+              </el-button>
+            </div>
+            
+            <div class="error-tips">
+              <h4>💡 建议：</h4>
+              <ul>
+                <li>确保上传的是小红书个人主页的完整截图</li>
+                <li>截图需包含账号名、粉丝数、笔记数等信息</li>
+                <li>图片清晰度要足够，避免模糊或遮挡</li>
+                <li>如果多次失败，可以选择手动输入信息</li>
+              </ul>
+            </div>
           </template>
         </el-result>
       </div>
@@ -205,11 +225,12 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Loading } from '@element-plus/icons-vue'
+import { Loading, Edit, Refresh, Back } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { AccountData } from '@/types'
 
 const router = useRouter()
+const uploadedImageUrl = ref<string>('')
 
 // 状态
 const isAnalyzing = ref(true)
@@ -263,12 +284,18 @@ onMounted(async () => {
   const { useAppStore } = await import('@/stores/appStore')
   const store = useAppStore()
   
-  if (!store.uploadedImage) {
-    router.push('/upload')
+  // 优先使用多图，兼容旧版单图
+  const images = store.uploadedImages.length > 0 ? store.uploadedImages : 
+                 store.uploadedImage ? [{ dataUrl: store.uploadedImage }] : []
+  
+  if (images.length === 0) {
+    router.push('/')
     return
   }
   
-  await analyzeImage(store.uploadedImage)
+  uploadedImageUrl.value = images[0].dataUrl
+  // 分析第一张图片（主页截图）
+  await analyzeImage(images[0].dataUrl)
 })
 
 const analyzeImage = async (imageDataUrl: string) => {
@@ -278,17 +305,21 @@ const analyzeImage = async (imageDataUrl: string) => {
     
     const { aiService } = await import('@/services/aiService')
     const { IMAGE_ANALYSIS_PROMPT } = await import('@/services/promptTemplates')
+    const { ElMessage } = await import('element-plus')
     
     console.log('🔍 开始图像分析...')
     console.log('📡 API 配置状态:', aiService.isConfigured())
     
     // 检查 API 配置
     if (!aiService.isConfigured()) {
-      console.warn('⚠️ API 未配置，使用模拟数据')
-      analysisProgress.value = 100
+      console.error('❌ API 未配置')
       isAnalyzing.value = false
-      // 使用模拟数据
-      useMockData()
+      accountData.value = null
+      ElMessage.error({
+        message: 'AI 服务未配置，请联系管理员配置 API 密钥',
+        duration: 5000,
+        showClose: true
+      })
       return
     }
     
@@ -317,36 +348,49 @@ const analyzeImage = async (imageDataUrl: string) => {
       console.log('✅ 分析成功:', response.data)
       accountData.value = response.data
       Object.assign(formData, response.data)
+      analysisProgress.value = 100
+      setTimeout(() => {
+        isAnalyzing.value = false
+      }, 300)
     } else {
-      console.warn('⚠️ 分析失败，使用模拟数据')
-      // 分析失败，使用模拟数据
-      useMockData()
-    }
-    
-    analysisProgress.value = 100
-    setTimeout(() => {
+      console.error('❌ AI 分析失败:', response.error)
       isAnalyzing.value = false
-    }, 300)
+      accountData.value = null
+      ElMessage.error({
+        message: response.error || 'AI 无法识别图片内容，请确保上传的是小红书主页截图',
+        duration: 5000,
+        showClose: true
+      })
+    }
     
   } catch (error) {
     console.error('❌ 分析失败:', error)
     isAnalyzing.value = false
-    // 使用模拟数据
-    console.warn('⚠️ 出错，使用模拟数据')
-    useMockData()
+    accountData.value = null
+    
+    const { ElMessage } = await import('element-plus')
+    
+    // 判断错误类型
+    let errorMessage = '图像分析失败，请重试'
+    
+    if (error instanceof Error) {
+      if (error.message.includes('fetch') || error.message.includes('network')) {
+        errorMessage = '网络连接失败，请检查网络后重试'
+      } else if (error.message.includes('timeout')) {
+        errorMessage = '请求超时，请稍后重试'
+      } else if (error.message.includes('API')) {
+        errorMessage = 'API 服务异常，请稍后重试或联系管理员'
+      } else {
+        errorMessage = error.message
+      }
+    }
+    
+    ElMessage.error({
+      message: errorMessage,
+      duration: 5000,
+      showClose: true
+    })
   }
-}
-
-const useMockData = () => {
-  accountData.value = {
-    username: 'ALQ星碎',
-    followerCount: 0,
-    postCount: 47,
-    contentCategory: '知识分享',
-    recentPosts: [],
-    analysisDate: new Date()
-  }
-  Object.assign(formData, accountData.value)
 }
 
 // 返回
@@ -381,6 +425,15 @@ const handleConfirm = async () => {
       analysisDate: new Date()
     })
     
+    // 保存到历史记录
+    const { HistoryManager } = await import('@/utils/historyManager')
+    HistoryManager.saveRecord({
+      accountName: formData.username,
+      followers: formData.followerCount,
+      notes: formData.postCount,
+      category: formData.contentCategory
+    })
+    
     setTimeout(() => {
       isValidating.value = false
       router.push('/guide')
@@ -409,8 +462,18 @@ const handleManualSubmit = async () => {
     }
     Object.assign(formData, accountData.value)
     showManualDialog.value = false
+    
+    const { ElMessage } = await import('element-plus')
+    ElMessage.success('账号信息已保存')
   } catch (error) {
     // 验证失败
+  }
+}
+
+// 重新识别
+const handleRetry = async () => {
+  if (uploadedImageUrl.value) {
+    await analyzeImage(uploadedImageUrl.value)
   }
 }
 </script>
@@ -499,6 +562,41 @@ h2 {
 
 .error-section {
   padding: 40px 20px;
+}
+
+.error-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.error-tips {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: left;
+  background: #f9fafb;
+  padding: 24px;
+  border-radius: 12px;
+  border-left: 4px solid #409EFF;
+}
+
+.error-tips h4 {
+  margin: 0 0 12px 0;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.error-tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.error-tips li {
+  margin: 8px 0;
+  color: #6b7280;
+  line-height: 1.6;
 }
 
 @media (max-width: 768px) {

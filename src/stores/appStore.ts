@@ -19,9 +19,12 @@ export const useAppStore = defineStore('app', () => {
   
   const savedData = loadFromStorage()
   
-  // 上传的图片
+  // 上传的图片（兼容旧版单图）
   const uploadedImage = ref<string | null>(savedData.uploadedImage || null)
   const uploadedFile = ref<File | null>(null)
+  
+  // 上传的多张图片（新版）
+  const uploadedImages = ref<Array<{ dataUrl: string; file?: File }>>(savedData.uploadedImages || [])
   
   // 账号数据
   const accountData = ref<AccountData | null>(savedData.accountData || null)
@@ -34,6 +37,7 @@ export const useAppStore = defineStore('app', () => {
     try {
       const data = {
         uploadedImage: uploadedImage.value,
+        uploadedImages: uploadedImages.value.map(img => ({ dataUrl: img.dataUrl })), // 不保存 File 对象
         accountData: accountData.value,
         guideContent: guideContent.value
       }
@@ -44,10 +48,23 @@ export const useAppStore = defineStore('app', () => {
     }
   }
   
-  // 设置上传的图片
+  // 设置上传的图片（单图，兼容旧版）
   function setUploadedImage(imageUrl: string, file: File) {
     uploadedImage.value = imageUrl
     uploadedFile.value = file
+    // 同时设置为多图格式
+    uploadedImages.value = [{ dataUrl: imageUrl, file }]
+    saveToStorage()
+  }
+  
+  // 设置上传的多张图片（新版）
+  function setUploadedImages(images: Array<{ dataUrl: string; file: File }>) {
+    uploadedImages.value = images
+    // 兼容旧版，设置第一张为主图
+    if (images.length > 0) {
+      uploadedImage.value = images[0].dataUrl
+      uploadedFile.value = images[0].file
+    }
     saveToStorage()
   }
   
@@ -67,6 +84,7 @@ export const useAppStore = defineStore('app', () => {
   function clearAll() {
     uploadedImage.value = null
     uploadedFile.value = null
+    uploadedImages.value = []
     accountData.value = null
     guideContent.value = null
     localStorage.removeItem('xiaohongshu-guide-data')
@@ -76,9 +94,11 @@ export const useAppStore = defineStore('app', () => {
   return {
     uploadedImage,
     uploadedFile,
+    uploadedImages,
     accountData,
     guideContent,
     setUploadedImage,
+    setUploadedImages,
     setAccountData,
     setGuideContent,
     clearAll
