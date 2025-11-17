@@ -1,193 +1,227 @@
 /**
- * 格式化 Markdown 内容为 HTML
+ * 内容格式化工具
+ * 将 AI 生成的文本内容转换为结构化的 HTML
  */
-export function formatMarkdown(content: string): string {
-  let html = content
-  
-  // 转换标题
-  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>')
-  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>')
-  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>')
-  
-  // 转换粗体
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-  html = html.replace(/__(.*?)__/g, '<strong>$1</strong>')
-  
-  // 转换斜体
-  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>')
-  html = html.replace(/_(.*?)_/g, '<em>$1</em>')
-  
-  // 转换列表
-  html = html.replace(/^\* (.*$)/gim, '<li>$1</li>')
-  html = html.replace(/^- (.*$)/gim, '<li>$1</li>')
-  html = html.replace(/^(\d+)\. (.*$)/gim, '<li>$2</li>')
-  
-  // 包装列表
-  html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-  
-  // 转换段落
-  html = html.replace(/\n\n/g, '</p><p>')
-  html = '<p>' + html + '</p>'
-  
-  // 清理多余的标签
-  html = html.replace(/<p><h/g, '<h')
-  html = html.replace(/<\/h(\d)><\/p>/g, '</h$1>')
-  html = html.replace(/<p><ul>/g, '<ul>')
-  html = html.replace(/<\/ul><\/p>/g, '</ul>')
-  
-  return html
+
+export interface ContentBlock {
+  type: 'success' | 'warning' | 'info' | 'default'
+  title: string
+  content: string[]
+  icon?: string
+}
+
+export interface ParsedContent {
+  blocks: ContentBlock[]
+  rawHtml: string
 }
 
 /**
- * 添加 emoji 和样式标记
+ * 解析内容块
+ * 识别特殊标记的内容块（如 ✅、⚠️、💡 等）
  */
-export function enhanceContent(content: string): string {
-  let enhanced = content
+export function parseContentBlocks(content: string): ParsedContent {
+  const lines = content.split('\n').map(line => line.trim()).filter(line => line)
+  const blocks: ContentBlock[] = []
+  let currentBlock: ContentBlock | null = null
   
-  // 为关键词添加样式
-  const keywords = ['注意', '重点', '技巧', '提示', '警告']
-  keywords.forEach(keyword => {
-    const regex = new RegExp(`(${keyword})`, 'g')
-    enhanced = enhanced.replace(regex, '<span class="keyword">$1</span>')
-  })
-  
-  // 为数字添加高亮
-  enhanced = enhanced.replace(/(\d+)/g, '<span class="number">$1</span>')
-  
-  return enhanced
-}
-
-/**
- * 解析表格
- */
-export function parseTable(content: string): { headers: string[], rows: string[][] } | null {
-  const lines = content.split('\n').filter(line => line.trim())
-  
-  if (lines.length < 2) return null
-  
-  // 检查是否是表格格式
-  if (!lines[1].includes('|---')) return null
-  
-  // 解析表头
-  const headers = lines[0]
-    .split('|')
-    .map(h => h.trim())
-    .filter(h => h)
-  
-  // 解析行
-  const rows = lines.slice(2).map(line =>
-    line.split('|')
-      .map(cell => cell.trim())
-      .filter(cell => cell)
-  )
-  
-  return { headers, rows }
-}
-
-/**
- * 渲染表格为 HTML
- */
-export function renderTable(headers: string[], rows: string[][]): string {
-  let html = '<table class="content-table">'
-  
-  // 表头
-  html += '<thead><tr>'
-  headers.forEach(header => {
-    html += `<th>${header}</th>`
-  })
-  html += '</tr></thead>'
-  
-  // 表体
-  html += '<tbody>'
-  rows.forEach(row => {
-    html += '<tr>'
-    row.forEach(cell => {
-      html += `<td>${cell}</td>`
-    })
-    html += '</tr>'
-  })
-  html += '</tbody>'
-  
-  html += '</table>'
-  
-  return html
-}
-
-/**
- * 解析清单
- */
-export function parseChecklist(content: string): { id: string, text: string, checked: boolean }[] {
-  const lines = content.split('\n')
-  const checklist: { id: string, text: string, checked: boolean }[] = []
-  
-  lines.forEach((line, index) => {
-    const match = line.match(/^- \[([ x])\] (.+)$/)
-    if (match) {
-      checklist.push({
-        id: `item-${index}`,
-        text: match[2],
-        checked: match[1] === 'x'
-      })
+  for (const line of lines) {
+    // 检测块标题（带 emoji 的行）
+    const blockMatch = line.match(/^([✅⚠️💡📊📅🎯🔥💰📝🌙☀️])\s*(.+)$/)
+    
+    if (blockMatch) {
+      // 保存上一个块
+      if (currentBlock) {
+        blocks.push(currentBlock)
+      }
+      
+      // 创建新块
+      const icon = blockMatch[1]
+      const title = blockMatch[2]
+      
+      currentBlock = {
+        type: getBlockType(icon),
+        title,
+        content: [],
+        icon
+      }
+    } else if (currentBlock) {
+      // 添加内容到当前块
+      currentBlock.content.push(line)
     }
-  })
+  }
   
-  return checklist
+  // 保存最后一个块
+  if (currentBlock) {
+    blocks.push(currentBlock)
+  }
+  
+  // 生成 HTML
+  const rawHtml = generateBlocksHtml(blocks)
+  
+  return { blocks, rawHtml }
 }
 
 /**
- * 渲染清单为 HTML
+ * 根据 emoji 判断块类型
  */
-export function renderChecklist(items: { id: string, text: string, checked: boolean }[]): string {
-  let html = '<ul class="checklist">'
-  
-  items.forEach(item => {
-    const checkedClass = item.checked ? 'checked' : ''
-    html += `
-      <li class="checklist-item ${checkedClass}">
-        <input type="checkbox" ${item.checked ? 'checked' : ''} disabled />
-        <span>${item.text}</span>
-      </li>
-    `
-  })
-  
-  html += '</ul>'
-  
-  return html
+function getBlockType(icon: string): ContentBlock['type'] {
+  switch (icon) {
+    case '✅':
+      return 'success'
+    case '⚠️':
+      return 'warning'
+    case '💡':
+      return 'info'
+    default:
+      return 'default'
+  }
 }
 
 /**
- * 完整格式化内容
+ * 生成块的 HTML
+ */
+function generateBlocksHtml(blocks: ContentBlock[]): string {
+  return blocks.map(block => {
+    const className = `content-block ${block.type}-block`
+    const contentHtml = block.content.map(line => {
+      // 处理列表项
+      if (line.match(/^[•\-]\s/)) {
+        return `<li>${line.substring(2)}</li>`
+      }
+      if (line.match(/^\d+\.\s/)) {
+        return `<li>${line.replace(/^\d+\.\s/, '')}</li>`
+      }
+      return `<p>${line}</p>`
+    }).join('\n')
+    
+    // 如果有列表项，包装在 ul 中
+    const hasListItems = block.content.some(line => line.match(/^[•\-\d+\.]\s/))
+    const wrappedContent = hasListItems 
+      ? `<ul>${contentHtml}</ul>`
+      : contentHtml
+    
+    return `
+      <div class="${className}">
+        <div class="block-header">
+          <span class="block-icon">${block.icon}</span>
+          <span class="block-title">${block.title}</span>
+        </div>
+        <div class="block-content">
+          ${wrappedContent}
+        </div>
+      </div>
+    `
+  }).join('\n')
+}
+
+/**
+ * 格式化完整内容
+ * 处理 Markdown、表格、标签等
  */
 export function formatContent(content: string): string {
-  // 先处理表格
-  const tableMatch = content.match(/\|.*\|[\s\S]*?\n\|[-:| ]+\|[\s\S]*?(?=\n\n|\n#|$)/g)
-  if (tableMatch) {
-    tableMatch.forEach(tableStr => {
-      const table = parseTable(tableStr)
-      if (table) {
-        const tableHtml = renderTable(table.headers, table.rows)
-        content = content.replace(tableStr, tableHtml)
-      }
-    })
+  if (!content) {
+    return '<p style="color: #999;">内容为空</p>'
   }
   
-  // 处理清单
-  const checklistMatch = content.match(/(?:^- \[[ x]\] .+$\n?)+/gm)
-  if (checklistMatch) {
-    checklistMatch.forEach(checklistStr => {
-      const checklist = parseChecklist(checklistStr)
-      if (checklist.length > 0) {
-        const checklistHtml = renderChecklist(checklist)
-        content = content.replace(checklistStr, checklistHtml)
-      }
-    })
+  let formatted = content
+  
+  // 1. 先尝试解析内容块
+  const { rawHtml } = parseContentBlocks(content)
+  if (rawHtml) {
+    formatted = rawHtml
   }
   
-  // 格式化 Markdown
-  let formatted = formatMarkdown(content)
+  // 2. 处理【】括号内容 - 转换为小标签
+  formatted = formatted.replace(/【(.+?)】/g, '<span class="tag-badge">$1</span>')
   
-  // 增强内容
-  formatted = enhanceContent(formatted)
+  // 3. 处理 Markdown 标题
+  formatted = formatted.replace(/^#### (.+)$/gm, '<h4 class="content-subtitle">$1</h4>')
+  formatted = formatted.replace(/^### (.+)$/gm, '<h3 class="content-title">$1</h3>')
+  formatted = formatted.replace(/^## (.+)$/gm, '<h2 class="section-heading">$1</h2>')
+  
+  // 4. 处理加粗 **text**
+  formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="text-highlight">$1</strong>')
+  
+  // 5. 处理表格
+  formatted = formatTables(formatted)
+  
+  // 6. 处理时间格式
+  formatted = formatted.replace(/(\d{1,2}:\d{2}-\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}-\d{1,2}:\d{2})/g, 
+    '<span class="time-badge">$1</span> <span class="time-badge">$2</span>')
+  
+  // 7. 处理普通段落
+  formatted = formatParagraphs(formatted)
   
   return formatted
+}
+
+/**
+ * 格式化表格
+ */
+function formatTables(content: string): string {
+  const tableRegex = /^\|(.+)\|$/gm
+  if (!tableRegex.test(content)) {
+    return content
+  }
+  
+  return content.replace(/(\|.+\|\n)+/g, (match) => {
+    const rows = match.trim().split('\n')
+    if (rows.length < 2) return match
+    
+    let tableHtml = '<table class="content-table">'
+    
+    rows.forEach((row, index) => {
+      const cells = row.split('|').filter(cell => cell.trim()).map(cell => cell.trim())
+      if (cells.length === 0) return
+      
+      // 跳过分隔行
+      if (cells[0].match(/^-+$/)) return
+      
+      const tag = index === 0 ? 'th' : 'td'
+      tableHtml += '<tr>'
+      cells.forEach(cell => {
+        tableHtml += `<${tag}>${cell}</${tag}>`
+      })
+      tableHtml += '</tr>'
+    })
+    
+    tableHtml += '</table>'
+    return tableHtml
+  })
+}
+
+/**
+ * 格式化段落
+ */
+function formatParagraphs(content: string): string {
+  const lines = content.split('\n')
+  const result: string[] = []
+  
+  for (let line of lines) {
+    line = line.trim()
+    if (!line) continue
+    
+    // 如果已经是 HTML 标签，直接添加
+    if (line.startsWith('<')) {
+      result.push(line)
+    } else {
+      // 普通文本转为段落
+      result.push(`<p class="content-paragraph">${line}</p>`)
+    }
+  }
+  
+  return result.join('\n')
+}
+
+/**
+ * 清理 HTML 标签（用于导出纯文本）
+ */
+export function stripHtmlTags(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .trim()
 }

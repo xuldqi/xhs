@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>内容格式化演示 - 卡片化布局</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f7fa;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 1rem;
+      font-size: 2rem;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+    
+    .demo-section {
+      margin-bottom: 3rem;
+    }
+    
+    .demo-title {
+      color: #333;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e4e7ed;
+      font-weight: 600;
+    }
+    
+    /* 内容块卡片样式 - 简洁扁平化设计 */
+    .content-block {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 16px 0;
+      border-left: 4px solid #d9d9d9;
+    }
+    
+    .block-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .block-icon {
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+    
+    .block-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #333;
+      flex: 1;
+    }
+    
+    .block-content {
+      color: #666;
+      line-height: 1.8;
+    }
+    
+    /* 不同类型的块样式 - 只用左边框和背景色区分 */
+    .success-block {
+      background: #f6ffed;
+      border-left-color: #52c41a;
+    }
+    
+    .warning-block {
+      background: #fffbe6;
+      border-left-color: #faad14;
+    }
+    
+    .info-block {
+      background: #e6f7ff;
+      border-left-color: #1890ff;
+    }
+    
+    .default-block {
+      background: #fafafa;
+      border-left-color: #d9d9d9;
+    }
+    
+    /* 列表样式 */
+    .block-content ul {
+      padding-left: 24px;
+      margin: 8px 0;
+      list-style-type: disc;
+    }
+    
+    .block-content li {
+      color: #666;
+      line-height: 1.8;
+      margin: 6px 0;
+    }
+    
+    .block-content p {
+      margin: 8px 0;
+      line-height: 1.8;
+    }
+    
+    /* 标签样式 - 多彩设计 */
+    .tag-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #fff3e0;
+      color: #f57c00;
+      border-radius: 3px;
+      font-size: 0.9em;
+      margin: 0 4px;
+      font-weight: 500;
+    }
+    
+    .time-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 3px;
+      font-size: 0.95em;
+      margin: 4px;
+      font-weight: 500;
+    }
+    
+    .text-highlight {
+      color: #e74c3c;
+      font-weight: 600;
+    }
+    
+    /* 表格样式 - 简洁设计 */
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: white;
+    }
+    
+    .content-table th,
+    .content-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border: 1px solid #e4e7ed;
+    }
+    
+    .content-table th {
+      background: #fafafa;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .content-table tr:hover {
+      background: #f5f7fa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 内容格式化演示</h1>
+    <p class="subtitle">展示不同类型的内容块卡片化效果</p>
+    
+    <!-- 成功类型块 -->
+    <div class="demo-section">
+      <h2 class="demo-title">✅ 成功/优势类型</h2>
+      
+      <div class="content-block success-block">
+        <div class="block-header">
+          <span class="block-icon">✅</span>
+          <span class="block-title">账号优势分析</span>
+        </div>
+        <div class="block-content">
+          <p>基于您的账号数据，我们发现以下<span class="text-highlight">核心优势</span>：</p>
+          <ul>
+            <li>内容垂直度高，定位清晰在<span class="tag-badge">美食探店</span>领域</li>
+            <li>粉丝互动率达到 <span class="text-highlight">8.5%</span>，高于行业平均水平</li>
+            <li>发布时间稳定，保持在<span class="time-badge">19:00-21:00</span>黄金时段</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 警告类型块 -->
+    <div class="demo-section">
+      <h2 class="demo-title">⚠️ 警告/需要改进类型</h2>
+      
+      <div class="content-block warning-block">
+        <div class="block-header">
+          <span class="block-icon">⚠️</span>
+          <span class="block-title">需要改进的地方</span>
+        </div>
+        <div class="block-content">
+          <p>以下方面需要<span class="text-highlight">重点优化</span>：</p>
+          <ul>
+            <li>封面图设计缺乏统一风格，建议使用<span class="tag-badge">固定模板</span></li>
+            <li>标题吸引力不足，点击率仅为 <span class="text-highlight">2.3%</span></li>
+            <li>发布频率不稳定，建议保持<span class="tag-badge">每周3-5篇</span>的节奏</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 提示类型块 -->
+    <div class="demo-section">
+      <h2 class="demo-title">💡 提示/建议类型</h2>
+      
+      <div class="content-block info-block">
+        <div class="block-header">
+          <span class="block-icon">💡</span>
+          <span class="block-title">专业建议</span>
+        </div>
+        <div class="block-content">
+          <p>根据数据分析，我们建议：</p>
+          <ul>
+            <li>在<span class="time-badge">7:00-9:00</span>和<span class="time-badge">19:00-22:00</span>发布内容</li>
+            <li>使用<span class="tag-badge">情感共鸣</span>+<span class="tag-badge">实用干货</span>的内容策略</li>
+            <li>每篇笔记控制在<span class="text-highlight">800-1200字</span>之间</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 普通类型块 -->
+    <div class="demo-section">
+      <h2 class="demo-title">📊 数据/计划类型</h2>
+      
+      <div class="content-block default-block">
+        <div class="block-header">
+          <span class="block-icon">📊</span>
+          <span class="block-title">7天行动计划</span>
+        </div>
+        <div class="block-content">
+          <p>按照以下步骤执行：</p>
+          <ul>
+            <li><span class="text-highlight">Day 1-2</span>：优化账号主页和简介</li>
+            <li><span class="text-highlight">Day 3-4</span>：准备3篇高质量内容</li>
+            <li><span class="text-highlight">Day 5-7</span>：发布内容并互动引流</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="content-block default-block">
+        <div class="block-header">
+          <span class="block-icon">🎯</span>
+          <span class="block-title">目标设定</span>
+        </div>
+        <div class="block-content">
+          <p>本月目标：</p>
+          <ul>
+            <li>粉丝增长：<span class="text-highlight">+500人</span></li>
+            <li>发布频率：<span class="tag-badge">每周4篇</span></li>
+            <li>互动率提升：<span class="text-highlight">达到10%</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 表格示例 -->
+    <div class="demo-section">
+      <h2 class="demo-title">📋 表格展示</h2>
+      
+      <table class="content-table">
+        <tr>
+          <th>时间段</th>
+          <th>内容类型</th>
+          <th>预期效果</th>
+        </tr>
+        <tr>
+          <td>7:00-9:00</td>
+          <td>早餐推荐</td>
+          <td>高互动率</td>
+        </tr>
+        <tr>
+          <td>12:00-13:00</td>
+          <td>午餐探店</td>
+          <td>高曝光量</td>
+        </tr>
+        <tr>
+          <td>19:00-22:00</td>
+          <td>晚餐测评</td>
+          <td>高转化率</td>
+        </tr>
+      </table>
+    </div>
+    
+    <!-- 混合内容 -->
+    <div class="demo-section">
+      <h2 class="demo-title">🔥 混合内容展示</h2>
+      
+      <div class="content-block success-block">
+        <div class="block-header">
+          <span class="block-icon">✅</span>
+          <span class="block-title">爆款内容特征</span>
+        </div>
+        <div class="block-content">
+          <p>分析您的<span class="text-highlight">TOP 10</span>热门笔记，发现以下共同点：</p>
+          <ul>
+            <li>标题包含<span class="tag-badge">数字</span>和<span class="tag-badge">疑问句</span></li>
+            <li>封面使用<span class="tag-badge">对比色</span>设计</li>
+            <li>发布时间集中在<span class="time-badge">20:00-21:00</span></li>
+            <li>内容长度在<span class="text-highlight">900-1100字</span>之间</li>
+          </ul>
+          <p>建议复制这些<span class="text-highlight">成功经验</span>到新内容中。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

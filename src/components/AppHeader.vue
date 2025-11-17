@@ -8,15 +8,75 @@
       
       <nav class="nav-links">
         <router-link to="/" class="nav-link">首页</router-link>
+        <router-link to="/pricing" class="nav-link">会员套餐</router-link>
         <router-link to="/about" class="nav-link">关于工具</router-link>
-        <router-link to="/privacy" class="nav-link">隐私政策</router-link>
+        
+        <template v-if="userStore.isLoggedIn">
+          <el-dropdown @command="handleCommand">
+            <div class="user-dropdown">
+              <el-avatar :size="32" :src="userStore.profile?.avatar_url">
+                {{ userStore.profile?.nickname?.[0] || 'U' }}
+              </el-avatar>
+              <span class="user-name">{{ userStore.profile?.nickname || '用户' }}</span>
+              <el-icon><ArrowDown /></el-icon>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="user-center">
+                  <el-icon><User /></el-icon>
+                  个人中心
+                </el-dropdown-item>
+                <el-dropdown-item command="pricing" v-if="!userStore.isVIP">
+                  <el-icon><Crown /></el-icon>
+                  升级会员
+                </el-dropdown-item>
+                <el-dropdown-item divided command="logout">
+                  <el-icon><SwitchButton /></el-icon>
+                  退出登录
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </template>
+        
+        <template v-else>
+          <el-button type="primary" size="small" @click="$router.push('/login')">
+            登录 / 注册
+          </el-button>
+        </template>
       </nav>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { Link } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { ArrowDown, User, Crown, SwitchButton } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/userStore'
+
+const router = useRouter()
+const userStore = useUserStore()
+
+const handleCommand = async (command: string) => {
+  switch (command) {
+    case 'user-center':
+      router.push('/user-center')
+      break
+    case 'pricing':
+      router.push('/pricing')
+      break
+    case 'logout':
+      try {
+        await userStore.logout()
+        ElMessage.success('已退出登录')
+        router.push('/')
+      } catch (error: any) {
+        ElMessage.error(error.message || '退出失败')
+      }
+      break
+  }
+}
 </script>
 
 <style scoped>
@@ -75,6 +135,26 @@ import { Link } from '@element-plus/icons-vue'
 
 .nav-link:hover {
   color: #409EFF;
+}
+
+.user-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.user-dropdown:hover {
+  background-color: #f5f7fa;
+}
+
+.user-name {
+  font-size: 0.9375rem;
+  color: #1f2937;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {

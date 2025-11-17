@@ -485,7 +485,7 @@ const handleRetry = async () => {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: #f5f7fa;
+  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
 }
 
 .analysis-container {

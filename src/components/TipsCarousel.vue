@@ -66,7 +66,7 @@ onUnmounted(() => {
 function startAutoPlay() {
   autoPlayTimer = window.setInterval(() => {
     nextTip()
-  }, 5000) // 每5秒切换
+  }, 8000) // 每8秒切换，停留更久
 }
 
 function stopAutoPlay() {

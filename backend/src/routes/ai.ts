@@ -62,6 +62,57 @@ aiRouter.post('/generate', async (req: Request, res: Response) => {
   }
 })
 
+// 统一入口（兼容 Vercel serverless 格式）
+aiRouter.post('/', async (req: Request, res: Response) => {
+  try {
+    const { type, data } = req.body
+
+    if (!type || !data) {
+      return res.status(400).json({
+        error: 'Invalid request format',
+        message: 'type and data are required'
+      })
+    }
+
+    if (type === 'analyze') {
+      const { prompt, image } = data
+      if (!prompt || !image) {
+        return res.status(400).json({
+          error: 'Missing required fields',
+          message: 'prompt and image are required'
+        })
+      }
+
+      console.log('📸 Analyzing image...')
+      const result = await getAIService().analyzeImage(prompt, image)
+      return res.json(result)
+    } else if (type === 'generate') {
+      const { systemPrompt, userPrompt } = data
+      if (!systemPrompt || !userPrompt) {
+        return res.status(400).json({
+          error: 'Missing required fields',
+          message: 'systemPrompt and userPrompt are required'
+        })
+      }
+
+      console.log('✍️ Generating content...')
+      const result = await getAIService().generateContent(systemPrompt, userPrompt)
+      return res.json(result)
+    } else {
+      return res.status(400).json({
+        error: 'Invalid request type',
+        message: 'type must be "analyze" or "generate"'
+      })
+    }
+  } catch (error) {
+    console.error('❌ API error:', error)
+    res.status(500).json({
+      error: 'Request failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
 // 测试接口
 aiRouter.get('/test', (req: Request, res: Response) => {
   res.json({

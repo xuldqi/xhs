@@ -158,6 +158,7 @@ import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled
 import { SECTION_TITLES } from '@/types'
 import type { GuideContent } from '@/types'
 import TipsCarousel from '@/components/TipsCarousel.vue'
+import { formatContent, stripHtmlTags } from '@/utils/contentFormatter'
 
 const router = useRouter()
 
@@ -282,91 +283,7 @@ const generateMockContent = (id: number, title: string, accountData: any): strin
   `
 }
 
-// 格式化内容
-const formatContent = (content: string): string => {
-  if (!content) {
-    return '<p style="color: #999;">内容为空</p>'
-  }
-  
-  let formatted = content
-  
-  // 1. 处理【】括号内容 - 加粗显示
-  formatted = formatted.replace(/【(.+?)】/g, '<strong style="color: #333; font-weight: 700; background: #f0f9ff; padding: 2px 8px; border-radius: 4px;">【$1】</strong>')
-  
-  // 2. 处理 Markdown 标题
-  formatted = formatted.replace(/^#### (.+)$/gm, '<h4 style="margin: 1rem 0 0.5rem; font-size: 1.1rem; color: #666; font-weight: 600;">$1</h4>')
-  formatted = formatted.replace(/^### (.+)$/gm, '<h3 style="margin: 1.5rem 0 1rem; font-size: 1.2rem; color: #333; font-weight: 700;">$1</h3>')
-  formatted = formatted.replace(/^## (.+)$/gm, '<h2 style="margin: 2rem 0 1rem; font-size: 1.4rem; color: #409EFF; font-weight: 700;">$1</h2>')
-  
-  // 3. 处理表格（检测表格模式的数据）
-  // 匹配类似 "| 列1 | 列2 | 列3 |" 的行
-  const tableRegex = /^\|(.+)\|$/gm
-  if (tableRegex.test(formatted)) {
-    formatted = formatted.replace(/(\|.+\|\n)+/g, (match) => {
-      const rows = match.trim().split('\n')
-      if (rows.length < 2) return match
-      
-      let tableHtml = '<table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; border: 1px solid #e4e7ed;">'
-      
-      rows.forEach((row, index) => {
-        const cells = row.split('|').filter(cell => cell.trim()).map(cell => cell.trim())
-        if (cells.length === 0) return
-        
-        // 跳过分隔行（如 |---|---|）
-        if (cells[0].match(/^-+$/)) return
-        
-        const tag = index === 0 ? 'th' : 'td'
-        const style = index === 0 
-          ? 'padding: 12px; border: 1px solid #e4e7ed; background: #f5f7fa; font-weight: 600; text-align: left;'
-          : 'padding: 12px; border: 1px solid #e4e7ed; text-align: left;'
-        
-        tableHtml += '<tr>'
-        cells.forEach(cell => {
-          tableHtml += `<${tag} style="${style}">${cell}</${tag}>`
-        })
-        tableHtml += '</tr>'
-      })
-      
-      tableHtml += '</table>'
-      return tableHtml
-    })
-  }
-  
-  // 4. 处理加粗 **text**
-  formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong style="color: #409EFF; font-weight: 600;">$1</strong>')
-  
-  // 5. 处理列表 - 保持原生 ul/li 格式
-  formatted = formatted.replace(/^[•\-] (.+)$/gm, '<li>$1</li>')
-  formatted = formatted.replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>')
-  
-  // 6. 包装连续的 li 为 ul
-  formatted = formatted.replace(/(<li>.*?<\/li>\s*)+/gs, (match) => {
-    return '<ul>' + match + '</ul>'
-  })
-  
-  // 6.5. 处理时间格式 - 将连续的时间段用换行分隔
-  // 匹配类似 "7:00-22:00 7:00-9:00" 或 "18:00-22:00 18:00-19:00" 的格式
-  formatted = formatted.replace(/(\d{1,2}:\d{2}-\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}-\d{1,2}:\d{2})/g, '$1<br/>$2')
-  
-  // 7. 处理段落
-  const lines = formatted.split('\n')
-  const result: string[] = []
-  
-  for (let line of lines) {
-    line = line.trim()
-    if (!line) continue
-    
-    // 如果已经是 HTML 标签，直接添加
-    if (line.startsWith('<')) {
-      result.push(line)
-    } else {
-      // 普通文本转为段落
-      result.push(`<p style="margin: 1rem 0; line-height: 1.8;">${line}</p>`)
-    }
-  }
-  
-  return result.join('\n')
-}
+// 使用导入的 formatContent 函数
 
 // 格式化日期
 const formatDate = (date: Date): string => {
@@ -433,13 +350,7 @@ const handleExport = async () => {
       pdf.setFontSize(10)
       pdf.setFont(undefined, 'normal')
       
-      const cleanContent = section.content
-        .replace(/<[^>]*>/g, '')  // 移除 HTML 标签
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&amp;/g, '&')
-        .trim()
+      const cleanContent = stripHtmlTags(section.content)
       
       // 分段处理
       const paragraphs = cleanContent.split('\n').filter(p => p.trim())
@@ -489,12 +400,12 @@ const handleExportHTML = () => {
   <title>${guideContent.value.metadata.accountName} 的涨粉实操指南</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; line-height: 1.8; }
-    h1 { color: #333; border-bottom: 3px solid #409EFF; padding-bottom: 10px; }
-    h2 { color: #409EFF; margin-top: 2rem; padding-left: 1rem; border-left: 4px solid #409EFF; }
-    h3 { color: #666; margin-top: 1.5rem; }
+    h1 { color: #333; border-bottom: 3px solid #333; padding-bottom: 10px; }
+    h2 { color: #333; margin-top: 2rem; padding-left: 1rem; border-left: 4px solid #333; font-weight: 600; }
+    h3 { color: #333; margin-top: 1.5rem; font-weight: 600; }
     ul { padding-left: 2rem; }
     li { margin: 0.5rem 0; }
-    strong { color: #409EFF; }
+    strong { color: #e74c3c; }
     .meta { color: #999; margin-bottom: 2rem; }
     @media print { body { margin: 0; } }
   </style>
@@ -594,7 +505,7 @@ const goBack = () => {
 
 .current-section {
   font-size: 1.2rem;
-  color: #409EFF;
+  color: #333;
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
@@ -720,8 +631,8 @@ const goBack = () => {
 
 .section-badge {
   padding: 4px 12px;
-  background: #f0f9ff;
-  color: #409EFF;
+  background: #f5f5f5;
+  color: #666;
   border-radius: 12px;
   font-size: 0.85rem;
 }
@@ -737,17 +648,19 @@ const goBack = () => {
 }
 
 .section-content :deep(h3) {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: #333;
   margin: 1.5rem 0 1rem;
   text-align: left !important;
+  font-weight: 600;
 }
 
 .section-content :deep(h2) {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   color: #333;
   margin: 2rem 0 1rem;
   text-align: left !important;
+  font-weight: 600;
 }
 
 .section-content :deep(p) {
@@ -774,13 +687,64 @@ const goBack = () => {
   color: #909399;
 }
 
+/* 内容块卡片样式 - 简洁扁平化设计 */
+.section-content :deep(.content-block) {
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 16px 0;
+  border-left: 4px solid #d9d9d9;
+}
+
+.section-content :deep(.block-header) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.section-content :deep(.block-icon) {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.section-content :deep(.block-title) {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.section-content :deep(.block-content) {
+  color: #666;
+  line-height: 1.8;
+}
+
+/* 不同类型的块样式 - 只用左边框和背景色区分 */
+.section-content :deep(.success-block) {
+  background: #f6ffed;
+  border-left-color: #52c41a;
+}
+
+.section-content :deep(.warning-block) {
+  background: #fffbe6;
+  border-left-color: #faad14;
+}
+
+.section-content :deep(.info-block) {
+  background: #e6f7ff;
+  border-left-color: #1890ff;
+}
+
+.section-content :deep(.default-block) {
+  background: #fafafa;
+  border-left-color: #d9d9d9;
+}
+
 /* 列表样式优化 */
 .section-content :deep(ul) {
-  background: #f8f9fa;
-  border-left: 4px solid #409EFF;
-  border-radius: 8px;
-  padding: 20px 24px 20px 48px;
-  margin: 16px 0;
+  padding-left: 24px;
+  margin: 12px 0;
   list-style-type: disc;
 }
 
@@ -790,29 +754,78 @@ const goBack = () => {
   margin: 8px 0;
 }
 
-.section-content :deep(.markdown-table) {
+.section-content :deep(.block-content ul) {
+  padding-left: 24px;
+  margin: 8px 0;
+}
+
+.section-content :deep(.block-content li) {
+  color: #666;
+  line-height: 1.8;
+  margin: 6px 0;
+}
+
+.section-content :deep(.block-content p) {
+  margin: 8px 0;
+  line-height: 1.8;
+}
+
+/* 表格样式 - 简洁设计 */
+.section-content :deep(.content-table) {
   width: 100%;
   border-collapse: collapse;
   margin: 1.5rem 0;
   background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.section-content :deep(.markdown-table th),
-.section-content :deep(.markdown-table td) {
+.section-content :deep(.content-table th),
+.section-content :deep(.content-table td) {
   padding: 12px 16px;
   text-align: left;
   border: 1px solid #e4e7ed;
 }
 
-.section-content :deep(.markdown-table th) {
-  background: #f5f7fa;
+.section-content :deep(.content-table th) {
+  background: #fafafa;
   font-weight: 600;
   color: #333;
 }
 
-.section-content :deep(.markdown-table tr:hover) {
+.section-content :deep(.content-table tr:hover) {
   background: #f5f7fa;
+}
+
+/* 标签样式 - 多彩设计 */
+.section-content :deep(.tag-badge) {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #fff3e0;
+  color: #f57c00;
+  border-radius: 3px;
+  font-size: 0.9em;
+  margin: 0 4px;
+  font-weight: 500;
+}
+
+.section-content :deep(.time-badge) {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 3px;
+  font-size: 0.95em;
+  margin: 4px;
+  font-weight: 500;
+}
+
+.section-content :deep(.text-highlight) {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.section-content :deep(.content-paragraph) {
+  margin: 1rem 0;
+  line-height: 1.8;
 }
 
 /* 错误样式 */
