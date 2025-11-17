@@ -14,13 +14,16 @@ export class AIService {
     // 第三方中转 API 地址
     this.geminiBaseUrl = process.env.GEMINI_BASE_URL || 'https://www.packyapi.com'
     // 第三方中转 API 密钥
-    this.geminiProxyApiKey = process.env.GEMINI_PROXY_API_KEY || this.geminiApiKey
+    this.geminiProxyApiKey = process.env.GEMINI_PROXY_API_KEY || ''
 
     if (!this.deepseekApiKey) {
       console.warn('⚠️ Warning: DEEPSEEK_API_KEY is not configured')
     }
     if (!this.geminiApiKey) {
       console.warn('⚠️ Warning: GEMINI_API_KEY is not configured')
+    }
+    if (!this.geminiProxyApiKey) {
+      console.warn('⚠️ Warning: GEMINI_PROXY_API_KEY is not configured')
     }
   }
 
@@ -36,17 +39,22 @@ export class AIService {
       console.log('✅ 原生 Gemini API 调用成功');
       return result;
     } catch (error: any) {
-      console.warn('⚠️ 原生 Gemini API 调用失败:', error.message);
-      console.log('🔄 尝试使用第三方中转 API...');
+      // 检查是否是503错误（服务过载）
+      if (error.message.includes('503') || error.message.includes('overloaded') || error.message.includes('UNAVAILABLE')) {
+        console.log('⚠️ 原生 Gemini API 服务过载，立即尝试第三方中转 API...');
+      } else {
+        console.warn('⚠️ 原生 Gemini API 调用失败:', error.message);
+      }
       
-      // 如果原生 API 失败，尝试第三方中转 API
+      // 尝试第三方中转 API
       try {
         const result = await this.analyzeImageWithProxyAPI(prompt, imageBase64);
         console.log('✅ 第三方中转 API 调用成功');
         return result;
       } catch (proxyError: any) {
         console.error('❌ 第三方中转 API 调用也失败:', proxyError.message);
-        throw proxyError;
+        // 当两个API都失败时，抛出更友好的错误信息
+        throw new Error('AI服务暂时不可用，请稍后重试');
       }
     }
   }

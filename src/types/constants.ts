@@ -14,7 +14,8 @@ export const ERROR_MESSAGES = {
   GENERATION_FAILED: '指南生成失败，请重试',
   EXPORT_FAILED: 'PDF导出失败，请重试',
   NETWORK_ERROR: '网络连接失败，请检查网络',
-  PROCESSING_TIMEOUT: '处理时间较长，请稍候'
+  PROCESSING_TIMEOUT: '处理时间较长，请稍候',
+  AI_SERVICE_ERROR: 'AI服务错误，请稍后重试'
 } as const
 
 // 性能配置
@@ -23,7 +24,8 @@ export const PERFORMANCE_CONFIG = {
   ANALYSIS_TIMEOUT: 10000,     // 10秒
   GENERATION_TIMEOUT: 30000,   // 30秒
   RETRY_MAX_ATTEMPTS: 3,       // 最多重试3次
-  RETRY_DELAY: 1000           // 重试延迟1秒
+  RETRY_DELAY: 1000,          // 重试延迟1秒
+  API_RETRY_MAX_ATTEMPTS: 2    // API调用最多重试2次（原生+代理）
 } as const
 
 // 指南章节标题

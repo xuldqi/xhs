@@ -5,6 +5,8 @@ import type {
   AccountData 
 } from '@/types'
 import { API_CONFIG, PERFORMANCE_CONFIG, ERROR_MESSAGES } from '@/types'
+import { ApiRetryHandler, ApiResult } from '@/utils/apiRetryHandler'
+import { GEMINI_MODELS, DEEPSEEK_MODELS } from '@/types/modelConstants'
 
 class AIService {
   private useProxy: boolean
@@ -36,10 +38,11 @@ class AIService {
    * 分析图片，提取账号信息
    */
   async analyzeImage(request: AIAnalysisRequest): Promise<AIResponse<AccountData>> {
-    return this.retryRequest(async () => {
-      try {
-        // 使用代理模式
-        if (this.useProxy) {
+    // 使用代理模式
+    if (this.useProxy) {
+      // 通过后端代理调用，使用现有的重试机制
+      return this.retryRequest(async () => {
+        try {
           const response = await fetch(`${this.proxyUrl}/analyze`, {
             method: 'POST',
             headers: {
@@ -73,13 +76,54 @@ class AIService {
             data: accountData,
             tokensUsed: data.usage?.total_tokens || 0
           }
+        } catch (error) {
+          return {
+            success: false,
+            data: {} as AccountData,
+            error: error instanceof Error ? error.message : ERROR_MESSAGES.ANALYSIS_FAILED,
+            tokensUsed: 0
+          }
         }
-        
-        // 直接调用模式（开发环境）
-        if (this.provider === 'gemini') {
-          return await this.analyzeImageGemini(request)
+      })
+    }
+    
+    // 直接调用模式（开发环境）
+    // 使用新的API重试处理器处理原生API和代理API之间的切换
+    if (this.provider === 'gemini') {
+      // 对于Gemini，我们需要实现原生API和代理API的切换
+      const nativeCall = async (): Promise<ApiResult<AccountData>> => {
+        try {
+          const result = await this.analyzeImageGemini(request);
+          if (result.success) {
+            return { success: true, data: result.data };
+          } else {
+            return { success: false, error: result.error };
+          }
+        } catch (error) {
+          return { success: false, error: error instanceof Error ? error.message : '未知错误' };
         }
-        
+      };
+      
+      // 创建代理API调用函数（如果需要的话）
+      const proxyCall = async (): Promise<ApiResult<AccountData>> => {
+        // 这里可以实现通过代理API调用的逻辑
+        // 暂时返回失败，因为直接调用模式下没有代理API
+        return { success: false, error: '直接调用模式下不支持代理API' };
+      };
+      
+      const apiResult = await ApiRetryHandler.executeWithFallback(nativeCall, proxyCall);
+      
+      return {
+        success: apiResult.success,
+        data: apiResult.data || {} as AccountData,
+        error: apiResult.error,
+        tokensUsed: 0
+      };
+    }
+    
+    // 对于其他提供商，使用现有的重试机制
+    return this.retryRequest(async () => {
+      try {
         const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
           method: 'POST',
           headers: {
@@ -137,7 +181,7 @@ class AIService {
           tokensUsed: 0
         }
       }
-    })
+    });
   }
   
   /**
@@ -340,28 +384,39 @@ class AIService {
    * Gemini 图像分析
    */
   private async analyzeImageGemini(request: AIAnalysisRequest): Promise<AIResponse<AccountData>> {
-    const response = await fetch(
-      `${this.baseUrl}/v1beta/models/gemini-pro-vision:generateContent?key=${this.apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: request.prompt },
-              {
-                inline_data: {
-                  mime_type: 'image/jpeg',
-                  data: request.image
-                }
+    // 如果是直接调用Gemini API，使用URL参数传递API Key
+    // 如果是通过代理调用，使用Authorization头部
+    const isDirectGeminiCall = this.baseUrl.includes('generativelanguage.googleapis.com');
+    const url = isDirectGeminiCall 
+      ? `${this.baseUrl}/v1beta/models/${GEMINI_MODELS.FLASH_VISION}:generateContent?key=${this.apiKey}`
+      : `${this.baseUrl}/v1beta/models/${GEMINI_MODELS.FLASH_VISION}:generateContent`;
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    // 只有在通过代理调用时才使用Authorization头部
+    if (!isDirectGeminiCall) {
+      headers['Authorization'] = `Bearer ${this.apiKey}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: request.prompt },
+            {
+              inline_data: {
+                mime_type: 'image/jpeg',
+                data: request.image
               }
-            ]
-          }]
-        })
-      }
-    )
+            }
+          ]
+        }]
+      })
+    })
     
     if (!response.ok) {
       throw new Error(`Gemini API 请求失败: ${response.statusText}`)
@@ -389,24 +444,35 @@ class AIService {
   private async generateContentGemini(request: AIGenerationRequest): Promise<AIResponse<string>> {
     const prompt = '你是一位小红书运营专家，精通平台算法和用户心理。\n\n' + this.buildPrompt(request)
     
-    const response = await fetch(
-      `${this.baseUrl}/v1beta/models/gemini-pro:generateContent?key=${this.apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: prompt }]
-          }],
-          generationConfig: {
-            temperature: API_CONFIG.TEMPERATURE,
-            maxOutputTokens: API_CONFIG.MAX_TOKENS
-          }
-        })
-      }
-    )
+    // 如果是直接调用Gemini API，使用URL参数传递API Key
+    // 如果是通过代理调用，使用Authorization头部
+    const isDirectGeminiCall = this.baseUrl.includes('generativelanguage.googleapis.com');
+    const url = isDirectGeminiCall 
+      ? `${this.baseUrl}/v1beta/models/${GEMINI_MODELS.FLASH_TEXT}:generateContent?key=${this.apiKey}`
+      : `${this.baseUrl}/v1beta/models/${GEMINI_MODELS.FLASH_TEXT}:generateContent`;
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    // 只有在通过代理调用时才使用Authorization头部
+    if (!isDirectGeminiCall) {
+      headers['Authorization'] = `Bearer ${this.apiKey}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          temperature: API_CONFIG.TEMPERATURE,
+          maxOutputTokens: API_CONFIG.MAX_TOKENS
+        }
+      })
+    })
     
     if (!response.ok) {
       throw new Error(`Gemini API 请求失败: ${response.statusText}`)
@@ -431,9 +497,9 @@ class AIService {
    */
   private getVisionModel(): string {
     if (this.provider === 'deepseek') {
-      return 'deepseek-chat'
+      return DEEPSEEK_MODELS.VISION
     } else if (this.provider === 'gemini') {
-      return 'gemini-pro-vision'
+      return GEMINI_MODELS.FLASH_VISION
     }
     return API_CONFIG.OPENAI_MODEL
   }
@@ -443,9 +509,9 @@ class AIService {
    */
   private getTextModel(): string {
     if (this.provider === 'deepseek') {
-      return 'deepseek-chat'
+      return DEEPSEEK_MODELS.CHAT
     } else if (this.provider === 'gemini') {
-      return 'gemini-pro'
+      return GEMINI_MODELS.FLASH_TEXT
     }
     return API_CONFIG.OPENAI_TEXT_MODEL
   }
