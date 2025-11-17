@@ -50,9 +50,6 @@
           </div>
         </div>
         
-        <!-- 运营技巧轮播 -->
-        <TipsCarousel />
-        
         <!-- 已完成的章节列表 -->
         <div v-if="currentSection > 0" class="completed-sections">
           <h4>已生成章节</h4>
@@ -68,6 +65,9 @@
           </div>
         </div>
       </div>
+      
+      <!-- 运营技巧轮播 - 放在大框外面 -->
+      <TipsCarousel v-if="isGenerating" />
       
       <!-- 生成完成 -->
       <div v-else-if="guideContent" class="content-section">
