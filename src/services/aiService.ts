@@ -43,14 +43,17 @@ class AIService {
       // 通过后端代理调用，使用现有的重试机制
       return this.retryRequest(async () => {
         try {
-          const response = await fetch(`${this.proxyUrl}/analyze`, {
+          const response = await fetch(this.proxyUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              prompt: request.prompt,
-              image: request.image
+              type: 'analyze',
+              data: {
+                prompt: request.prompt,
+                image: request.image
+              }
             })
           })
           
@@ -198,14 +201,17 @@ class AIService {
         
         // 使用代理模式
         if (this.useProxy) {
-          const response = await fetch(`${this.proxyUrl}/generate`, {
+          const response = await fetch(this.proxyUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              systemPrompt,
-              userPrompt
+              type: 'generate',
+              data: {
+                systemPrompt,
+                userPrompt
+              }
             })
           })
           
