@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>卡片布局演示 - 小红书涨粉指南</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f7fa;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #409EFF;
+    }
+    
+    .section-subtitle {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #666;
+      margin: 24px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* 内容块 */
+    .content-block {
+      background: #f8f9fa;
+      border-left: 4px solid #409EFF;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    
+    .content-block.success-block {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+      border-left-color: #52c41a;
+    }
+    
+    .content-block.warning-block {
+      background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+      border-left-color: #faad14;
+    }
+    
+    .block-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    
+    .content-block p {
+      color: #666;
+      line-height: 1.8;
+      margin: 8px 0;
+    }
+    
+    .content-block ul {
+      margin: 8px 0;
+      padding-left: 24px;
+    }
+    
+    .content-block li {
+      color: #666;
+      line-height: 1.8;
+      margin: 8px 0;
+    }
+    
+    /* 步骤列表 */
+    .step-list {
+      margin: 16px 0;
+    }
+    
+    .step-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 12px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    
+    .step-number {
+      width: 32px;
+      height: 32px;
+      background: #409EFF;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    .step-content {
+      flex: 1;
+      color: #666;
+      line-height: 1.8;
+    }
+    
+    /* 大卡片容器 */
+    .info-card {
+      background: linear-gradient(135deg, #fff5f5 0%, #fff9f9 100%);
+      border: 1px solid #ffe0e0;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+    
+    .info-card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ff2442;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .info-card p {
+      color: #666;
+      margin: 8px 0;
+      line-height: 1.8;
+    }
+    
+    .info-card ul {
+      margin: 12px 0;
+      padding-left: 24px;
+    }
+    
+    .info-card li {
+      margin: 6px 0;
+      color: #666;
+    }
+    
+    .highlight {
+      background: #fff3cd;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border-left: 4px solid #ffc107;
+      margin: 16px 0;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 40px; color: #333;">小红书涨粉指南 - 卡片布局演示</h1>
+    
+    <!-- 第1章：账号诊断 -->
+    <div class="section">
+      <div class="section-title">1. 账号诊断</div>
+      
+      <div class="content-block">
+        <div class="block-title">📊 当前状态分析</div>
+        <p>粉丝数较少，处于起号阶段。已发布5篇笔记，有一定内容基础。内容定位在美妆领域，但平均互动率偏低，需要优化内容质量和发布策略。</p>
+      </div>
+      
+      <div class="content-block success-block">
+        <div class="block-title">✅ 优势分析</div>
+        <ul>
+          <li>内容定位清晰，专注美妆领域，有利于建立专业形象</li>
+          <li>已有内容积累，可以通过优化迭代提升质量</li>
+          <li>起号阶段，增长空间大，容易获得平台扶持</li>
+        </ul>
+      </div>
+      
+      <div class="content-block warning-block">
+        <div class="block-title">⚠️ 需要改进</div>
+        <ul>
+          <li>粉丝基数较低，需要采用冷启动策略快速积累初始粉丝</li>
+          <li>内容曝光度不足，要优化标题、封面和发布时间</li>
+          <li>互动率需要提升，加强评论区运营和粉丝互动</li>
+          <li>发布频率不够稳定，建议每周至少3-5篇保持活跃</li>
+        </ul>
+      </div>
+      
+      <div class="info-card">
+        <div class="info-card-title">🎯 涨粉预期</div>
+        <p><strong>难度等级：</strong>中等</p>
+        <p><strong>预计时间：</strong>4-6周</p>
+        <p>通过系统化运营和优质内容输出，预计可在1-2个月内达到1000粉丝目标。</p>
+      </div>
+    </div>
+    
+    <!-- 第2章：起号三天计划 -->
+    <div class="section">
+      <div class="section-title">2. 起号三天计划</div>
+      
+      <div class="content-block">
+        <div class="block-title">📅 Day 1：对标研究与选题</div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">搜索关键词：美妆教程、新手化妆、日常妆容等，找到目标用户聚集的话题</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">筛选3-5个对标账号（500-3000粉），重点关注近期有爆款笔记的账号</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">分析爆款笔记的标题、封面、内容结构，找出共同点和可复制的模式</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">4</div>
+            <div class="step-content">确定3个选题方向，结合自己的特点做差异化</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">5</div>
+            <div class="step-content">制作第一篇笔记（70%参考爆款结构 + 30%个人观点）</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">6</div>
+            <div class="step-content">19:00-20:00 发布笔记，立即投放5元薯条（智能推荐），监控前1小时数据</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="content-block">
+        <div class="block-title">📅 Day 2：持续输出</div>
+        <p>重复 Day 1 的流程，发布第二篇笔记。重点关注第一篇笔记的数据反馈，根据用户评论和互动情况调整第二篇的内容方向。</p>
+      </div>
+      
+      <div class="content-block">
+        <div class="block-title">📅 Day 3：数据复盘</div>
+        <p>分析3天的数据表现，包括曝光量、点击率、互动率等指标。找出表现好的内容类型，优化后续的内容方向和发布策略。</p>
+      </div>
+      
+      <div class="highlight">
+        ✨ 验证标准：3天总曝光 > 3000
+      </div>
+    </div>
+    
+    <!-- 第12章：立即行动清单 -->
+    <div class="section">
+      <div class="section-title">12. 立即行动清单</div>
+      
+      <div class="content-block">
+        <div class="block-title">🌙 今晚必做（睡前完成）</div>
+        <ul>
+          <li>查看今日情绪日记，记录3件感恩小事（5分钟）</li>
+          <li>阅读5篇心理学书籍，用荧光笔标重点（10分钟）</li>
+          <li>整理明日待办清单，按优先级排序（5分钟）</li>
+          <li>完成10分钟冥想练习，专注呼吸（10分钟）</li>
+          <li>清理手机相册，删除20张无用照片（5分钟）</li>
+        </ul>
+      </div>
+      
+      <div class="content-block">
+        <div class="block-title">☀️ 明天要完成</div>
+        <ul>
+          <li>早晨起床后查看15分钟晨间笔记（15分钟）</li>
+          <li>选取一篇12秒心理知识短视频（30分钟）</li>
+          <li>阅读并回复所有粉丝评论（20分钟）</li>
+          <li>收集3个热门话题，建立选题库（25分钟）</li>
+        </ul>
+      </div>
+      
+      <div class="content-block">
+        <div class="block-title">🎯 本周关键里程碑</div>
+        <ul>
+          <li>发布4篇高质量笔记，单篇曝光≥50</li>
+          <li>新增15个粉丝关注</li>
+          <li>完成一篇800字个人成长复盘</li>
+        </ul>
+      </div>
+      
+      <div class="info-card">
+        <div class="info-card-title">💡 为什么要这样设计？</div>
+        <p>因为<strong>知道 ≠ 做到</strong>。很多人看完指南后会想"内容很好，但不知道从哪开始"，然后就放弃了。</p>
+        <p>这个清单帮你：</p>
+        <ul>
+          <li><strong>降低行动门槛</strong> - 每个任务5-15分钟就能完成，今晚睡前就能开始</li>
+          <li><strong>建立行动惯性</strong> - 完成第一步最难，但一旦开始就容易继续</li>
+          <li><strong>获得即时反馈</strong> - 每完成一个任务就能打勾，看到进度前进</li>
+        </ul>
+        <div class="highlight">
+          💪 记住：持续的小行动 > 完美的大计划。先做起来，边做边优化！
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

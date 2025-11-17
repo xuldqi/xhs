@@ -338,13 +338,13 @@ const formatContent = (content: string): string => {
   // 4. 处理加粗 **text**
   formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong style="color: #409EFF; font-weight: 600;">$1</strong>')
   
-  // 5. 处理列表 - 改为卡片式布局
-  formatted = formatted.replace(/^[•\-] (.+)$/gm, '<div class="card-item">$1</div>')
-  formatted = formatted.replace(/^(\d+)\. (.+)$/gm, '<div class="card-item"><span class="card-number">$1</span>$2</div>')
+  // 5. 处理列表 - 保持原生 ul/li 格式
+  formatted = formatted.replace(/^[•\-] (.+)$/gm, '<li>$1</li>')
+  formatted = formatted.replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>')
   
-  // 6. 包装连续的卡片为网格容器
-  formatted = formatted.replace(/(<div class="card-item">.*?<\/div>\s*)+/gs, (match) => {
-    return '<div class="card-grid">' + match + '</div>'
+  // 6. 包装连续的 li 为 ul
+  formatted = formatted.replace(/(<li>.*?<\/li>\s*)+/gs, (match) => {
+    return '<ul>' + match + '</ul>'
   })
   
   // 6.5. 处理时间格式 - 将连续的时间段用换行分隔
@@ -751,69 +751,20 @@ const goBack = () => {
   color: #909399;
 }
 
-/* 卡片网格布局 */
-.section-content :deep(.card-grid) {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  margin: 1.5rem 0;
+/* 列表样式优化 */
+.section-content :deep(ul) {
+  background: #f8f9fa;
+  border-left: 4px solid #409EFF;
+  border-radius: 8px;
+  padding: 20px 24px 20px 48px;
+  margin: 16px 0;
+  list-style-type: disc;
 }
 
-.section-content :deep(.card-item) {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  border: 1px solid #e4e7ed;
-  border-radius: 12px;
-  padding: 20px;
-  line-height: 1.6;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  position: relative;
-  min-height: 100px;
-  display: flex;
-  align-items: center;
-}
-
-.section-content :deep(.card-item:hover) {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(64, 158, 255, 0.15);
-  border-color: #409EFF;
-}
-
-.section-content :deep(.card-item::before) {
-  content: '✓';
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 24px;
-  height: 24px;
-  background: #409EFF;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.section-content :deep(.card-item) {
-  padding-left: 50px;
-}
-
-.section-content :deep(.card-number) {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 28px;
-  height: 28px;
-  background: #409EFF;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: bold;
+.section-content :deep(li) {
+  color: #666;
+  line-height: 1.8;
+  margin: 8px 0;
 }
 
 .section-content :deep(.markdown-table) {
