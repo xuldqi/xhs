@@ -24,12 +24,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('🔍 尝试使用原生 Gemini API 分析图片...')
         
         // 使用原生 Gemini API
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
         
         const geminiResponse = await fetch(geminiUrl, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${geminiApiKey}`
           },
           body: JSON.stringify({
             contents: [{
