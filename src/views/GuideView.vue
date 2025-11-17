@@ -50,6 +50,9 @@
           </div>
         </div>
         
+        <!-- 运营技巧轮播 -->
+        <TipsCarousel />
+        
         <!-- 已完成的章节列表 -->
         <div v-if="currentSection > 0" class="completed-sections">
           <h4>已生成章节</h4>
@@ -157,6 +160,7 @@ import { useRouter } from 'vue-router'
 import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled } from '@element-plus/icons-vue'
 import { SECTION_TITLES } from '@/types'
 import type { GuideContent } from '@/types'
+import TipsCarousel from '@/components/TipsCarousel.vue'
 
 const router = useRouter()
 
