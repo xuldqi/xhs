@@ -22,7 +22,7 @@
         <div class="footer-section">
           <h3 class="footer-title">法律信息</h3>
           <ul class="footer-links">
-            <li><a href="#" @click.prevent="$emit('show-privacy')">隐私政策</a></li>
+            <li><router-link to="/privacy">隐私政策</router-link></li>
             <li><a href="#terms">使用条款</a></li>
             <li><a href="#disclaimer">免责声明</a></li>
           </ul>
@@ -61,8 +61,6 @@ import { computed } from 'vue'
 import { Lock, CircleCheck } from '@element-plus/icons-vue'
 
 const currentYear = computed(() => new Date().getFullYear())
-
-defineEmits(['show-privacy'])
 </script>
 
 <style scoped>

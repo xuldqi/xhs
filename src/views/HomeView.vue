@@ -229,52 +229,21 @@
         </div>
       </div>
       
-      <!-- SEO 内容区域（对用户隐藏，对搜索引擎可见） -->
-      <div class="seo-content">
-        <h2>关于小红书涨粉助手</h2>
-        <p>
-          小红书涨粉助手是一款基于人工智能技术的免费小红书运营工具，专为小红书博主和内容创作者设计。
-          通过上传小红书主页截图，AI 会自动分析您的账号数据，包括粉丝数、笔记数、内容类别等关键指标，
-          并生成一份完整的 12 章节涨粉实操指南。
-        </p>
-        <p>
-          我们的工具特别适合 0-1000 粉丝阶段的新手博主，帮助您快速度过冷启动期，实现粉丝增长。
-          无论您是美妆博主、穿搭达人、美食分享者、旅行记录者还是知识分享者，都能获得针对性的运营建议。
-        </p>
-        <h3>小红书涨粉的核心要素</h3>
-        <p>
-          成功的小红书涨粉需要关注以下几个方面：账号定位清晰、内容质量优秀、发布时间精准、
-          封面设计吸引人、标题具有吸引力、标签使用恰当、互动及时有效、数据分析到位。
-          我们的 AI 工具会根据您的账号现状，在这些方面给出具体的优化建议。
-        </p>
-        <h3>为什么选择我们的小红书涨粉工具</h3>
-        <ul>
-          <li>完全免费：无需付费，无需注册，上传即用</li>
-          <li>AI 驱动：使用最新的人工智能技术进行分析</li>
-          <li>内容全面：12 个章节覆盖涨粉全流程</li>
-          <li>实操性强：提供具体可执行的行动清单</li>
-          <li>数据安全：不存储任何用户数据，保护隐私</li>
-          <li>持续更新：根据小红书平台规则及时更新策略</li>
-        </ul>
-      </div>
+
     </div>
     
-    <AppFooter @show-privacy="showPrivacy" />
-    
-    <PrivacyModal ref="privacyModalRef" />
+    <AppFooter />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Upload, Lock, CircleCheck, TrendCharts } from '@element-plus/icons-vue'
+import { Upload, Lock, CircleCheck } from '@element-plus/icons-vue'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import PrivacyModal from '@/components/PrivacyModal.vue'
 
 const router = useRouter()
-const privacyModalRef = ref()
 
 // 状态
 const isDragging = ref(false)
@@ -369,11 +338,6 @@ const handleStartAnalysis = async () => {
     store.setUploadedImage(previewUrl.value, currentFile.value)
     router.push('/analysis')
   }
-}
-
-// 显示隐私政策
-const showPrivacy = () => {
-  privacyModalRef.value?.show()
 }
 </script>
 
@@ -714,48 +678,6 @@ const showPrivacy = () => {
   color: #6b7280;
   line-height: 1.6;
   margin: 0;
-}
-
-/* SEO 内容区域 */
-.seo-content {
-  max-width: 700px;
-  margin: 80px auto 40px;
-  padding: 40px;
-  background: #fafafa;
-  border-radius: 12px;
-  line-height: 1.8;
-  color: #374151;
-}
-
-.seo-content h2 {
-  font-size: 1.5rem;
-  color: #1f2937;
-  margin: 0 0 16px 0;
-  font-weight: 600;
-}
-
-.seo-content h3 {
-  font-size: 1.25rem;
-  color: #1f2937;
-  margin: 24px 0 12px 0;
-  font-weight: 600;
-}
-
-.seo-content p {
-  margin: 12px 0;
-  font-size: 0.9375rem;
-  color: #6b7280;
-}
-
-.seo-content ul {
-  margin: 12px 0;
-  padding-left: 24px;
-}
-
-.seo-content li {
-  margin: 8px 0;
-  font-size: 0.9375rem;
-  color: #6b7280;
 }
 
 /* 响应式 */
