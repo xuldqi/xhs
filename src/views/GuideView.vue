@@ -338,14 +338,18 @@ const formatContent = (content: string): string => {
   // 4. 处理加粗 **text**
   formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong style="color: #409EFF; font-weight: 600;">$1</strong>')
   
-  // 5. 处理列表
-  formatted = formatted.replace(/^[•\-] (.+)$/gm, '<li style="margin: 0.5rem 0; line-height: 1.8;">$1</li>')
-  formatted = formatted.replace(/^(\d+)\. (.+)$/gm, '<li style="margin: 0.5rem 0; line-height: 1.8;">$2</li>')
+  // 5. 处理列表 - 改为卡片式布局
+  formatted = formatted.replace(/^[•\-] (.+)$/gm, '<div class="card-item">$1</div>')
+  formatted = formatted.replace(/^(\d+)\. (.+)$/gm, '<div class="card-item"><span class="card-number">$1</span>$2</div>')
   
-  // 6. 包装连续的 li 为 ul
-  formatted = formatted.replace(/(<li[^>]*>.*?<\/li>\s*)+/gs, (match) => {
-    return '<ul style="padding-left: 2rem; margin: 1rem 0; list-style-type: disc;">' + match + '</ul>'
+  // 6. 包装连续的卡片为网格容器
+  formatted = formatted.replace(/(<div class="card-item">.*?<\/div>\s*)+/gs, (match) => {
+    return '<div class="card-grid">' + match + '</div>'
   })
+  
+  // 6.5. 处理时间格式 - 将连续的时间段用换行分隔
+  // 匹配类似 "7:00-22:00 7:00-9:00" 或 "18:00-22:00 18:00-19:00" 的格式
+  formatted = formatted.replace(/(\d{1,2}:\d{2}-\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}-\d{1,2}:\d{2})/g, '$1<br/>$2')
   
   // 7. 处理段落
   const lines = formatted.split('\n')
@@ -747,6 +751,71 @@ const goBack = () => {
   color: #909399;
 }
 
+/* 卡片网格布局 */
+.section-content :deep(.card-grid) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 1.5rem 0;
+}
+
+.section-content :deep(.card-item) {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e4e7ed;
+  border-radius: 12px;
+  padding: 20px;
+  line-height: 1.6;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+}
+
+.section-content :deep(.card-item:hover) {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(64, 158, 255, 0.15);
+  border-color: #409EFF;
+}
+
+.section-content :deep(.card-item::before) {
+  content: '✓';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  background: #409EFF;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.section-content :deep(.card-item) {
+  padding-left: 50px;
+}
+
+.section-content :deep(.card-number) {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 28px;
+  height: 28px;
+  background: #409EFF;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
 .section-content :deep(.markdown-table) {
   width: 100%;
   border-collapse: collapse;
@@ -792,6 +861,16 @@ const goBack = () => {
   
   .action-bar {
     flex-direction: column;
+  }
+  
+  .section-content :deep(.card-grid) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .section-content :deep(.card-item) {
+    padding: 16px 16px 16px 45px;
+    min-height: 80px;
   }
   
   .action-bar .el-button {
