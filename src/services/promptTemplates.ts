@@ -1,6 +1,66 @@
 import type { SectionTemplate } from '@/types'
 
 /**
+ * 统一的格式规范（所有章节必须遵守）
+ */
+const UNIFIED_FORMAT_RULES = `
+【格式铁律 - 违反将导致显示混乱】
+
+1. 卡片标题格式：
+   ✅ 正确：emoji + 空格 + 标题文字
+   ❌ 错误：不要用 ## 或 ### 或 **加粗**
+   
+2. 卡片内容格式（三选一）：
+   
+   方式A - 纯列表：
+   💡 卡片标题
+   - 列表项1
+   - 列表项2
+   - 列表项3
+   
+   方式B - 小标题+列表：
+   💡 卡片标题
+   尺寸：
+   - 3:4竖版
+   - 1080px宽度
+   
+   字体：
+   - 思源黑体
+   - 加粗处理
+   
+   方式C - 小标题+数据：
+   💡 卡片标题
+   第一周：
+   - 每天1篇笔记
+   - 目标50粉
+   
+   第二周：
+   - 每天2篇笔记
+   - 目标150粉
+
+3. 小标题识别规则：
+   ✅ 会被识别为小标题：
+      - 时间标记：第一周、Day 1、早上、中午
+      - 关键词格式：尺寸：、字体：、金额：（冒号后换行）
+      - 百分比格式：70%抄什么、30%改什么
+      - 分组标题：第一层、基础型、核心组
+   
+   ❌ 会被识别为普通列表：
+      - 普通句子：完善个人资料，设置头像
+      - 长文本：超过30字的描述性内容
+
+4. emoji使用规范：
+   ✅ 必须使用真实emoji：✅⚠️💡📊📅🎯🔥💰📝🌙☀️📈📉🎨💪
+   ❌ 禁止Unicode符号：✓◆▲★●■□
+
+5. 禁止事项：
+   ❌ 不要用Markdown标题（## ### ####）
+   ❌ 不要用**加粗**（会破坏格式）
+   ❌ 不要混用格式（一个卡片内统一风格）
+   ❌ 不要嵌套列表（只用一级列表）
+`
+
+/**
  * 图像分析提示词
  */
 export const IMAGE_ANALYSIS_PROMPT = `
@@ -47,13 +107,11 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
 笔记数：{postCount}
 类别：{contentCategory}
 
-输出格式要求（严格遵守）：
-1. 必须使用卡片化格式，每个要点用 emoji 开头（✅⚠️💡📊📅🎯等）
-2. 格式：emoji + 空格 + 标题（不要用**加粗**）
-3. 标题下方必须用列表展开细节（用 "- " 开头）
-4. 避免"建议"、"推荐"等AI味重的词，直接说做法
-5. 不要使用Markdown标题（不要用##或###）
-6. 重要：必须使用真正的 emoji（如✅💡📊），不要使用 Unicode 符号（如✓◆▲）
+${UNIFIED_FORMAT_RULES}
+
+输出要求：
+- 避免"建议"、"推荐"等AI味重的词，直接说做法
+- 语气要像朋友聊天，不要太正式
 
 示例格式：
 ✅ 账号优势
@@ -81,11 +139,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 为账号"{username}"（{contentCategory}类别）制定起号3天计划。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（📅💡🎯📝🎨💰等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
-4. 重要：必须使用真正的 emoji（如📅💡🎯），不要使用 Unicode 符号（如✓◆▲）
+${UNIFIED_FORMAT_RULES}
 
 输出内容（卡片化）：📅 Day 1 - 账号优化
 - 具体步骤1
@@ -130,11 +184,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 为"{contentCategory}"类别账号提供对标账号拆解方法。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（🎯📊💡✅等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
-4. 重要：必须使用真正的 emoji（如🎯📊💡），不要使用 Unicode 符号（如✓◆▲）
+${UNIFIED_FORMAT_RULES}
 
 输出内容（卡片化）：🎯 对标账号特征
 - 粉丝量：当前的10倍左右
@@ -167,12 +217,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 为"{username}"（{contentCategory}类别）制定内容规划（目标1000粉）。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（📅🎯⏰📊🔥💡等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
-4. 不要用**加粗**，直接写文字
-5. 重要：必须使用真正的 emoji（如📅🎯📊），不要使用 Unicode 符号（如✓◆▲）
+${UNIFIED_FORMAT_RULES}
 
 示例格式：
 
@@ -204,10 +249,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 为"{contentCategory}"类别提供爆款笔记公式。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（📝🎨📄💡✅等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
+${UNIFIED_FORMAT_RULES}
 
 示例格式：
 
@@ -245,10 +287,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 提供小红书冷启动的实操技巧。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（⏰💡📊✅🔥等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
+${UNIFIED_FORMAT_RULES}
 
 示例格式：
 
@@ -284,10 +323,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 制定小红书运营者的每日固定动作清单。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（🌅🌞🌙⏰📱💡等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
+${UNIFIED_FORMAT_RULES}
 
 示例格式：
 
@@ -316,10 +352,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 提供数据复盘模板和方法。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（📊📈📉✅⚠️💡等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
+${UNIFIED_FORMAT_RULES}
 
 示例格式：
 
@@ -352,10 +385,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 提供小红书运营的避坑指南。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（⚠️❌✅💡🔥等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
+${UNIFIED_FORMAT_RULES}
 
 示例格式：
 
@@ -384,10 +414,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 为"{contentCategory}"类别账号规划变现路径。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（📊💡💥💰🎯等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
+${UNIFIED_FORMAT_RULES}
 
 示例格式：
 
@@ -414,10 +441,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 制作涨粉冲刺计划总结表。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（🎯📅🔥💪📊等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
+${UNIFIED_FORMAT_RULES}
 
 示例格式：
 
@@ -450,11 +474,9 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
     promptTemplate: `
 为"{contentCategory}"类别的小红书账号制作立刻行动清单。
 
-输出格式要求（严格遵守）：
-1. 必须使用 emoji 开头（🌙☀️🎯💡🔥等）
-2. 不要使用Markdown标题（不要用##或###）
-3. 每个内容块必须用列表展开（用 "- " 开头）
-4. 最后必须包含设计理念说明
+${UNIFIED_FORMAT_RULES}
+
+特殊要求：最后必须包含设计理念说明
 
 示例格式：
 
