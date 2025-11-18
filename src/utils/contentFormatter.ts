@@ -26,7 +26,8 @@ export function parseContentBlocks(content: string): ParsedContent {
   
   for (const line of lines) {
     // 检测块标题（带 emoji 的行）
-    const blockMatch = line.match(/^([✅⚠️💡📊📅🎯🔥💰📝🌙☀️])\s*(.+)$/)
+    // 支持更多 emoji：✅⚠️💡📊📅🎯🔥💰📝🌙☀️🌅🌞💪📈📉✨🎨📄⏰📱💥🎁🔔
+    const blockMatch = line.match(/^([✅⚠️💡📊📅🎯🔥💰📝🌙☀️🌅🌞💪📈📉✨🎨📄⏰📱💥🎁🔔❌])\s*(.+)$/)
     
     if (blockMatch) {
       // 保存上一个块
@@ -66,12 +67,37 @@ export function parseContentBlocks(content: string): ParsedContent {
  */
 function getBlockType(icon: string): ContentBlock['type'] {
   switch (icon) {
-    case '✅':
+    // 绿色成功类 - success
+    case '✅':  // ✅
+    case '💪': // 💪
+    case '📈': // 📈
+    case '✨':  // ✨
       return 'success'
-    case '⚠️':
+    
+    // 黄色警告类 - warning
+    case '⚠️':  // ⚠️
+    case '🔔': // 🔔
+    case '❌':  // ❌
       return 'warning'
-    case '💡':
+    
+    // 蓝色提示类 - info
+    case '💡': // 💡
+    case '📊': // 📊
+    case '📅': // 📅
+    case '🎯': // 🎯
+    case '📝': // 📝
+    case '🎨': // 🎨
+    case '📄': // 📄
+    case '⏰':  // ⏰
+    case '📱': // 📱
+    case '🌙': // 🌙
+    case '☀️':  // ☀️
+    case '🌅': // 🌅
+    case '🌞': // 🌞
+    case '📉': // 📉
       return 'info'
+    
+    // 默认类 - default
     default:
       return 'default'
   }

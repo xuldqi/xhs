@@ -53,6 +53,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
 3. 标题下方必须用列表展开细节（用 "- " 开头）
 4. 避免"建议"、"推荐"等AI味重的词，直接说做法
 5. 不要使用Markdown标题（不要用##或###）
+6. 重要：必须使用真正的 emoji（如✅💡📊），不要使用 Unicode 符号（如✓◆▲）
 
 示例格式：
 ✅ 账号优势
@@ -84,6 +85,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
 1. 必须使用 emoji 开头（📅💡🎯📝🎨💰等）
 2. 不要使用Markdown标题（不要用##或###）
 3. 每个内容块必须用列表展开（用 "- " 开头）
+4. 重要：必须使用真正的 emoji（如📅💡🎯），不要使用 Unicode 符号（如✓◆▲）
 
 输出内容（卡片化）：📅 Day 1 - 账号优化
 - 具体步骤1
@@ -132,6 +134,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
 1. 必须使用 emoji 开头（🎯📊💡✅等）
 2. 不要使用Markdown标题（不要用##或###）
 3. 每个内容块必须用列表展开（用 "- " 开头）
+4. 重要：必须使用真正的 emoji（如🎯📊💡），不要使用 Unicode 符号（如✓◆▲）
 
 输出内容（卡片化）：🎯 对标账号特征
 - 粉丝量：当前的10倍左右
@@ -169,6 +172,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
 2. 不要使用Markdown标题（不要用##或###）
 3. 每个内容块必须用列表展开（用 "- " 开头）
 4. 不要用**加粗**，直接写文字
+5. 重要：必须使用真正的 emoji（如📅🎯📊），不要使用 Unicode 符号（如✓◆▲）
 
 示例格式：
 
