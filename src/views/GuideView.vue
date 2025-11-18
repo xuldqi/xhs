@@ -409,37 +409,57 @@ const handleExportHTML = () => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${guideContent.value.metadata.accountName} 的涨粉实操指南</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { 
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    
+    .container {
       max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
-      line-height: 1.8;
-      background: #f9fafb;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
+    
     h1 { 
-      color: #333;
+      font-size: 32px;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      text-align: center;
       border-bottom: 3px solid #667eea;
-      padding-bottom: 10px;
-      margin-bottom: 1rem;
+      padding-bottom: 20px;
     }
+    
+    .meta { 
+      text-align: center;
+      color: #666;
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+    
     h2 { 
+      font-size: 24px;
       color: #333;
-      margin-top: 2rem;
-      padding-left: 1rem;
+      margin: 40px 0 20px 0;
+      padding: 12px 0 12px 16px;
       border-left: 4px solid #667eea;
       font-weight: 600;
-      margin-bottom: 1.5rem;
     }
-    h3 { color: #333; margin-top: 1.5rem; font-weight: 600; }
-    ul { padding-left: 2rem; margin: 1rem 0; }
-    li { margin: 0.5rem 0; color: #666; }
-    strong { color: #e74c3c; }
-    .meta { 
-      color: #999;
-      margin-bottom: 2rem;
-      text-align: center;
+    
+    h3 { 
+      color: #333;
+      margin-top: 1.5rem;
+      font-weight: 600;
     }
     
     /* 彩色卡片样式 */
@@ -473,6 +493,24 @@ const handleExportHTML = () => {
     .info-block {
       background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
       border-left-color: #1890ff;
+    }
+    
+    /* 紫色类型 - 紫色渐变 */
+    .purple-block {
+      background: linear-gradient(135deg, #f9f0ff 0%, #efdbff 100%);
+      border-left-color: #722ed1;
+    }
+    
+    /* 橙色类型 - 橙色渐变 */
+    .orange-block {
+      background: linear-gradient(135deg, #fff7e6 0%, #ffe7ba 100%);
+      border-left-color: #fa8c16;
+    }
+    
+    /* 粉色类型 - 粉色渐变 */
+    .pink-block {
+      background: linear-gradient(135deg, #fff0f6 0%, #ffd6e7 100%);
+      border-left-color: #eb2f96;
     }
     
     /* 默认类型 */
@@ -511,12 +549,14 @@ const handleExportHTML = () => {
     .block-content ul {
       margin: 8px 0;
       padding-left: 24px;
+      list-style-type: disc;
     }
     
     .block-content li {
       color: #666;
       line-height: 1.8;
       margin: 6px 0;
+      font-size: 15px;
     }
     
     .block-content p {
@@ -524,22 +564,123 @@ const handleExportHTML = () => {
       line-height: 1.8;
     }
     
+    /* 小标题 */
+    .block-subtitle {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #333;
+      margin: 16px 0 10px 0;
+      line-height: 1.5;
+    }
+    
+    /* 其他样式 */
+    ul {
+      padding-left: 24px;
+      margin: 12px 0;
+      list-style-type: disc;
+    }
+    
+    li {
+      color: #666;
+      line-height: 1.8;
+      margin: 8px 0;
+    }
+    
+    strong {
+      color: #409EFF;
+      font-weight: 600;
+    }
+    
+    /* 表格样式 */
+    .content-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .content-table th,
+    .content-table td {
+      padding: 14px 18px;
+      text-align: left;
+      border: none;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .content-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-weight: 600;
+      color: white;
+      font-size: 0.95rem;
+    }
+    
+    .content-table tbody tr:nth-child(odd) {
+      background: #fafbfc;
+    }
+    
+    .content-table tbody tr:nth-child(even) {
+      background: white;
+    }
+    
+    .content-table tbody tr:hover {
+      background: #f0f7ff;
+    }
+    
+    /* 标签样式 */
+    .tag-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #fff3e0;
+      color: #f57c00;
+      border-radius: 3px;
+      font-size: 0.9em;
+      margin: 0 4px;
+      font-weight: 500;
+    }
+    
+    .time-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 3px;
+      font-size: 0.95em;
+      margin: 4px;
+      font-weight: 500;
+    }
+    
+    /* 打印优化 */
     @media print { 
-      body { margin: 0; background: white; }
-      .content-block:hover { box-shadow: none; transform: none; }
+      body {
+        background: white;
+        padding: 0;
+      }
+      .container {
+        box-shadow: none;
+        padding: 20px;
+      }
+      .content-block:hover {
+        box-shadow: none;
+        transform: none;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>${guideContent.value.metadata.accountName} 的涨粉实操指南</h1>
-  <div class="meta">
-    生成时间：${formatDate(guideContent.value.metadata.generatedAt)} | 
-    目标粉丝：${guideContent.value.metadata.targetFollowers}
+  <div class="container">
+    <h1>${guideContent.value.metadata.accountName} 的涨粉实操指南</h1>
+    <div class="meta">
+      生成时间：${formatDate(guideContent.value.metadata.generatedAt)} | 
+      目标粉丝：${guideContent.value.metadata.targetFollowers}
+    </div>
+    ${guideContent.value.sections.map(section => `
+      <h2>${section.id}. ${section.title}</h2>
+      <div>${formatContent(section.content)}</div>
+    `).join('')}
   </div>
-  ${guideContent.value.sections.map(section => `
-    <h2>${section.id}. ${section.title}</h2>
-    <div>${formatContent(section.content)}</div>
-  `).join('')}
 </body>
 </html>
   `
