@@ -122,26 +122,88 @@ function getBlockType(icon: string): ContentBlock['type'] {
 
 /**
  * 生成块的 HTML - 使用卡片布局
+ * 支持智能识别小标题、列表项和普通段落
  */
 function generateBlocksHtml(blocks: ContentBlock[]): string {
   return blocks.map(block => {
     const className = `content-block ${block.type}-block`
-    const contentHtml = block.content.map(line => {
-      // 处理列表项
-      if (line.match(/^[•\-]\s/)) {
-        return `<li>${line.substring(2)}</li>`
-      }
-      if (line.match(/^\d+\.\s/)) {
-        return `<li>${line.replace(/^\d+\.\s/, '')}</li>`
-      }
-      return `<p>${line}</p>`
-    }).join('\n')
     
-    // 如果有列表项，包装在 ul 中
-    const hasListItems = block.content.some(line => line.match(/^[•\-\d+\.]\s/))
-    const wrappedContent = hasListItems 
-      ? `<ul>${contentHtml}</ul>`
-      : contentHtml
+    let inList = false
+    const contentHtml: string[] = []
+    
+    block.content.forEach((line, index) => {
+      // 检查是否是列表项
+      const listMatch = line.match(/^[•\-]\s(.+)$/)
+      const numberMatch = line.match(/^\d+\.\s(.+)$/)
+      
+      if (listMatch || numberMatch) {
+        const text = listMatch ? listMatch[1] : numberMatch![1]
+        
+        // 判断是否是小标题：
+        // 1. 包含"第X周"、"第X天"、"Day X"等时间标记
+        // 2. 或者是"关键词："格式（如"尺寸："、"字体："、"金额："）
+        // 3. 或者是"XX%抄什么"、"XX%改什么"格式
+        // 4. 或者匹配常见的分组标题模式
+        const isTimeSubtitle = /^(第[一二三四五六七八九十\d]+[周天日]|Day\s*\d+|早上|上午|中午|下午|晚上|夜间)/i.test(text)
+        const isKeywordColon = /^[\u4e00-\u9fa5]{1,6}[：:]\s*/.test(text) && text.length <= 30
+        const isPercentPattern = /^\d+%[抄改做用]/.test(text)
+        const isGroupTitle = text.length <= 10 && /^[^\d]+(层|类|型|组|部分)/.test(text)
+        
+        if (isTimeSubtitle || isKeywordColon || isPercentPattern || isGroupTitle) {
+          // 作为小标题处理
+          if (inList) {
+            contentHtml.push('</ul>')
+            inList = false
+          }
+          
+          // 如果是"关键词："格式，将冒号前的部分加粗
+          let formattedText = text
+          if (isKeywordColon) {
+            formattedText = text.replace(/^([\u4e00-\u9fa5]{1,6}[：:])/, '<strong>$1</strong>')
+          }
+          
+          contentHtml.push(`<h4 class="block-subtitle">${formattedText}</h4>`)
+        } else {
+          // 作为列表项处理
+          if (!inList) {
+            contentHtml.push('<ul>')
+            inList = true
+          }
+          contentHtml.push(`<li>${text}</li>`)
+        }
+      } else {
+        // 检查普通段落是否也是小标题格式
+        const isTimeSubtitle = /^(第[一二三四五六七八九十\d]+[周天日]|Day\s*\d+)[：:]/i.test(line)
+        const isKeywordColon = /^[\u4e00-\u9fa5]{1,6}[：:]\s*/.test(line) && line.length <= 30
+        
+        if (isTimeSubtitle || isKeywordColon) {
+          if (inList) {
+            contentHtml.push('</ul>')
+            inList = false
+          }
+          
+          // 如果是"关键词："格式，将冒号前的部分加粗
+          let formattedLine = line
+          if (isKeywordColon) {
+            formattedLine = line.replace(/^([\u4e00-\u9fa5]{1,6}[：:])/, '<strong>$1</strong>')
+          }
+          
+          contentHtml.push(`<h4 class="block-subtitle">${formattedLine}</h4>`)
+        } else {
+          // 普通段落
+          if (inList) {
+            contentHtml.push('</ul>')
+            inList = false
+          }
+          contentHtml.push(`<p>${line}</p>`)
+        }
+      }
+    })
+    
+    // 关闭未闭合的列表
+    if (inList) {
+      contentHtml.push('</ul>')
+    }
     
     return `
       <div class="${className}">
@@ -150,7 +212,7 @@ function generateBlocksHtml(blocks: ContentBlock[]): string {
           <span class="block-title">${block.title}</span>
         </div>
         <div class="block-content">
-          ${wrappedContent}
+          ${contentHtml.join('\n')}
         </div>
       </div>
     `
