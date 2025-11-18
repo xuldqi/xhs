@@ -409,15 +409,125 @@ const handleExportHTML = () => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${guideContent.value.metadata.accountName} 的涨粉实操指南</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; line-height: 1.8; }
-    h1 { color: #333; border-bottom: 3px solid #333; padding-bottom: 10px; }
-    h2 { color: #333; margin-top: 2rem; padding-left: 1rem; border-left: 4px solid #333; font-weight: 600; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.8;
+      background: #f9fafb;
+    }
+    h1 { 
+      color: #333;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+      margin-bottom: 1rem;
+    }
+    h2 { 
+      color: #333;
+      margin-top: 2rem;
+      padding-left: 1rem;
+      border-left: 4px solid #667eea;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
     h3 { color: #333; margin-top: 1.5rem; font-weight: 600; }
-    ul { padding-left: 2rem; }
-    li { margin: 0.5rem 0; }
+    ul { padding-left: 2rem; margin: 1rem 0; }
+    li { margin: 0.5rem 0; color: #666; }
     strong { color: #e74c3c; }
-    .meta { color: #999; margin-bottom: 2rem; }
-    @media print { body { margin: 0; } }
+    .meta { 
+      color: #999;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    /* 彩色卡片样式 */
+    .content-block {
+      background: #f8f9fa;
+      border-left: 4px solid #409EFF;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      transition: all 0.3s ease;
+    }
+    
+    .content-block:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    /* 成功类型 - 绿色渐变 */
+    .success-block {
+      background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);
+      border-left-color: #52c41a;
+    }
+    
+    /* 警告类型 - 橙色渐变 */
+    .warning-block {
+      background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+      border-left-color: #faad14;
+    }
+    
+    /* 提示类型 - 蓝色渐变 */
+    .info-block {
+      background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
+      border-left-color: #1890ff;
+    }
+    
+    /* 默认类型 */
+    .default-block {
+      background: #f8f9fa;
+      border-left-color: #d9d9d9;
+    }
+    
+    /* 块头部 */
+    .block-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .block-icon {
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+    
+    .block-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #333;
+      flex: 1;
+    }
+    
+    /* 块内容 */
+    .block-content {
+      color: #666;
+      line-height: 1.8;
+      font-size: 15px;
+    }
+    
+    .block-content ul {
+      margin: 8px 0;
+      padding-left: 24px;
+    }
+    
+    .block-content li {
+      color: #666;
+      line-height: 1.8;
+      margin: 6px 0;
+    }
+    
+    .block-content p {
+      margin: 8px 0;
+      line-height: 1.8;
+    }
+    
+    @media print { 
+      body { margin: 0; background: white; }
+      .content-block:hover { box-shadow: none; transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -747,7 +857,7 @@ const goBack = () => {
 
 /* 成功类型 - 绿色渐变 */
 .section-content :deep(.success-block) {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+  background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);
   border-left-color: #52c41a;
 }
 
@@ -761,6 +871,24 @@ const goBack = () => {
 .section-content :deep(.info-block) {
   background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
   border-left-color: #1890ff;
+}
+
+/* 紫色类型 - 紫色渐变 (时间、日程) */
+.section-content :deep(.purple-block) {
+  background: linear-gradient(135deg, #f9f0ff 0%, #efdbff 100%);
+  border-left-color: #722ed1;
+}
+
+/* 橙色类型 - 橙色渐变 (目标、重点) */
+.section-content :deep(.orange-block) {
+  background: linear-gradient(135deg, #fff7e6 0%, #ffe7ba 100%);
+  border-left-color: #fa8c16;
+}
+
+/* 粉色类型 - 粉色渐变 (笔记、文档) */
+.section-content :deep(.pink-block) {
+  background: linear-gradient(135deg, #fff0f6 0%, #ffd6e7 100%);
+  border-left-color: #eb2f96;
 }
 
 /* 普通类型 */
@@ -794,6 +922,28 @@ const goBack = () => {
   color: #666;
   line-height: 1.8;
   font-size: 15px;
+}
+
+/* 块内小标题 - 正常字重，不加粗 */
+.section-content :deep(.block-subtitle) {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #333;
+  margin: 16px 0 10px 0;
+  padding-left: 0;
+  line-height: 1.5;
+}
+
+/* 小标题内的 strong 标签也不加粗，保持正常字重 */
+.section-content :deep(.block-subtitle strong) {
+  color: #333 !important;
+  font-weight: 600 !important;
+}
+
+/* 小标题内的所有文字都保持正常字重 */
+.section-content :deep(.block-subtitle *) {
+  font-weight: 600 !important;
+  color: inherit;
 }
 
 .section-content :deep(.block-content p) {
@@ -844,29 +994,54 @@ const goBack = () => {
   line-height: 1.8;
 }
 
-/* 表格样式 - 简洁设计 */
+/* 表格样式 - 美化设计 */
 .section-content :deep(.content-table) {
   width: 100%;
   border-collapse: collapse;
   margin: 1.5rem 0;
   background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .section-content :deep(.content-table th),
 .section-content :deep(.content-table td) {
-  padding: 12px 16px;
+  padding: 14px 18px;
   text-align: left;
-  border: 1px solid #e4e7ed;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .section-content :deep(.content-table th) {
-  background: #fafafa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   font-weight: 600;
-  color: #333;
+  color: white;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
 }
 
-.section-content :deep(.content-table tr:hover) {
-  background: #f5f7fa;
+.section-content :deep(.content-table tbody tr) {
+  transition: all 0.2s ease;
+}
+
+.section-content :deep(.content-table tbody tr:nth-child(odd)) {
+  background: #fafbfc;
+}
+
+.section-content :deep(.content-table tbody tr:nth-child(even)) {
+  background: white;
+}
+
+.section-content :deep(.content-table tbody tr:hover) {
+  background: #f0f7ff;
+  transform: translateX(2px);
+}
+
+.section-content :deep(.content-table td) {
+  color: #606266;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 /* 标签样式 - 多彩设计 */

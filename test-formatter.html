@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Formatter 测试</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f7fa;
+    }
+    
+    .test-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    h2 {
+      color: #333;
+      margin-bottom: 16px;
+    }
+    
+    .input-text {
+      width: 100%;
+      min-height: 200px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    
+    button {
+      background: #409EFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    button:hover {
+      background: #66b1ff;
+    }
+    
+    .output {
+      margin-top: 24px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    /* 复制 GuideView 的样式 */
+    .content-block {
+      background: #f8f9fa;
+      border-left: 4px solid #409EFF;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    
+    .success-block {
+      background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);
+      border-left-color: #52c41a;
+    }
+    
+    .warning-block {
+      background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+      border-left-color: #faad14;
+    }
+    
+    .info-block {
+      background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
+      border-left-color: #1890ff;
+    }
+    
+    .block-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .block-icon {
+      font-size: 1.4rem;
+    }
+    
+    .block-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .block-content {
+      color: #666;
+      line-height: 1.8;
+    }
+    
+    .block-content ul {
+      margin: 8px 0;
+      padding-left: 24px;
+    }
+    
+    .block-content li {
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-section">
+    <h2>测试 Content Formatter</h2>
+    <p>输入带 emoji 标记的内容，测试格式化效果：</p>
+    
+    <textarea class="input-text" id="input">✅ 账号优势
+
+- 内容定位清晰，专注美妆领域
+- 已有内容积累，可以优化迭代
+- 起号阶段，增长空间大
+
+⚠️ 需要改进
+
+- 粉丝基数较低，需要冷启动策略
+- 内容曝光度不足
+- 互动率需要提升
+
+💡 涨粉预期
+
+难度等级：中等
+预计时间：4-6周</textarea>
+    
+    <button onclick="testFormat()">格式化</button>
+    
+    <div class="output" id="output"></div>
+  </div>
+  
+  <script>
+    // 简化版的 parseContentBlocks
+    function parseContentBlocks(content) {
+      const lines = content.split('\n').map(line => line.trim()).filter(line => line);
+      const blocks = [];
+      let currentBlock = null;
+      
+      for (const line of lines) {
+        // 使用 Unicode 属性匹配 emoji，支持变体选择符
+        const blockMatch = line.match(/^([\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}][\uFE00-\uFE0F]?)\s*(.+)$/u);
+        
+        if (blockMatch) {
+          if (currentBlock) {
+            blocks.push(currentBlock);
+          }
+          
+          const icon = blockMatch[1];
+          const title = blockMatch[2];
+          
+          // 使用 includes 来匹配，因为可能有变体选择符
+          let type = 'default';
+          if (icon.includes('✅')) type = 'success';
+          else if (icon.includes('⚠')) type = 'warning';
+          else if (icon.includes('💡')) type = 'info';
+          
+          currentBlock = {
+            type,
+            title,
+            content: [],
+            icon
+          };
+        } else if (currentBlock) {
+          currentBlock.content.push(line);
+        }
+      }
+      
+      if (currentBlock) {
+        blocks.push(currentBlock);
+      }
+      
+      return blocks;
+    }
+    
+    function generateBlocksHtml(blocks) {
+      return blocks.map(block => {
+        const className = `content-block ${block.type}-block`;
+        const contentHtml = block.content.map(line => {
+          if (line.match(/^[•\-]\s/)) {
+            return `<li>${line.substring(2)}</li>`;
+          }
+          return `<p>${line}</p>`;
+        }).join('\n');
+        
+        const hasListItems = block.content.some(line => line.match(/^[•\-]\s/));
+        const wrappedContent = hasListItems 
+          ? `<ul>${contentHtml}</ul>`
+          : contentHtml;
+        
+        return `
+          <div class="${className}">
+            <div class="block-header">
+              <span class="block-icon">${block.icon}</span>
+              <span class="block-title">${block.title}</span>
+            </div>
+            <div class="block-content">
+              ${wrappedContent}
+            </div>
+          </div>
+        `;
+      }).join('\n');
+    }
+    
+    function testFormat() {
+      const input = document.getElementById('input').value;
+      const blocks = parseContentBlocks(input);
+      
+      // 详细调试信息
+      console.log('=== 解析结果 ===');
+      blocks.forEach((block, index) => {
+        console.log(`Block ${index + 1}:`, block);
+        console.log(`  - Icon: "${block.icon}" (U+${block.icon.codePointAt(0).toString(16).toUpperCase()})`);
+        console.log(`  - Title: "${block.title}"`);
+        console.log(`  - Type: "${block.type}"`);
+        console.log(`  - CSS Class: "content-block ${block.type}-block"`);
+      });
+      
+      const html = generateBlocksHtml(blocks);
+      document.getElementById('output').innerHTML = html;
+      
+      console.log('=== 生成的 HTML ===');
+      console.log(html);
+    }
+    
+    // 自动测试
+    testFormat();
+  </script>
+</body>
+</html>
