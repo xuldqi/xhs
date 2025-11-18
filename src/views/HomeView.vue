@@ -1,7 +1,5 @@
 <template>
   <div class="home-view">
-    <AppHeader />
-    
     <div class="container">
       <!-- 顶部标题区域 -->
       <div class="hero-header">
@@ -279,7 +277,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Upload, Lock, CircleCheck, View, Close, Plus, InfoFilled } from '@element-plus/icons-vue'
-import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import HistoryPanel from '@/components/HistoryPanel.vue'
 import ExampleModal from '@/components/ExampleModal.vue'
