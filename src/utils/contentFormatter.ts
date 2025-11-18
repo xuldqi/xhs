@@ -27,7 +27,7 @@ export function parseContentBlocks(content: string): ParsedContent {
   for (const line of lines) {
     // 检测块标题（带 emoji 的行）
     // 支持更多 emoji：✅⚠️💡📊📅🎯🔥💰📝🌙☀️🌅🌞💪📈📉✨🎨📄⏰📱💥🎁🔔
-    const blockMatch = line.match(/^([✅⚠️💡📊📅🎯🔥💰📝🌙☀️🌅🌞💪📈📉✨🎨📄⏰📱💥🎁🔔❌])\s*(.+)$/)
+    const blockMatch = line.match(/^([✅⚠️💡📊📅🎯🔥💰📝🌙☀️🌅🌞💪📈📉✨🎨📄⏰📱💥🎁🔔❌◆●▶️★■]|\s*[◆●▶️★■])\s*(.+)$/)
     
     if (blockMatch) {
       // 保存上一个块
@@ -36,8 +36,21 @@ export function parseContentBlocks(content: string): ParsedContent {
       }
       
       // 创建新块
-      const icon = blockMatch[1]
+      let icon = blockMatch[1].trim()
       const title = blockMatch[2]
+      
+      // 将 Unicode 符号转换为对应 emoji
+      const iconMap: Record<string, string> = {
+        '◆': '💡',
+        '●': '📌',
+        '▶️': '▶️',
+        '★': '⭐',
+        '■': '📋'
+      }
+      
+      if (iconMap[icon]) {
+        icon = iconMap[icon]
+      }
       
       currentBlock = {
         type: getBlockType(icon),
@@ -72,6 +85,7 @@ function getBlockType(icon: string): ContentBlock['type'] {
     case '💪': // 💪
     case '📈': // 📈
     case '✨':  // ✨
+    case '⭐':  // ⭐ (从 ★ 转换)
       return 'success'
     
     // 黄色警告类 - warning
@@ -81,7 +95,7 @@ function getBlockType(icon: string): ContentBlock['type'] {
       return 'warning'
     
     // 蓝色提示类 - info
-    case '💡': // 💡
+    case '💡': // 💡 (默认从 ◆ 转换)
     case '📊': // 📊
     case '📅': // 📅
     case '🎯': // 🎯
@@ -95,6 +109,9 @@ function getBlockType(icon: string): ContentBlock['type'] {
     case '🌅': // 🌅
     case '🌞': // 🌞
     case '📉': // 📉
+    case '📌': // 📌 (从 ● 转换)
+    case '📋': // 📋 (从 ■ 转换)
+    case '▶️':  // ▶️
       return 'info'
     
     // 默认类 - default
