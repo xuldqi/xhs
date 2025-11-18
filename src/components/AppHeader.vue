@@ -27,7 +27,7 @@
                   个人中心
                 </el-dropdown-item>
                 <el-dropdown-item command="pricing" v-if="!userStore.isVIP">
-                  <el-icon><Crown /></el-icon>
+                  <el-icon><Star /></el-icon>
                   升级会员
                 </el-dropdown-item>
                 <el-dropdown-item divided command="logout">
@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ArrowDown, User, Crown, SwitchButton } from '@element-plus/icons-vue'
+import { ArrowDown, User, Star, SwitchButton } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()

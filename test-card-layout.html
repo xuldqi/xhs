@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>彩色卡片布局测试 - Xiaohongshu Guide</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+        'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 32px;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 40px;
+      font-size: 16px;
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    /* 内容块卡片样式 - 完整实现 */
+    .content-block {
+      background: #f8f9fa;
+      border-left: 4px solid #409EFF;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      transition: all 0.3s ease;
+    }
+
+    .content-block:hover {
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .block-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .block-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .block-content {
+      color: #555;
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .block-content ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .block-content li {
+      margin: 6px 0;
+      color: #666;
+    }
+
+    /* 成功类型 - 绿色渐变 */
+    .success-block {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+      border-left-color: #52c41a;
+    }
+
+    .success-block .block-title {
+      color: #389e0d;
+    }
+
+    /* 警告类型 - 橙色渐变 */
+    .warning-block {
+      background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+      border-left-color: #faad14;
+    }
+
+    .warning-block .block-title {
+      color: #d46b08;
+    }
+
+    /* 提示类型 - 蓝色渐变 */
+    .info-block {
+      background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
+      border-left-color: #1890ff;
+    }
+
+    .info-block .block-title {
+      color: #096dd9;
+    }
+
+    /* 数据类型 - 紫色渐变 */
+    .data-block {
+      background: linear-gradient(135deg, #f9f0ff 0%, #efdbff 100%);
+      border-left-color: #722ed1;
+    }
+
+    .data-block .block-title {
+      color: #531dab;
+    }
+
+    /* 默认类型 */
+    .default-block {
+      background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+      border-left-color: #8c8c8c;
+    }
+
+    .default-block .block-title {
+      color: #595959;
+    }
+
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #f0f0f0;
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 彩色卡片布局测试</h1>
+    <p class="subtitle">小红书起号指南 - 账号诊断示例</p>
+
+    <div class="section">
+      <h2 class="section-title">📊 账号诊断结果</h2>
+
+      <div class="content-block success-block">
+        <div class="block-title">
+          <span class="block-icon">✅</span>
+          <span>账号优势</span>
+        </div>
+        <div class="block-content">
+          <ul>
+            <li>内容垂直度高，定位清晰</li>
+            <li>粉丝互动率达到 8.5%，高于行业平均水平</li>
+            <li>视觉风格统一，品牌识别度强</li>
+            <li>发布频率稳定，用户粘性好</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-block warning-block">
+        <div class="block-title">
+          <span class="block-icon">⚠️</span>
+          <span>需要改进的地方</span>
+        </div>
+        <div class="block-content">
+          <ul>
+            <li>封面设计缺乏吸引力，点击率偏低</li>
+            <li>标题缺少钩子，未充分利用用户痛点</li>
+            <li>内容结构松散，缺少清晰的价值主张</li>
+            <li>缺少互动引导，评论区活跃度不足</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-block info-block">
+        <div class="block-title">
+          <span class="block-icon">💡</span>
+          <span>优化建议</span>
+        </div>
+        <div class="block-content">
+          <ul>
+            <li>封面加入数字+结果导向文案，提升点击率</li>
+            <li>标题采用"痛点+解决方案"公式</li>
+            <li>内容结构改为"问题-方法-结果"三段式</li>
+            <li>每篇笔记结尾加入互动问题，激发评论</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-block data-block">
+        <div class="block-title">
+          <span class="block-icon">📊</span>
+          <span>数据分析</span>
+        </div>
+        <div class="block-content">
+          <ul>
+            <li>平均阅读量：2,350 次</li>
+            <li>互动率：8.5%</li>
+            <li>涨粉速度：每周 120-150 人</li>
+            <li>最佳发布时间：晚上 20:00-22:00</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-block default-block">
+        <div class="block-title">
+          <span class="block-icon">🎯</span>
+          <span>下一步行动</span>
+        </div>
+        <div class="block-content">
+          <ul>
+            <li>本周重点优化 3 篇笔记的封面设计</li>
+            <li>测试 5 种不同的标题模板</li>
+            <li>建立内容素材库，提前规划下月选题</li>
+            <li>分析对标账号的爆款笔记规律</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">📅 三天起号计划</h2>
+
+      <div class="content-block info-block">
+        <div class="block-title">
+          <span class="block-icon">📅</span>
+          <span>第一天：账号基础搭建</span>
+        </div>
+        <div class="block-content">
+          <ul>
+            <li>完善个人简介，突出核心价值</li>
+            <li>设计统一的视觉风格模板</li>
+            <li>准备 10 条高质量选题</li>
+            <li>发布第一篇引流笔记</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-block success-block">
+        <div class="block-title">
+          <span class="block-icon">💡</span>
+          <span>第二天：内容输出</span>
+        </div>
+        <div class="block-content">
+          <ul>
+            <li>早上 9:00 发布干货类笔记</li>
+            <li>下午 15:00 发布案例拆解笔记</li>
+            <li>晚上 20:00 发布互动类笔记</li>
+            <li>实时回复所有评论，提升权重</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-block warning-block">
+        <div class="block-title">
+          <span class="block-icon">🎯</span>
+          <span>第三天：数据复盘</span>
+        </div>
+        <div class="block-content">
+          <ul>
+            <li>分析前两天笔记的数据表现</li>
+            <li>找出表现最好的内容类型</li>
+            <li>优化发布时间和内容结构</li>
+            <li>制定下周内容计划</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      ✨ 彩色卡片布局测试页面 | 所有样式均已正确实现
+    </div>
+  </div>
+</body>
+</html>

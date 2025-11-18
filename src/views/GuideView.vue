@@ -198,6 +198,16 @@ onMounted(async () => {
   const { useAppStore } = await import('@/stores/appStore')
   const store = useAppStore()
   
+  // 先检查 localStorage 中是否有已生成的指南
+  if (store.guideContent) {
+    console.log('💾 从缓存恢复指南内容')
+    guideContent.value = store.guideContent
+    isGenerating.value = false
+    generationProgress.value = 100
+    currentSection.value = 12
+    return
+  }
+  
   if (!store.accountData) {
     router.push('/analysis')
     return

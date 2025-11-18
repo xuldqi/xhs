@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') })
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 import { aiRouter } from './routes/ai'
-import paymentRouter from './routes/payment'
+// import paymentRouter from './routes/payment'
 import { errorHandler } from './middleware/errorHandler'
 import { requestLogger } from './middleware/logger'
 
@@ -51,7 +51,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 // API 路由
 app.use('/api/ai', aiRouter)
-app.use('/api/payment', paymentRouter)
+// app.use('/api/payment', paymentRouter) // Temporarily disabled - requires Supabase config
 
 // 404 处理
 app.use((req: Request, res: Response) => {
