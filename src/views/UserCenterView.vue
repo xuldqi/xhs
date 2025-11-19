@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="vip-badge" :class="planType">
-        <el-icon><Crown /></el-icon>
+        <el-icon><User /></el-icon>
         <span>{{ planName }}</span>
       </div>
     </div>
@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { Crown } from '@element-plus/icons-vue'
+import { User } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
 import VIPInfo from '@/components/user/VIPInfo.vue'
 import UsageHistory from '@/components/user/UsageHistory.vue'
