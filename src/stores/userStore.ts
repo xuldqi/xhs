@@ -77,7 +77,7 @@ export const useUserStore = defineStore('user', () => {
       }
     } catch (error) {
       console.error('加载用户数据失败:', error)
-      throw error
+      // 不要抛出错误，避免影响用户体验
     }
   }
 
