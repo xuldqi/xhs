@@ -48,7 +48,7 @@ CREATE POLICY "所有人可以查看套餐配置" ON public.plan_configs
   FOR SELECT USING (TRUE);
 
 -- 7. 验证数据
-DO $
+DO $$
 DECLARE
   plan_count INTEGER;
 BEGIN
@@ -59,7 +59,7 @@ BEGIN
   ELSE
     RAISE WARNING '⚠️  套餐数量不正确，当前有 % 个套餐', plan_count;
   END IF;
-END $;
+END $$;
 
 -- 8. 显示所有套餐
 SELECT plan_type, name, price, duration_days FROM public.plan_configs ORDER BY price;

@@ -45,7 +45,13 @@ export class AuthService {
       password,
     })
     
-    if (error) throw error
+    if (error) {
+      // 处理邮箱未确认的情况
+      if (error.message.includes('Email not confirmed')) {
+        throw new Error('邮箱尚未确认，请检查您的邮箱并点击确认链接。如果没有收到邮件，请联系管理员。')
+      }
+      throw error
+    }
     if (!data.user) throw new Error('登录失败')
     
     return data.user
@@ -73,6 +79,16 @@ export class AuthService {
   // 退出登录
   static async signOut(): Promise<void> {
     const { error } = await supabase.auth.signOut()
+    if (error) throw error
+  }
+
+  // 重新发送确认邮件
+  static async resendConfirmationEmail(email: string): Promise<void> {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    })
+    
     if (error) throw error
   }
 

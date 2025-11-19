@@ -117,7 +117,7 @@ const handleSubmit = async () => {
     try {
       if (isRegister.value) {
         await userStore.register(form.email, form.password)
-        ElMessage.success('注册成功！')
+        ElMessage.success('注册成功！请查收确认邮件。')
       } else {
         await userStore.login(form.email, form.password)
         ElMessage.success('登录成功！')
@@ -127,7 +127,19 @@ const handleSubmit = async () => {
       const redirect = router.currentRoute.value.query.redirect as string
       router.push(redirect || '/')
     } catch (error: any) {
-      ElMessage.error(error.message || (isRegister.value ? '注册失败' : '登录失败'))
+      const errorMsg = error.message || (isRegister.value ? '注册失败' : '登录失败')
+      
+      // 如果是邮箱未确认错误，显示重新发送按钮
+      if (errorMsg.includes('邮箱尚未确认')) {
+        ElMessage({
+          message: errorMsg,
+          type: 'warning',
+          duration: 5000,
+          showClose: true,
+        })
+      } else {
+        ElMessage.error(errorMsg)
+      }
     } finally {
       loading.value = false
     }
@@ -141,7 +153,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #ffffff;
   padding: 20px;
 }
 
