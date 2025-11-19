@@ -9,6 +9,12 @@ backend/node_modules/
 backend/.env
 backend/.env.local
 
+# Alipay keys (sensitive)
+**/alipay_private_key.txt
+**/alipay_public_key.txt
+**/*私钥*.txt
+**/*公钥*.txt
+
 # Build outputs
 dist/
 dist-ssr/

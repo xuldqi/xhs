@@ -18,40 +18,114 @@
         @click="handleRecordClick(record)"
       >
         <div class="record-info">
-          <div class="record-name">{{ record.accountName }}</div>
+          <div class="record-header">
+            <div class="record-name">{{ record.accountName }}</div>
+            <el-tag v-if="record.isCloud" size="small" type="success">云端</el-tag>
+            <el-tag v-else size="small" type="info">本地</el-tag>
+          </div>
           <div class="record-stats">
             <span>{{ formatNumber(record.followers) }} 粉丝</span>
             <span class="divider">·</span>
             <span>{{ record.category }}</span>
+            <span v-if="record.isCloud && record.viewCount > 0" class="divider">·</span>
+            <span v-if="record.isCloud && record.viewCount > 0">{{ record.viewCount }} 次浏览</span>
           </div>
           <div class="record-time">{{ formatTime(record.createdAt) }}</div>
         </div>
         
-        <el-button
-          text
-          type="danger"
-          size="small"
-          @click.stop="handleDelete(record.id)"
-        >
-          <el-icon><Delete /></el-icon>
-        </el-button>
+        <div class="record-actions">
+          <el-button
+            v-if="record.isCloud"
+            text
+            type="primary"
+            size="small"
+            @click.stop="handleShare(record, $event)"
+          >
+            <el-icon><Share /></el-icon>
+          </el-button>
+          <el-button
+            text
+            type="danger"
+            size="small"
+            @click.stop="handleDelete(record)"
+          >
+            <el-icon><Delete /></el-icon>
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Clock, Delete } from '@element-plus/icons-vue'
+import { Clock, Delete, Share } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { HistoryManager, type HistoryRecord } from '@/utils/historyManager'
+import { getUserGuides, deleteGuide, generateShareLink, type SavedGuide } from '@/services/guideService'
+import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
-const history = ref<HistoryRecord[]>([])
+const userStore = useUserStore()
+const localHistory = ref<HistoryRecord[]>([])
+const cloudHistory = ref<SavedGuide[]>([])
+const loading = ref(false)
 
-const loadHistory = () => {
-  history.value = HistoryManager.getHistory()
+// 是否登录
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+
+// 合并本地和云端历史记录
+const history = computed(() => {
+  const combined: any[] = []
+  
+  // 添加云端记录
+  cloudHistory.value.forEach(item => {
+    combined.push({
+      id: item.id,
+      accountName: item.account_name,
+      followers: item.account_data?.followerCount || 0,
+      category: item.account_data?.contentCategory || '未知',
+      createdAt: item.created_at,
+      isCloud: true,
+      shareId: item.share_id,
+      isPublic: item.is_public,
+      viewCount: item.view_count
+    })
+  })
+  
+  // 添加本地记录
+  localHistory.value.forEach(item => {
+    combined.push({
+      ...item,
+      isCloud: false
+    })
+  })
+  
+  // 按时间排序
+  return combined.sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  )
+})
+
+const loadHistory = async () => {
+  // 加载本地历史
+  localHistory.value = HistoryManager.getHistory()
+  
+  // 如果已登录，加载云端历史
+  if (isLoggedIn.value) {
+    loading.value = true
+    try {
+      const result = await getUserGuides()
+      if (result.success && result.guides) {
+        cloudHistory.value = result.guides
+      }
+    } catch (error) {
+      console.error('加载云端历史失败:', error)
+    } finally {
+      loading.value = false
+    }
+  }
 }
 
 const formatNumber = (num: number): string => {
@@ -78,12 +152,38 @@ const formatTime = (dateStr: string): string => {
   return date.toLocaleDateString('zh-CN')
 }
 
-const handleRecordClick = (record: HistoryRecord) => {
-  // 可以跳转到分析页面，预填充数据
-  ElMessage.info('历史记录查看功能开发中...')
+const handleRecordClick = (record: any) => {
+  if (record.isCloud && record.shareId) {
+    // 云端记录，跳转到分享页面
+    router.push(`/share/${record.shareId}`)
+  } else {
+    // 本地记录，提示功能开发中
+    ElMessage.info('本地历史记录查看功能开发中...')
+  }
 }
 
-const handleDelete = async (id: string) => {
+const handleShare = async (record: any, event: Event) => {
+  event.stopPropagation()
+  
+  if (!record.isCloud || !record.shareId) {
+    ElMessage.warning('只有云端保存的指南才能分享')
+    return
+  }
+  
+  const shareLink = generateShareLink(record.shareId)
+  
+  try {
+    await navigator.clipboard.writeText(shareLink)
+    ElMessage.success('分享链接已复制到剪贴板！')
+  } catch (error) {
+    // 降级方案
+    ElMessageBox.alert(shareLink, '分享链接', {
+      confirmButtonText: '关闭'
+    })
+  }
+}
+
+const handleDelete = async (record: any) => {
   try {
     await ElMessageBox.confirm('确定删除这条记录吗？', '提示', {
       confirmButtonText: '删除',
@@ -91,9 +191,21 @@ const handleDelete = async (id: string) => {
       type: 'warning'
     })
     
-    HistoryManager.deleteRecord(id)
-    loadHistory()
-    ElMessage.success('删除成功')
+    if (record.isCloud) {
+      // 删除云端记录
+      const result = await deleteGuide(record.id)
+      if (result.success) {
+        ElMessage.success('删除成功')
+        loadHistory()
+      } else {
+        ElMessage.error(result.error || '删除失败')
+      }
+    } else {
+      // 删除本地记录
+      HistoryManager.deleteRecord(record.id)
+      loadHistory()
+      ElMessage.success('删除成功')
+    }
   } catch {
     // 用户取消
   }
@@ -176,11 +288,22 @@ defineExpose({
   flex: 1;
 }
 
+.record-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .record-name {
   font-size: 0.9375rem;
   font-weight: 500;
   color: #1f2937;
-  margin-bottom: 4px;
+}
+
+.record-actions {
+  display: flex;
+  gap: 4px;
 }
 
 .record-stats {

@@ -25,6 +25,35 @@
       margin-bottom: 16px;
     }
     
+    /* 标题层级样式 - 清晰的视觉层次 */
+    .content-h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 32px 0 20px 0;
+      padding: 12px 0;
+      background: linear-gradient(90deg, #f0f2ff 0%, transparent 100%);
+      line-height: 1.4;
+    }
+    
+    .content-h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin: 24px 0 16px 0;
+      padding: 8px 0;
+      line-height: 1.5;
+    }
+    
+    .content-h4 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #34495e;
+      margin: 20px 0 12px 0;
+      padding: 0;
+      line-height: 1.5;
+    }
+    
     .input-text {
       width: 100%;
       min-height: 200px;
@@ -111,6 +140,148 @@
     .block-content li {
       margin: 6px 0;
     }
+    
+    .block-content p {
+      margin: 8px 0;
+      line-height: 1.8;
+    }
+    
+    /* 块内小标题样式 */
+    .block-subtitle {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin: 16px 0 10px 0;
+      padding-left: 12px;
+      border-left: 3px solid #e0e0e0;
+      line-height: 1.6;
+    }
+    
+    /* 表格样式 - 现代化设计 */
+    .content-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 24px 0;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e8e8e8;
+    }
+    
+    .content-table th,
+    .content-table td {
+      padding: 16px 20px;
+      text-align: left;
+      border: none;
+    }
+    
+    .content-table thead {
+      position: relative;
+    }
+    
+    .content-table th {
+      background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+      position: relative;
+      border-bottom: 2px solid #d0e0ff;
+    }
+    
+    .content-table th:first-child {
+      border-top-left-radius: 12px;
+    }
+    
+    .content-table th:last-child {
+      border-top-right-radius: 12px;
+    }
+    
+    .content-table tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .content-table tbody tr:last-child {
+      border-bottom: none;
+    }
+    
+    .content-table tbody tr:nth-child(odd) {
+      background: linear-gradient(90deg, #fafbfc 0%, #ffffff 100%);
+    }
+    
+    .content-table tbody tr:nth-child(even) {
+      background: white;
+    }
+    
+    .content-table tbody tr:hover {
+      background: linear-gradient(90deg, #f5f8ff 0%, #f0f7ff 100%);
+      transform: scale(1.005);
+      box-shadow: 0 2px 8px rgba(90, 123, 166, 0.12);
+    }
+    
+    .content-table td {
+      color: #333;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .content-table td:first-child {
+      font-weight: 600;
+      color: #5a7ba6;
+    }
+    
+    /* 表格中的箭头符号美化 */
+    .content-table td:contains("→") {
+      font-weight: 500;
+    }
+    
+    /* 标签样式 - 精致设计 */
+    .tag-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      color: #e65100;
+      border-radius: 6px;
+      font-size: 13px;
+      margin: 0 6px;
+      font-weight: 600;
+      border: 1px solid #ffb74d;
+      box-shadow: 0 2px 4px rgba(230, 81, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+    
+    .tag-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(230, 81, 0, 0.2);
+    }
+    
+    .time-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      color: #1b5e20;
+      border-radius: 6px;
+      font-size: 13px;
+      margin: 4px;
+      font-weight: 600;
+      border: 1px solid #81c784;
+      box-shadow: 0 2px 4px rgba(27, 94, 32, 0.1);
+      transition: all 0.2s ease;
+    }
+    
+    .time-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(27, 94, 32, 0.2);
+    }
+    
+    .text-highlight {
+      color: #667eea;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(102, 126, 234, 0.1);
+    }
   </style>
 </head>
 <body>
@@ -118,7 +289,11 @@
     <h2>测试 Content Formatter</h2>
     <p>输入带 emoji 标记的内容，测试格式化效果：</p>
     
-    <textarea class="input-text" id="input">✅ 账号优势
+    <textarea class="input-text" id="input">## 一、账号诊断与定位
+
+### 1.1 账号优势分析
+
+✅ 核心优势
 
 - 内容定位清晰，专注美妆领域
 - 已有内容积累，可以优化迭代
@@ -130,10 +305,26 @@
 - 内容曝光度不足
 - 互动率需要提升
 
+### 1.2 涨粉计划总结
+
+| 阶段 | 时间周期 | 核心动作 | 目标粉丝数 |
+|------|---------|---------|-----------|
+| 1. 起步期 | 第1周 - 第4周 | 精准定位与装修、建立内容基准线 | 0 → 500 |
+| 2. 成长期 | 第5周 - 第12周 | 数据复盘与优化、建立内容栏目 | 500 → 3000 |
+| 3. 加速期 | 第13周 - 第24周 | 冲击小爆款、矩阵式内容布局 | 3000 → 10000 |
+
 💡 涨粉预期
 
-难度等级：中等
-预计时间：4-6周</textarea>
+#### 难度等级
+中等难度，需要持续投入
+
+#### 预计时间
+4-6周达到第一个里程碑
+
+#### 关键成功因素
+- 第一周：完成账号装修和定位
+- 第二周：发布10-15篇高质量笔记
+- 第三周：数据分析和内容优化</textarea>
     
     <button onclick="testFormat()">格式化</button>
     
@@ -141,14 +332,57 @@
   </div>
   
   <script>
-    // 简化版的 parseContentBlocks
+    // 完整的格式化函数
+    function formatContent(content) {
+      if (!content) return '<p style="color: #999;">内容为空</p>';
+      
+      let formatted = content;
+      
+      // 1. 处理 Markdown 标题
+      formatted = formatted.replace(/^#### (.+)$/gm, '<h4 class="content-h4">$1</h4>');
+      formatted = formatted.replace(/^### (.+)$/gm, '<h3 class="content-h3">$1</h3>');
+      formatted = formatted.replace(/^## (.+)$/gm, '<h2 class="content-h2">$1</h2>');
+      
+      // 2. 解析内容块
+      const { rawHtml } = parseContentBlocks(formatted);
+      if (rawHtml) {
+        formatted = rawHtml;
+      }
+      
+      // 3. 处理【】括号内容
+      formatted = formatted.replace(/【(.+?)】/g, '<span class="tag-badge">$1</span>');
+      
+      // 4. 处理加粗
+      formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="text-highlight">$1</strong>');
+      
+      // 5. 处理表格
+      formatted = formatTables(formatted);
+      
+      // 6. 处理时间格式
+      formatted = formatted.replace(/(\d{1,2}:\d{2}-\d{1,2}:\d{2})\s+(\d{1,2}:\d{2}-\d{1,2}:\d{2})/g, 
+        '<span class="time-badge">$1</span> <span class="time-badge">$2</span>');
+      
+      return formatted;
+    }
+    
     function parseContentBlocks(content) {
       const lines = content.split('\n').map(line => line.trim()).filter(line => line);
       const blocks = [];
       let currentBlock = null;
+      let result = [];
       
       for (const line of lines) {
-        // 使用 Unicode 属性匹配 emoji，支持变体选择符
+        // 跳过已经是HTML标签的行
+        if (line.startsWith('<h2') || line.startsWith('<h3') || line.startsWith('<h4')) {
+          if (currentBlock) {
+            blocks.push(currentBlock);
+            currentBlock = null;
+          }
+          result.push(line);
+          continue;
+        }
+        
+        // 使用 Unicode 属性匹配 emoji
         const blockMatch = line.match(/^([\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}][\uFE00-\uFE0F]?)\s*(.+)$/u);
         
         if (blockMatch) {
@@ -159,7 +393,6 @@
           const icon = blockMatch[1];
           const title = blockMatch[2];
           
-          // 使用 includes 来匹配，因为可能有变体选择符
           let type = 'default';
           if (icon.includes('✅')) type = 'success';
           else if (icon.includes('⚠')) type = 'warning';
@@ -173,6 +406,8 @@
           };
         } else if (currentBlock) {
           currentBlock.content.push(line);
+        } else {
+          result.push(line);
         }
       }
       
@@ -180,23 +415,60 @@
         blocks.push(currentBlock);
       }
       
-      return blocks;
+      const blocksHtml = generateBlocksHtml(blocks);
+      const rawHtml = result.join('\n') + '\n' + blocksHtml;
+      
+      return { blocks, rawHtml };
     }
     
     function generateBlocksHtml(blocks) {
       return blocks.map(block => {
         const className = `content-block ${block.type}-block`;
-        const contentHtml = block.content.map(line => {
-          if (line.match(/^[•\-]\s/)) {
-            return `<li>${line.substring(2)}</li>`;
-          }
-          return `<p>${line}</p>`;
-        }).join('\n');
+        let inList = false;
+        const contentHtml = [];
         
-        const hasListItems = block.content.some(line => line.match(/^[•\-]\s/));
-        const wrappedContent = hasListItems 
-          ? `<ul>${contentHtml}</ul>`
-          : contentHtml;
+        block.content.forEach(line => {
+          const listMatch = line.match(/^[•\-]\s(.+)$/);
+          const numberMatch = line.match(/^\d+\.\s(.+)$/);
+          
+          if (listMatch || numberMatch) {
+            const text = listMatch ? listMatch[1] : numberMatch[1];
+            
+            // 判断是否是小标题
+            const isTimeSubtitle = /^(第[一二三四五六七八九十\d]+[周天日]|Day\s*\d+|早上|上午|中午|下午|晚上|夜间)/i.test(text);
+            const isKeywordColon = /^[\u4e00-\u9fa5]{1,6}[：:]\s*/.test(text) && text.length <= 30;
+            
+            if (isTimeSubtitle || isKeywordColon) {
+              if (inList) {
+                contentHtml.push('</ul>');
+                inList = false;
+              }
+              
+              let formattedText = text;
+              if (isKeywordColon) {
+                formattedText = text.replace(/^([\u4e00-\u9fa5]{1,6}[：:])/, '<strong>$1</strong>');
+              }
+              
+              contentHtml.push(`<h4 class="block-subtitle">${formattedText}</h4>`);
+            } else {
+              if (!inList) {
+                contentHtml.push('<ul>');
+                inList = true;
+              }
+              contentHtml.push(`<li>${text}</li>`);
+            }
+          } else {
+            if (inList) {
+              contentHtml.push('</ul>');
+              inList = false;
+            }
+            contentHtml.push(`<p>${line}</p>`);
+          }
+        });
+        
+        if (inList) {
+          contentHtml.push('</ul>');
+        }
         
         return `
           <div class="${className}">
@@ -205,31 +477,51 @@
               <span class="block-title">${block.title}</span>
             </div>
             <div class="block-content">
-              ${wrappedContent}
+              ${contentHtml.join('\n')}
             </div>
           </div>
         `;
       }).join('\n');
     }
     
+    function formatTables(content) {
+      const tableRegex = /^\|(.+)\|$/gm;
+      if (!tableRegex.test(content)) {
+        return content;
+      }
+      
+      return content.replace(/(\|.+\|\n)+/g, (match) => {
+        const rows = match.trim().split('\n');
+        if (rows.length < 2) return match;
+        
+        let tableHtml = '<table class="content-table">';
+        
+        rows.forEach((row, index) => {
+          const cells = row.split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+          if (cells.length === 0) return;
+          
+          // 跳过分隔行
+          if (cells[0].match(/^-+$/)) return;
+          
+          const tag = index === 0 ? 'th' : 'td';
+          tableHtml += '<tr>';
+          cells.forEach(cell => {
+            tableHtml += `<${tag}>${cell}</${tag}>`;
+          });
+          tableHtml += '</tr>';
+        });
+        
+        tableHtml += '</table>';
+        return tableHtml;
+      });
+    }
+    
     function testFormat() {
       const input = document.getElementById('input').value;
-      const blocks = parseContentBlocks(input);
-      
-      // 详细调试信息
-      console.log('=== 解析结果 ===');
-      blocks.forEach((block, index) => {
-        console.log(`Block ${index + 1}:`, block);
-        console.log(`  - Icon: "${block.icon}" (U+${block.icon.codePointAt(0).toString(16).toUpperCase()})`);
-        console.log(`  - Title: "${block.title}"`);
-        console.log(`  - Type: "${block.type}"`);
-        console.log(`  - CSS Class: "content-block ${block.type}-block"`);
-      });
-      
-      const html = generateBlocksHtml(blocks);
+      const html = formatContent(input);
       document.getElementById('output').innerHTML = html;
       
-      console.log('=== 生成的 HTML ===');
+      console.log('=== 格式化结果 ===');
       console.log(html);
     }
     

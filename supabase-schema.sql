@@ -53,10 +53,14 @@ CREATE TABLE public.orders (
 CREATE TABLE public.guide_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  share_id TEXT UNIQUE NOT NULL DEFAULT substring(md5(random()::text) from 1 for 8),
   account_name TEXT NOT NULL,
   account_data JSONB NOT NULL,
   guide_content JSONB NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  is_public BOOLEAN DEFAULT FALSE,
+  view_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- ============================================
@@ -71,6 +75,8 @@ CREATE INDEX idx_orders_user_id ON public.orders(user_id);
 CREATE INDEX idx_orders_order_no ON public.orders(order_no);
 CREATE INDEX idx_orders_status ON public.orders(status);
 CREATE INDEX idx_guide_history_user_id ON public.guide_history(user_id);
+CREATE INDEX idx_guide_history_share_id ON public.guide_history(share_id);
+CREATE INDEX idx_guide_history_is_public ON public.guide_history(is_public);
 
 -- ============================================
 -- Row Level Security (RLS) 策略
@@ -112,8 +118,14 @@ CREATE POLICY "用户可以查看自己的订单" ON public.orders
 CREATE POLICY "用户可以查看自己的历史记录" ON public.guide_history
   FOR SELECT USING (auth.uid() = user_id);
 
+CREATE POLICY "所有人可以查看公开的指南" ON public.guide_history
+  FOR SELECT USING (is_public = TRUE);
+
 CREATE POLICY "用户可以插入自己的历史记录" ON public.guide_history
   FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "用户可以更新自己的历史记录" ON public.guide_history
+  FOR UPDATE USING (auth.uid() = user_id);
 
 CREATE POLICY "用户可以删除自己的历史记录" ON public.guide_history
   FOR DELETE USING (auth.uid() = user_id);

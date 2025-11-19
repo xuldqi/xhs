@@ -5,6 +5,7 @@ import 'element-plus/dist/index.css'
 import router from './router'
 import App from './App.vue'
 import './style.css'
+import './styles/guide-content.css'
 import { useUserStore } from './stores/userStore'
 
 const app = createApp(App)

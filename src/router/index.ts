@@ -52,6 +52,11 @@ const routes: RouteRecordRaw[] = [
     path: '/payment/return',
     name: 'PaymentReturn',
     component: () => import('@/views/PaymentReturnView.vue')
+  },
+  {
+    path: '/share/:shareId',
+    name: 'Share',
+    component: () => import('@/views/ShareView.vue')
   }
 ]
 

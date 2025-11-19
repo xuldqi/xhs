@@ -4,7 +4,7 @@
  */
 
 export interface ContentBlock {
-  type: 'success' | 'warning' | 'info' | 'default'
+  type: 'success' | 'warning' | 'info' | 'purple' | 'orange' | 'pink' | 'default'
   title: string
   content: string[]
   icon?: string
@@ -18,6 +18,7 @@ export interface ParsedContent {
 /**
  * 解析内容块
  * 识别特殊标记的内容块（如 ✅、⚠️、💡 等）
+ * 也支持 ◆ ◆ 这种双符号格式
  */
 export function parseContentBlocks(content: string): ParsedContent {
   const lines = content.split('\n').map(line => line.trim()).filter(line => line)
@@ -25,9 +26,13 @@ export function parseContentBlocks(content: string): ParsedContent {
   let currentBlock: ContentBlock | null = null
   
   for (const line of lines) {
-    // 检测块标题（带 emoji 的行）
-    // 支持更多 emoji：✅⚠️💡📊📅🎯🔥💰📝🌙☀️🌅🌞💪📈📉✨🎨📄⏰📱💥🎁🔔
-    const blockMatch = line.match(/^([✅⚠️💡📊📅🎯🔥💰📝🌙☀️🌅🌞💪📈📉✨🎨📄⏰📱💥🎁🔔❌◆●▶️★■]|\s*[◆●▶️★■])\s*(.+)$/)
+    // 检测块标题 - 支持多种格式：
+    // 1. emoji + 标题：✅ 账号优势、🚀 零粉丝启动方案、💬 互动维护
+    // 2. 双符号 + 标题：◆ ◆ 账号定位
+    // 3. 单符号 + 标题：◆ 账号定位
+    // 使用Unicode范围匹配所有emoji（包括变体选择符）
+    // 涵盖所有emoji区域：表情、符号、交通、物品、活动等
+    const blockMatch = line.match(/^([\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}][\uFE00-\uFE0F]?|[◆●▶★■]+)\s+(.+)$/u)
     
     if (blockMatch) {
       // 保存上一个块
@@ -37,19 +42,33 @@ export function parseContentBlocks(content: string): ParsedContent {
       
       // 创建新块
       let icon = blockMatch[1].trim()
-      const title = blockMatch[2]
+      const title = blockMatch[2].trim()
       
-      // 将 Unicode 符号转换为对应 emoji
-      const iconMap: Record<string, string> = {
-        '◆': '💡',
-        '●': '📌',
-        '▶️': '▶️',
-        '★': '⭐',
-        '■': '📋'
-      }
+      // 处理双符号情况：◆ ◆ -> ◆
+      icon = icon.replace(/\s+/g, '')
       
-      if (iconMap[icon]) {
-        icon = iconMap[icon]
+      // 提取第一个emoji（包含变体选择符）
+      // 使用正则匹配完整的emoji序列（基础字符 + 可选的变体选择符）
+      const emojiMatch = icon.match(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}][\uFE00-\uFE0F]?/u)
+      if (emojiMatch) {
+        icon = emojiMatch[0]
+      } else {
+        // 如果不是emoji，使用Array.from提取第一个字符
+        const chars = Array.from(icon)
+        icon = chars[0]
+        
+        // 将 Unicode 符号转换为对应 emoji
+        const iconMap: Record<string, string> = {
+          '◆': '💡',
+          '●': '📌',
+          '▶': '▶️',
+          '★': '⭐',
+          '■': '📋'
+        }
+        
+        if (iconMap[icon]) {
+          icon = iconMap[icon]
+        }
       }
       
       currentBlock = {
@@ -77,52 +96,64 @@ export function parseContentBlocks(content: string): ParsedContent {
 
 /**
  * 根据 emoji 判断块类型
+ * 支持6种颜色：success(绿), warning(黄), info(蓝), purple(紫), orange(橙), pink(粉)
  */
 function getBlockType(icon: string): ContentBlock['type'] {
-  switch (icon) {
-    // 绿色成功类 - success
-    case '✅':  // ✅
-    case '💪': // 💪
-    case '📈': // 📈
-    case '✨':  // ✨
-    case '⭐':  // ⭐ (从 ★ 转换)
-      return 'success'
-    
-    // 黄色警告类 - warning
-    case '⚠️':  // ⚠️
-    case '🔔': // 🔔
-    case '❌':  // ❌
-      return 'warning'
-    
-    // 蓝色提示类 - info
-    case '💡': // 💡 (默认从 ◆ 转换)
-    case '📊': // 📊
-    case '📅': // 📅
-    case '🎯': // 🎯
-    case '📝': // 📝
-    case '🎨': // 🎨
-    case '📄': // 📄
-    case '⏰':  // ⏰
-    case '📱': // 📱
-    case '🌙': // 🌙
-    case '☀️':  // ☀️
-    case '🌅': // 🌅
-    case '🌞': // 🌞
-    case '📉': // 📉
-    case '📌': // 📌 (从 ● 转换)
-    case '📋': // 📋 (从 ■ 转换)
-    case '▶️':  // ▶️
-      return 'info'
-    
-    // 默认类 - default
-    default:
-      return 'default'
+  // 使用includes来匹配，因为emoji可能有变体选择符
+  const iconStr = icon.toString()
+  
+  // 绿色成功类 - success (✅💪📈✨⭐)
+  if (iconStr.includes('✅') || iconStr.includes('💪') || iconStr.includes('📈') || 
+      iconStr.includes('✨') || iconStr.includes('⭐')) {
+    return 'success'
   }
+  
+  // 黄色警告类 - warning (⚠️🔔❌)
+  if (iconStr.includes('⚠') || iconStr.includes('🔔') || iconStr.includes('❌')) {
+    return 'warning'
+  }
+  
+  // 蓝色提示类 - info (💡📊📅🎯📝📄⏰📱📌📋▶️)
+  if (iconStr.includes('💡') || iconStr.includes('📊') || iconStr.includes('📅') || 
+      iconStr.includes('🎯') || iconStr.includes('📝') || iconStr.includes('📄') ||
+      iconStr.includes('⏰') || iconStr.includes('📱') || iconStr.includes('📌') ||
+      iconStr.includes('📋') || iconStr.includes('▶')) {
+    return 'info'
+  }
+  
+  // 紫色类 - purple (🚀👑💎🎓🔮💜)
+  if (iconStr.includes('🚀') || iconStr.includes('👑') || iconStr.includes('💎') ||
+      iconStr.includes('🎓') || iconStr.includes('🔮') || iconStr.includes('💜')) {
+    return 'purple'
+  }
+  
+  // 橙色类 - orange (🔥💰💥⚡🎁)
+  if (iconStr.includes('🔥') || iconStr.includes('💰') || iconStr.includes('💥') ||
+      iconStr.includes('⚡') || iconStr.includes('🎁')) {
+    return 'orange'
+  }
+  
+  // 粉色类 - pink (💖🌸🎨💕❤️)
+  if (iconStr.includes('💖') || iconStr.includes('🌸') || iconStr.includes('🎨') ||
+      iconStr.includes('💕') || iconStr.includes('❤')) {
+    return 'pink'
+  }
+  
+  // 时间相关 - info (🌙☀️🌅🌞)
+  if (iconStr.includes('🌙') || iconStr.includes('☀') || iconStr.includes('🌅') || 
+      iconStr.includes('🌞')) {
+    return 'info'
+  }
+  
+  // 默认类 - info (蓝色)
+  return 'info'
 }
 
 /**
  * 生成块的 HTML - 使用卡片布局
- * 支持智能识别小标题、列表项和普通段落
+ * 简单规则：
+ * 1. 有 - 开头的 → 列表项
+ * 2. 没有 - 开头的 → 小标题
  */
 function generateBlocksHtml(blocks: ContentBlock[]): string {
   return blocks.map(block => {
@@ -131,72 +162,33 @@ function generateBlocksHtml(blocks: ContentBlock[]): string {
     let inList = false
     const contentHtml: string[] = []
     
-    block.content.forEach((line, index) => {
-      // 检查是否是列表项
-      const listMatch = line.match(/^[•\-]\s(.+)$/)
-      const numberMatch = line.match(/^\d+\.\s(.+)$/)
+    block.content.forEach((line) => {
+      // 检查是否是列表项（以 - 或 • 开头）
+      const listMatch = line.match(/^[-•]\s(.+)$/)
       
-      if (listMatch || numberMatch) {
-        const text = listMatch ? listMatch[1] : numberMatch![1]
-        
-        // 判断是否是小标题：
-        // 1. 包含"第X周"、"第X天"、"Day X"等时间标记
-        // 2. 或者是"关键词："格式（如"尺寸："、"字体："、"金额："）
-        // 3. 或者是"XX%抄什么"、"XX%改什么"格式
-        // 4. 或者匹配常见的分组标题模式
-        const isTimeSubtitle = /^(第[一二三四五六七八九十\d]+[周天日]|Day\s*\d+|早上|上午|中午|下午|晚上|夜间)/i.test(text)
-        const isKeywordColon = /^[\u4e00-\u9fa5]{1,6}[：:]\s*/.test(text) && text.length <= 30
-        const isPercentPattern = /^\d+%[抄改做用]/.test(text)
-        const isGroupTitle = text.length <= 10 && /^[^\d]+(层|类|型|组|部分)/.test(text)
-        
-        if (isTimeSubtitle || isKeywordColon || isPercentPattern || isGroupTitle) {
-          // 作为小标题处理
-          if (inList) {
-            contentHtml.push('</ul>')
-            inList = false
-          }
-          
-          // 如果是"关键词："格式，将冒号前的部分加粗
-          let formattedText = text
-          if (isKeywordColon) {
-            formattedText = text.replace(/^([\u4e00-\u9fa5]{1,6}[：:])/, '<strong>$1</strong>')
-          }
-          
-          contentHtml.push(`<h4 class="block-subtitle">${formattedText}</h4>`)
-        } else {
-          // 作为列表项处理
-          if (!inList) {
-            contentHtml.push('<ul>')
-            inList = true
-          }
-          contentHtml.push(`<li>${text}</li>`)
+      if (listMatch) {
+        // 列表项
+        const text = listMatch[1]
+        if (!inList) {
+          contentHtml.push('<ul>')
+          inList = true
         }
+        contentHtml.push(`<li>${text}</li>`)
       } else {
-        // 检查普通段落是否也是小标题格式
-        const isTimeSubtitle = /^(第[一二三四五六七八九十\d]+[周天日]|Day\s*\d+)[：:]/i.test(line)
-        const isKeywordColon = /^[\u4e00-\u9fa5]{1,6}[：:]\s*/.test(line) && line.length <= 30
-        
-        if (isTimeSubtitle || isKeywordColon) {
-          if (inList) {
-            contentHtml.push('</ul>')
-            inList = false
-          }
-          
-          // 如果是"关键词："格式，将冒号前的部分加粗
-          let formattedLine = line
-          if (isKeywordColon) {
-            formattedLine = line.replace(/^([\u4e00-\u9fa5]{1,6}[：:])/, '<strong>$1</strong>')
-          }
-          
-          contentHtml.push(`<h4 class="block-subtitle">${formattedLine}</h4>`)
-        } else {
-          // 普通段落
-          if (inList) {
-            contentHtml.push('</ul>')
-            inList = false
-          }
-          contentHtml.push(`<p>${line}</p>`)
+        // 不是列表项，就是小标题
+        if (inList) {
+          contentHtml.push('</ul>')
+          inList = false
         }
+        
+        // 如果包含冒号，将冒号前的部分加粗
+        let formattedLine = line
+        const colonMatch = line.match(/^([\u4e00-\u9fa5a-zA-Z0-9\s]{1,15}[：:])/)
+        if (colonMatch) {
+          formattedLine = line.replace(/^([\u4e00-\u9fa5a-zA-Z0-9\s]{1,15}[：:])/, '<strong>$1</strong>')
+        }
+        
+        contentHtml.push(`<h4 class="block-subtitle">${formattedLine}</h4>`)
       }
     })
     
@@ -230,19 +222,20 @@ export function formatContent(content: string): string {
   
   let formatted = content
   
-  // 1. 先尝试解析内容块
-  const { rawHtml } = parseContentBlocks(content)
+  // 1. 处理 Markdown 标题（在解析内容块之前）
+  formatted = formatted.replace(/^#### (.+)$/gm, '<h4 class="content-h4">$1</h4>')
+  formatted = formatted.replace(/^### (.+)$/gm, '<h3 class="content-h3">$1</h3>')
+  formatted = formatted.replace(/^## (.+)$/gm, '<h2 class="content-h2">$1</h2>')
+  
+  // 2. 尝试解析内容块
+  const { rawHtml } = parseContentBlocks(formatted)
+  
   if (rawHtml) {
     formatted = rawHtml
   }
   
-  // 2. 处理【】括号内容 - 转换为小标签
+  // 3. 处理【】括号内容 - 转换为小标签
   formatted = formatted.replace(/【(.+?)】/g, '<span class="tag-badge">$1</span>')
-  
-  // 3. 处理 Markdown 标题
-  formatted = formatted.replace(/^#### (.+)$/gm, '<h4 class="content-subtitle">$1</h4>')
-  formatted = formatted.replace(/^### (.+)$/gm, '<h3 class="content-title">$1</h3>')
-  formatted = formatted.replace(/^## (.+)$/gm, '<h2 class="section-heading">$1</h2>')
   
   // 4. 处理加粗 **text**
   formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="text-highlight">$1</strong>')
@@ -297,22 +290,71 @@ function formatTables(content: string): string {
 
 /**
  * 格式化段落
+ * 智能识别小标题、列表项和普通段落
  */
 function formatParagraphs(content: string): string {
   const lines = content.split('\n')
   const result: string[] = []
+  let inList = false
   
   for (let line of lines) {
     line = line.trim()
-    if (!line) continue
+    if (!line) {
+      if (inList) {
+        result.push('</ul>')
+        inList = false
+      }
+      continue
+    }
     
     // 如果已经是 HTML 标签，直接添加
     if (line.startsWith('<')) {
+      if (inList) {
+        result.push('</ul>')
+        inList = false
+      }
       result.push(line)
+    } else if (line.match(/^[-•]\s/)) {
+      // 列表项
+      if (!inList) {
+        result.push('<ul>')
+        inList = true
+      }
+      const text = line.substring(2).trim()
+      result.push(`<li>${text}</li>`)
     } else {
-      // 普通文本转为段落
-      result.push(`<p class="content-paragraph">${line}</p>`)
+      // 检查是否是小标题格式
+      const isKeywordColon = /^[\u4e00-\u9fa5]{2,8}[：:]\s*.{1,50}$/.test(line)
+      const isTimeSubtitle = /^(第[一二三四五六七八九十\d]+[周天日]|Day\s*\d+)[：:]/.test(line)
+      
+      if (isKeywordColon || isTimeSubtitle) {
+        // 作为小标题处理
+        if (inList) {
+          result.push('</ul>')
+          inList = false
+        }
+        
+        // 将冒号前的部分加粗
+        let formattedLine = line
+        if (isKeywordColon) {
+          formattedLine = line.replace(/^([\u4e00-\u9fa5]{2,8}[：:])/, '<strong>$1</strong>')
+        }
+        
+        result.push(`<h4 class="block-subtitle">${formattedLine}</h4>`)
+      } else {
+        // 普通文本转为段落
+        if (inList) {
+          result.push('</ul>')
+          inList = false
+        }
+        result.push(`<p class="content-paragraph">${line}</p>`)
+      }
     }
+  }
+  
+  // 关闭未闭合的列表
+  if (inList) {
+    result.push('</ul>')
   }
   
   return result.join('\n')

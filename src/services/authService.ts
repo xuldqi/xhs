@@ -51,10 +51,23 @@ export class AuthService {
     return data.user
   }
 
-  // 获取当前用户
+  // 获取当前用户（从 session 恢复）
   static async getCurrentUser(): Promise<User | null> {
+    // 先尝试从 session 获取
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.user) {
+      return session.user
+    }
+    
+    // 如果 session 存在但需要刷新，尝试获取用户
     const { data: { user } } = await supabase.auth.getUser()
     return user
+  }
+  
+  // 获取当前 session
+  static async getSession() {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session
   }
 
   // 退出登录

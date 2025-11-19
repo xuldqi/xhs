@@ -78,7 +78,15 @@
           <div class="action-bar">
             <el-button type="primary" size="large" @click="handleExportHTML">
               <el-icon><Download /></el-icon>
-              导出 HTML（推荐）
+              导出 HTML
+            </el-button>
+            <el-button size="large" @click="handleExportPDF">
+              <el-icon><Document /></el-icon>
+              导出 PDF
+            </el-button>
+            <el-button v-if="isLoggedIn" size="large" @click="handleSaveAndShare" :loading="saving">
+              <el-icon><Share /></el-icon>
+              {{ shareId ? '复制分享链接' : '保存并分享' }}
             </el-button>
             <el-button size="large" @click="handleRegenerate">
               <el-icon><Refresh /></el-icon>
@@ -154,13 +162,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled } from '@element-plus/icons-vue'
+import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled, Share } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { SECTION_TITLES } from '@/types'
 import type { GuideContent } from '@/types'
 import TipsCarousel from '@/components/TipsCarousel.vue'
+import '@/styles/guide-content.css'
 import { formatContent, stripHtmlTags } from '@/utils/contentFormatter'
+import { exportToPDF, prepareElementForExport } from '@/utils/pdfExporter'
+import { saveGuide, generateShareLink } from '@/services/guideService'
+import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // 状态
 const isGenerating = ref(true)
@@ -169,6 +183,11 @@ const generationProgress = ref(0)
 const guideContent = ref<GuideContent | null>(null)
 const activeNames = ref<number[]>([1]) // 默认展开第一个章节
 const startTime = ref<number>(0)
+const saving = ref(false)
+const shareId = ref('')
+
+// 计算属性
+const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 // 进度条颜色
 const progressColor = computed(() => {
@@ -591,34 +610,59 @@ const handleExportHTML = () => {
       font-weight: 600;
     }
     
-    /* 表格样式 */
+    /* 表格样式 - 淡色设计 */
     .content-table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       margin: 1.5rem 0;
       background: white;
-      border-radius: 8px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e8e8e8;
     }
     
     .content-table th,
     .content-table td {
-      padding: 14px 18px;
+      padding: 16px 20px;
       text-align: left;
       border: none;
-      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .content-table thead {
+      position: relative;
     }
     
     .content-table th {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
       font-weight: 600;
-      color: white;
+      color: #2c3e50;
       font-size: 0.95rem;
+      letter-spacing: 0.3px;
+      position: relative;
+      border-bottom: 2px solid #d0e0ff;
+    }
+    
+    .content-table th:first-child {
+      border-top-left-radius: 12px;
+    }
+    
+    .content-table th:last-child {
+      border-top-right-radius: 12px;
+    }
+    
+    .content-table tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .content-table tbody tr:last-child {
+      border-bottom: none;
     }
     
     .content-table tbody tr:nth-child(odd) {
-      background: #fafbfc;
+      background: linear-gradient(90deg, #fafbfc 0%, #ffffff 100%);
     }
     
     .content-table tbody tr:nth-child(even) {
@@ -626,30 +670,59 @@ const handleExportHTML = () => {
     }
     
     .content-table tbody tr:hover {
-      background: #f0f7ff;
+      background: linear-gradient(90deg, #f5f8ff 0%, #f0f7ff 100%);
+      transform: scale(1.005);
+      box-shadow: 0 2px 8px rgba(90, 123, 166, 0.12);
     }
     
-    /* 标签样式 */
+    .content-table td {
+      color: #333;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    
+    .content-table td:first-child {
+      font-weight: 600;
+      color: #5a7ba6;
+    }
+    
+    /* 标签样式 - 精致设计 */
     .tag-badge {
       display: inline-block;
-      padding: 2px 8px;
-      background: #fff3e0;
-      color: #f57c00;
-      border-radius: 3px;
-      font-size: 0.9em;
-      margin: 0 4px;
-      font-weight: 500;
+      padding: 4px 12px;
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      color: #e65100;
+      border-radius: 6px;
+      font-size: 0.85em;
+      margin: 0 6px;
+      font-weight: 600;
+      border: 1px solid #ffb74d;
+      box-shadow: 0 2px 4px rgba(230, 81, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+    
+    .tag-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(230, 81, 0, 0.2);
     }
     
     .time-badge {
       display: inline-block;
-      padding: 3px 10px;
-      background: #e8f5e9;
-      color: #2e7d32;
-      border-radius: 3px;
-      font-size: 0.95em;
+      padding: 5px 14px;
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      color: #1b5e20;
+      border-radius: 6px;
+      font-size: 0.9em;
       margin: 4px;
-      font-weight: 500;
+      font-weight: 600;
+      border: 1px solid #81c784;
+      box-shadow: 0 2px 4px rgba(27, 94, 32, 0.1);
+      transition: all 0.2s ease;
+    }
+    
+    .time-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(27, 94, 32, 0.2);
     }
     
     /* 打印优化 */
@@ -694,6 +767,97 @@ const handleExportHTML = () => {
   URL.revokeObjectURL(url)
   
   console.log('✅ HTML 导出成功')
+}
+
+// 导出 PDF（新方法）
+const handleExportPDF = async () => {
+  if (!guideContent.value) return
+  
+  try {
+    ElMessage.info('正在生成 PDF，请稍候...')
+    
+    const contentSection = document.querySelector('.content-section') as HTMLElement
+    if (!contentSection) {
+      throw new Error('找不到内容区域')
+    }
+    
+    // 准备导出（展开所有折叠面板）
+    const restore = prepareElementForExport(contentSection)
+    
+    // 等待DOM更新
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    // 导出PDF
+    await exportToPDF(contentSection, {
+      filename: `小红书涨粉指南_${guideContent.value.metadata.accountName}.pdf`
+    })
+    
+    // 恢复原始状态
+    restore()
+    
+    ElMessage.success('PDF 导出成功！')
+  } catch (error) {
+    console.error('PDF 导出失败:', error)
+    ElMessage.error('PDF 导出失败，请重试')
+  }
+}
+
+// 保存并分享
+const handleSaveAndShare = async () => {
+  if (!guideContent.value) return
+  
+  // 如果已经有分享链接，直接复制
+  if (shareId.value) {
+    const shareLink = generateShareLink(shareId.value)
+    try {
+      await navigator.clipboard.writeText(shareLink)
+      ElMessage.success('分享链接已复制到剪贴板！')
+    } catch (error) {
+      // 降级方案：显示链接让用户手动复制
+      ElMessageBox.alert(shareLink, '分享链接', {
+        confirmButtonText: '关闭',
+        callback: () => {}
+      })
+    }
+    return
+  }
+  
+  // 保存到云端
+  saving.value = true
+  
+  try {
+    const { useAppStore } = await import('@/stores/appStore')
+    const store = useAppStore()
+    
+    const result = await saveGuide(store.accountData, guideContent.value)
+    
+    if (result.success && result.shareId) {
+      shareId.value = result.shareId
+      const shareLink = generateShareLink(result.shareId)
+      
+      // 复制到剪贴板
+      try {
+        await navigator.clipboard.writeText(shareLink)
+        ElMessage.success({
+          message: '保存成功！分享链接已复制到剪贴板',
+          duration: 3000
+        })
+      } catch (error) {
+        // 降级方案
+        ElMessageBox.alert(shareLink, '分享链接', {
+          confirmButtonText: '关闭',
+          callback: () => {}
+        })
+      }
+    } else {
+      ElMessage.error(result.error || '保存失败')
+    }
+  } catch (error) {
+    console.error('保存失败:', error)
+    ElMessage.error('保存失败，请重试')
+  } finally {
+    saving.value = false
+  }
 }
 
 // 重新生成
@@ -892,8 +1056,8 @@ const goBack = () => {
 
 .section-badge {
   padding: 4px 12px;
-  background: #f5f5f5;
-  color: #666;
+  background: transparent;
+  color: #999;
   border-radius: 12px;
   font-size: 0.85rem;
 }

@@ -7,7 +7,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// 创建 Supabase 客户端，启用持久化 session
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    // 自动刷新 token
+    autoRefreshToken: true,
+    // 持久化 session 到 localStorage
+    persistSession: true,
+    // 检测 session 从其他标签页的更新
+    detectSessionInUrl: true,
+    // 存储 key 前缀
+    storageKey: 'xiaohongshu-auth',
+  },
+})
 
 // 类型定义
 export interface Profile {

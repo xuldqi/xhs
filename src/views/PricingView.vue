@@ -151,13 +151,19 @@ const handlePurchase = async (plan: PlanConfig) => {
     })
 
     if (response.data.success) {
-      const { payUrl, orderNo } = response.data.data
+      const { paymentForm, orderNo } = response.data.data
       
       // 保存订单号到 localStorage
       localStorage.setItem('pending_order', orderNo)
       
-      // 跳转到支付宝支付页面
-      window.location.href = payUrl
+      // 创建一个临时表单并提交到支付宝
+      const div = document.createElement('div')
+      div.innerHTML = paymentForm
+      document.body.appendChild(div)
+      const form = div.querySelector('form')
+      if (form) {
+        form.submit()
+      }
     } else {
       throw new Error(response.data.error || '创建订单失败')
     }
@@ -209,6 +215,9 @@ const handlePurchase = async (plan: PlanConfig) => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.3s;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
 }
 
 .pricing-card:hover {
@@ -266,6 +275,7 @@ const handlePurchase = async (plan: PlanConfig) => {
 
 .plan-features {
   margin-bottom: 24px;
+  flex: 1;
 }
 
 .feature-item {
@@ -284,6 +294,7 @@ const handlePurchase = async (plan: PlanConfig) => {
 
 .purchase-btn {
   width: 100%;
+  margin-top: auto;
 }
 
 .purchase-btn.is-current {

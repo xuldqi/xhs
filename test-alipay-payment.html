@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>支付宝支付测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+
+    .test-section h2 {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      color: #555;
+      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .result.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .result.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .result.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .info-box {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .info-box h3 {
+      color: #856404;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .info-box p {
+      color: #856404;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 5px;
+    }
+
+    .info-box code {
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 支付宝支付测试</h1>
+    <p class="subtitle">测试支付宝沙箱环境集成</p>
+
+    <div class="info-box">
+      <h3>📝 测试说明</h3>
+      <p>1. 确保后端服务运行在 <code>http://localhost:3001</code></p>
+      <p>2. 使用支付宝沙箱账号进行测试</p>
+      <p>3. 沙箱环境支付密码通常是 <code>111111</code></p>
+      <p>4. 测试金额建议使用 <code>0.01</code> 元</p>
+    </div>
+
+    <!-- 测试 1: 创建支付订单 -->
+    <div class="test-section">
+      <h2>测试 1: 创建支付订单</h2>
+      
+      <div class="form-group">
+        <label>订单金额（元）</label>
+        <input type="number" id="amount" value="0.01" step="0.01" min="0.01">
+      </div>
+
+      <div class="form-group">
+        <label>商品名称</label>
+        <input type="text" id="subject" value="小红书攻略生成器 - 月度会员">
+      </div>
+
+      <div class="form-group">
+        <label>支付方式</label>
+        <select id="paymentType">
+          <option value="page">电脑网站支付</option>
+          <option value="wap">手机网站支付</option>
+        </select>
+      </div>
+
+      <button onclick="createPayment()">创建支付订单</button>
+      
+      <div id="paymentResult" class="result"></div>
+    </div>
+
+    <!-- 测试 2: 查询订单 -->
+    <div class="test-section">
+      <h2>测试 2: 查询订单状态</h2>
+      
+      <div class="form-group">
+        <label>订单号</label>
+        <input type="text" id="queryOrderNo" placeholder="输入订单号，例如：XHS1732012345678901234">
+      </div>
+
+      <button onclick="queryOrder()">查询订单</button>
+      
+      <div id="queryResult" class="result"></div>
+    </div>
+
+    <!-- 测试 3: 关闭订单 -->
+    <div class="test-section">
+      <h2>测试 3: 关闭订单</h2>
+      
+      <div class="form-group">
+        <label>订单号</label>
+        <input type="text" id="closeOrderNo" placeholder="输入要关闭的订单号">
+      </div>
+
+      <button onclick="closeOrder()">关闭订单</button>
+      
+      <div id="closeResult" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3001/api/payment';
+
+    // 创建支付订单
+    async function createPayment() {
+      const amount = document.getElementById('amount').value;
+      const subject = document.getElementById('subject').value;
+      const paymentType = document.getElementById('paymentType').value;
+      const resultDiv = document.getElementById('paymentResult');
+      
+      resultDiv.className = 'result info';
+      resultDiv.innerHTML = '<div class="loading"></div> 正在创建订单...';
+
+      try {
+        const response = await fetch(`${API_BASE}/create-order`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: parseFloat(amount),
+            planType: 'monthly',
+            userId: 'test-user-' + Date.now(),
+            paymentType: paymentType
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          resultDiv.className = 'result success';
+          resultDiv.innerHTML = `
+            <strong>✅ 订单创建成功！</strong><br>
+            订单号: ${data.orderNo}<br>
+            <br>
+            <strong>支付链接已生成，即将跳转...</strong><br>
+            <small>如果没有自动跳转，请手动访问支付链接</small>
+          `;
+
+          // 保存订单号到查询框
+          document.getElementById('queryOrderNo').value = data.orderNo;
+          document.getElementById('closeOrderNo').value = data.orderNo;
+
+          // 3秒后跳转到支付页面
+          setTimeout(() => {
+            // 创建一个表单并提交（支付宝返回的是 HTML 表单）
+            const div = document.createElement('div');
+            div.innerHTML = data.paymentUrl;
+            document.body.appendChild(div);
+            const form = div.querySelector('form');
+            if (form) {
+              form.submit();
+            } else {
+              // 如果是 URL，直接跳转
+              window.location.href = data.paymentUrl;
+            }
+          }, 3000);
+        } else {
+          throw new Error(data.message || '创建订单失败');
+        }
+      } catch (error) {
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<strong>❌ 错误：</strong>${error.message}`;
+      }
+    }
+
+    // 查询订单
+    async function queryOrder() {
+      const orderNo = document.getElementById('queryOrderNo').value;
+      const resultDiv = document.getElementById('queryResult');
+
+      if (!orderNo) {
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = '请输入订单号';
+        return;
+      }
+
+      resultDiv.className = 'result info';
+      resultDiv.innerHTML = '<div class="loading"></div> 正在查询...';
+
+      try {
+        const response = await fetch(`${API_BASE}/query-order?orderNo=${orderNo}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const order = data.order;
+          const statusMap = {
+            'pending': '⏳ 待支付',
+            'paid': '✅ 已支付',
+            'failed': '❌ 支付失败',
+            'cancelled': '🚫 已取消'
+          };
+
+          resultDiv.className = 'result success';
+          resultDiv.innerHTML = `
+            <strong>订单信息：</strong><br>
+            订单号: ${order.order_no}<br>
+            状态: ${statusMap[order.status] || order.status}<br>
+            金额: ¥${order.amount}<br>
+            套餐: ${order.plan_type}<br>
+            创建时间: ${new Date(order.created_at).toLocaleString()}<br>
+            ${order.paid_at ? `支付时间: ${new Date(order.paid_at).toLocaleString()}` : ''}
+          `;
+        } else {
+          throw new Error(data.message || '查询失败');
+        }
+      } catch (error) {
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<strong>❌ 错误：</strong>${error.message}`;
+      }
+    }
+
+    // 关闭订单
+    async function closeOrder() {
+      const orderNo = document.getElementById('closeOrderNo').value;
+      const resultDiv = document.getElementById('closeResult');
+
+      if (!orderNo) {
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = '请输入订单号';
+        return;
+      }
+
+      if (!confirm('确定要关闭这个订单吗？')) {
+        return;
+      }
+
+      resultDiv.className = 'result info';
+      resultDiv.innerHTML = '<div class="loading"></div> 正在关闭订单...';
+
+      try {
+        const response = await fetch(`${API_BASE}/close-order`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ orderNo })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          resultDiv.className = 'result success';
+          resultDiv.innerHTML = `<strong>✅ 订单已关闭</strong>`;
+        } else {
+          throw new Error(data.message || '关闭订单失败');
+        }
+      } catch (error) {
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<strong>❌ 错误：</strong>${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>

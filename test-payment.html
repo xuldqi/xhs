@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>支付宝测试页面</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .section h2 {
+      color: #409EFF;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    button {
+      background: #409EFF;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #66b1ff;
+    }
+    button:disabled {
+      background: #c0c4cc;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      background: white;
+      border-radius: 6px;
+      border: 1px solid #e4e7ed;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success {
+      color: #67c23a;
+    }
+    .error {
+      color: #f56c6c;
+    }
+    .info {
+      color: #909399;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    input {
+      padding: 8px 12px;
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 200px;
+      margin-right: 10px;
+    }
+    label {
+      display: inline-block;
+      width: 100px;
+      color: #606266;
+      font-size: 14px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 支付宝支付测试工具</h1>
+
+    <!-- 配置检查 -->
+    <div class="section">
+      <h2>1️⃣ 检查配置</h2>
+      <button onclick="checkConfig()">检查配置</button>
+      <div id="config-result" class="result" style="display: none;"></div>
+    </div>
+
+    <!-- 创建测试订单 -->
+    <div class="section">
+      <h2>2️⃣ 创建测试订单（不依赖数据库）</h2>
+      <div class="form-group">
+        <label>金额：</label>
+        <input type="text" id="test-amount" value="0.01" placeholder="0.01">
+      </div>
+      <div class="form-group">
+        <label>订单标题：</label>
+        <input type="text" id="test-subject" value="测试订单" placeholder="测试订单">
+      </div>
+      <button onclick="createTestOrder()">创建测试订单</button>
+      <div id="test-order-result" class="result" style="display: none;"></div>
+    </div>
+
+    <!-- 创建完整订单 -->
+    <div class="section">
+      <h2>3️⃣ 创建完整订单（需要 Supabase）</h2>
+      <div class="form-group">
+        <label>用户ID：</label>
+        <input type="text" id="user-id" value="test-user-123" placeholder="test-user-123">
+      </div>
+      <div class="form-group">
+        <label>套餐类型：</label>
+        <input type="text" id="plan-type" value="pro" placeholder="pro">
+        <span class="info">可选: free, pro, premium</span>
+      </div>
+      <button onclick="createFullOrder()">创建订单并跳转支付</button>
+      <div id="full-order-result" class="result" style="display: none;"></div>
+    </div>
+
+    <!-- 查询订单 -->
+    <div class="section">
+      <h2>4️⃣ 查询订单状态</h2>
+      <div class="form-group">
+        <label>订单号：</label>
+        <input type="text" id="order-no" placeholder="XHS...">
+      </div>
+      <button onclick="queryOrder()">查询订单</button>
+      <div id="query-result" class="result" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = 'http://localhost:3001';
+
+    // 检查配置
+    async function checkConfig() {
+      const resultEl = document.getElementById('config-result');
+      resultEl.style.display = 'block';
+      resultEl.textContent = '检查中...';
+      resultEl.className = 'result';
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/payment/check-config`);
+        const data = await response.json();
+        
+        resultEl.textContent = JSON.stringify(data, null, 2);
+        resultEl.className = data.success && data.data.allReady 
+          ? 'result success' 
+          : 'result error';
+      } catch (error) {
+        resultEl.textContent = `错误: ${error.message}`;
+        resultEl.className = 'result error';
+      }
+    }
+
+    // 创建测试订单
+    async function createTestOrder() {
+      const resultEl = document.getElementById('test-order-result');
+      const amount = document.getElementById('test-amount').value;
+      const subject = document.getElementById('test-subject').value;
+
+      resultEl.style.display = 'block';
+      resultEl.textContent = '创建中...';
+      resultEl.className = 'result';
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/payment-test/test-create-order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, subject })
+        });
+
+        const data = await response.json();
+        resultEl.textContent = JSON.stringify(data, null, 2);
+        resultEl.className = data.success ? 'result success' : 'result error';
+
+        // 如果成功，保存订单号
+        if (data.success && data.data.orderNo) {
+          document.getElementById('order-no').value = data.data.orderNo;
+        }
+      } catch (error) {
+        resultEl.textContent = `错误: ${error.message}`;
+        resultEl.className = 'result error';
+      }
+    }
+
+    // 创建完整订单
+    async function createFullOrder() {
+      const resultEl = document.getElementById('full-order-result');
+      const userId = document.getElementById('user-id').value;
+      const planType = document.getElementById('plan-type').value;
+
+      resultEl.style.display = 'block';
+      resultEl.textContent = '创建中...';
+      resultEl.className = 'result';
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/payment/create-order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, planType })
+        });
+
+        const data = await response.json();
+        resultEl.textContent = JSON.stringify(data, null, 2);
+        resultEl.className = data.success ? 'result success' : 'result error';
+
+        // 如果成功，自动提交支付表单
+        if (data.success && data.data.paymentForm) {
+          const div = document.createElement('div');
+          div.innerHTML = data.data.paymentForm;
+          document.body.appendChild(div);
+          const form = div.querySelector('form');
+          if (form) {
+            resultEl.textContent += '\n\n✅ 正在跳转到支付宝...';
+            setTimeout(() => form.submit(), 1000);
+          }
+        }
+      } catch (error) {
+        resultEl.textContent = `错误: ${error.message}`;
+        resultEl.className = 'result error';
+      }
+    }
+
+    // 查询订单
+    async function queryOrder() {
+      const resultEl = document.getElementById('query-result');
+      const orderNo = document.getElementById('order-no').value;
+
+      if (!orderNo) {
+        alert('请输入订单号');
+        return;
+      }
+
+      resultEl.style.display = 'block';
+      resultEl.textContent = '查询中...';
+      resultEl.className = 'result';
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/payment/query-order?orderNo=${orderNo}`);
+        const data = await response.json();
+        
+        resultEl.textContent = JSON.stringify(data, null, 2);
+        resultEl.className = data.success ? 'result success' : 'result error';
+      } catch (error) {
+        resultEl.textContent = `错误: ${error.message}`;
+        resultEl.className = 'result error';
+      }
+    }
+
+    // 页面加载时自动检查配置
+    window.onload = () => {
+      checkConfig();
+    };
+  </script>
+</body>
+</html>
+
