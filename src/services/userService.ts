@@ -8,10 +8,12 @@ export class UserService {
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single()
     
-    if (error) throw error
-    return data
+    if (error) {
+      console.error('获取用户资料失败:', error)
+      return null
+    }
+    return data?.[0] || null
   }
 
   // 更新用户资料
@@ -21,10 +23,10 @@ export class UserService {
       .update(updates)
       .eq('id', userId)
       .select()
-      .single()
     
     if (error) throw error
-    return data
+    if (!data || data.length === 0) throw new Error('更新失败')
+    return data[0]
   }
 
   // 获取用户当前订阅
@@ -164,10 +166,10 @@ export class UserService {
         guide_content: guideContent,
       })
       .select()
-      .single()
     
     if (error) throw error
-    return data
+    if (!data || data.length === 0) throw new Error('保存失败')
+    return data[0]
   }
 
   // 获取用户历史记录
