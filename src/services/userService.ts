@@ -36,10 +36,12 @@ export class UserService {
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(1)
-      .single()
     
-    if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows
-    return data
+    if (error) {
+      console.error('获取订阅失败:', error)
+      return null
+    }
+    return data?.[0] || null
   }
 
   // 获取用户 VIP 状态
@@ -127,10 +129,12 @@ export class UserService {
       .from('plan_configs')
       .select('*')
       .eq('plan_type', planType)
-      .single()
     
-    if (error) throw error
-    return data
+    if (error) {
+      console.error('获取套餐配置失败:', error)
+      return null
+    }
+    return data?.[0] || null
   }
 
   // 获取所有套餐配置
