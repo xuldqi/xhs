@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS public.plan_configs (
 -- 3. 插入或更新套餐配置
 INSERT INTO public.plan_configs (plan_type, name, price, duration_days, daily_generate_limit, daily_export_limit, history_limit, priority, features) VALUES
   ('free', '免费体验', 0, NULL, 1, 1, 3, FALSE, '{"customTemplate": false, "earlyAccess": false}'::jsonb),
-  ('basic', '基础会员', 29.9, 30, 10, 999, 50, FALSE, '{"customTemplate": false, "earlyAccess": false}'::jsonb),
-  ('pro', '专业会员', 99, 30, 999, 999, 999, TRUE, '{"customTemplate": true, "earlyAccess": false}'::jsonb),
-  ('lifetime', '终身会员', 299, NULL, 999, 999, 999, TRUE, '{"customTemplate": true, "earlyAccess": true}'::jsonb)
+  ('basic', '基础会员', 29.9, 30, 3, 5, 10, FALSE, '{"customTemplate": false, "earlyAccess": false}'::jsonb),
+  ('pro', '专业会员', 99, 30, 10, 20, 50, TRUE, '{"customTemplate": true, "earlyAccess": false}'::jsonb),
+  ('lifetime', '终身会员', 299, NULL, 30, 50, 200, TRUE, '{"customTemplate": true, "earlyAccess": true}'::jsonb)
 ON CONFLICT (plan_type) 
 DO UPDATE SET
   name = EXCLUDED.name,

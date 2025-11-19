@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试登录状态持久化</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .section {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .info { color: blue; }
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔐 登录状态持久化测试</h1>
+
+  <div class="section">
+    <h2>1. 注册/登录</h2>
+    <input type="email" id="email" placeholder="邮箱" value="test@example.com">
+    <input type="password" id="password" placeholder="密码" value="123456">
+    <br><br>
+    <button onclick="register()">注册</button>
+    <button onclick="login()">登录</button>
+    <button onclick="logout()">退出</button>
+    <div id="authResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>2. 当前状态</h2>
+    <button onclick="checkSession()">检查 Session</button>
+    <button onclick="checkLocalStorage()">检查 LocalStorage</button>
+    <button onclick="refreshPage()">刷新页面</button>
+    <div id="statusResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>3. 调试信息</h2>
+    <div id="debugInfo"></div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+    // 从环境变量读取（需要替换为实际值）
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL'
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storageKey: 'xiaohongshu-auth',
+      },
+    })
+
+    // 页面加载时检查状态
+    window.addEventListener('load', async () => {
+      await checkSession()
+      await checkLocalStorage()
+    })
+
+    // 注册
+    window.register = async function() {
+      const email = document.getElementById('email').value
+      const password = document.getElementById('password').value
+      const result = document.getElementById('authResult')
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        })
+
+        if (error) throw error
+
+        result.innerHTML = `<p class="success">✅ 注册成功！</p><pre>${JSON.stringify(data, null, 2)}</pre>`
+        await checkSession()
+      } catch (error) {
+        result.innerHTML = `<p class="error">❌ 注册失败: ${error.message}</p>`
+      }
+    }
+
+    // 登录
+    window.login = async function() {
+      const email = document.getElementById('email').value
+      const password = document.getElementById('password').value
+      const result = document.getElementById('authResult')
+
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (error) throw error
+
+        result.innerHTML = `<p class="success">✅ 登录成功！</p><pre>${JSON.stringify(data, null, 2)}</pre>`
+        await checkSession()
+        await checkLocalStorage()
+      } catch (error) {
+        result.innerHTML = `<p class="error">❌ 登录失败: ${error.message}</p>`
+      }
+    }
+
+    // 退出
+    window.logout = async function() {
+      const result = document.getElementById('authResult')
+
+      try {
+        const { error } = await supabase.auth.signOut()
+        if (error) throw error
+
+        result.innerHTML = `<p class="success">✅ 退出成功！</p>`
+        await checkSession()
+        await checkLocalStorage()
+      } catch (error) {
+        result.innerHTML = `<p class="error">❌ 退出失败: ${error.message}</p>`
+      }
+    }
+
+    // 检查 Session
+    window.checkSession = async function() {
+      const result = document.getElementById('statusResult')
+
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+
+        if (error) throw error
+
+        if (session) {
+          result.innerHTML = `<p class="success">✅ 已登录</p><pre>${JSON.stringify({
+            user: session.user.email,
+            expires_at: new Date(session.expires_at * 1000).toLocaleString(),
+          }, null, 2)}</pre>`
+        } else {
+          result.innerHTML = `<p class="info">ℹ️ 未登录</p>`
+        }
+      } catch (error) {
+        result.innerHTML = `<p class="error">❌ 检查失败: ${error.message}</p>`
+      }
+    }
+
+    // 检查 LocalStorage
+    window.checkLocalStorage = function() {
+      const debugInfo = document.getElementById('debugInfo')
+      const storageKey = 'xiaohongshu-auth'
+      
+      const keys = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key.includes('auth') || key.includes('supabase')) {
+          keys.push({
+            key,
+            value: localStorage.getItem(key)
+          })
+        }
+      }
+
+      debugInfo.innerHTML = `<h3>LocalStorage 内容:</h3><pre>${JSON.stringify(keys, null, 2)}</pre>`
+    }
+
+    // 刷新页面
+    window.refreshPage = function() {
+      location.reload()
+    }
+
+    // 监听认证状态变化
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔔 Auth State Changed:', event, session)
+      const debugInfo = document.getElementById('debugInfo')
+      debugInfo.innerHTML += `<p class="info">🔔 事件: ${event} at ${new Date().toLocaleTimeString()}</p>`
+    })
+  </script>
+</body>
+</html>

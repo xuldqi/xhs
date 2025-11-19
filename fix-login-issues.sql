@@ -2,6 +2,7 @@
 -- 在 Supabase SQL Editor 中运行
 
 -- 1. 确认所有现有用户的邮箱（临时解决方案）
+-- 注意: confirmed_at 是生成列，会自动更新
 UPDATE auth.users 
 SET email_confirmed_at = NOW() 
 WHERE email_confirmed_at IS NULL;

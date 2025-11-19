@@ -1,16 +1,23 @@
 <template>
-  <div v-if="history.length > 0" class="history-panel">
+  <div class="history-panel">
     <div class="history-header">
       <h3>
         <el-icon><Clock /></el-icon>
         最近分析
       </h3>
-      <el-button text type="danger" size="small" @click="handleClearAll">
+      <el-button v-if="history.length > 0" text type="danger" size="small" @click="handleClearAll">
         清空
       </el-button>
     </div>
     
-    <div class="history-list">
+    <!-- 空状态 -->
+    <div v-if="history.length === 0" class="empty-state">
+      <el-icon :size="48" color="#d1d5db"><Document /></el-icon>
+      <p class="empty-text">暂无历史记录</p>
+      <p class="empty-hint">完成分析后，历史记录会自动保存在这里</p>
+    </div>
+    
+    <div v-else class="history-list">
       <div
         v-for="record in history"
         :key="record.id"
@@ -152,13 +159,32 @@ const formatTime = (dateStr: string): string => {
   return date.toLocaleDateString('zh-CN')
 }
 
-const handleRecordClick = (record: any) => {
+const handleRecordClick = async (record: any) => {
   if (record.isCloud && record.shareId) {
     // 云端记录，跳转到分享页面
     router.push(`/share/${record.shareId}`)
   } else {
-    // 本地记录，提示功能开发中
-    ElMessage.info('本地历史记录查看功能开发中...')
+    // 本地记录，加载完整数据并跳转到指南页面
+    try {
+      loading.value = true
+      const fullRecord = HistoryManager.getFullRecord(record.id)
+      
+      if (!fullRecord) {
+        ElMessage.error('无法加载历史记录，数据可能已损坏')
+        return
+      }
+
+      // 跳转到指南页面，并传递历史记录数据
+      router.push({
+        name: 'guide',
+        params: { historyId: record.id }
+      })
+    } catch (error) {
+      console.error('加载历史记录失败:', error)
+      ElMessage.error('加载历史记录失败')
+    } finally {
+      loading.value = false
+    }
   }
 }
 
@@ -321,6 +347,24 @@ defineExpose({
   color: #9ca3af;
 }
 
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 16px 0 8px;
+}
+
+.empty-hint {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
 @media (max-width: 768px) {
   .history-panel {
     padding: 16px;
@@ -328,6 +372,10 @@ defineExpose({
   
   .history-item {
     padding: 10px 12px;
+  }
+  
+  .empty-state {
+    padding: 32px 16px;
   }
 }
 </style>

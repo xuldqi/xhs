@@ -144,14 +144,30 @@
       <div v-else class="error-section">
         <el-result
           icon="error"
-          title="生成失败"
-          sub-title="指南生成过程中出现错误，请重试"
+          title="指南生成失败"
+          sub-title="AI 生成过程中出现错误，请检查网络连接或稍后重试"
         >
           <template #extra>
-            <el-button type="primary" @click="handleRegenerate">
-              重新生成
-            </el-button>
-            <el-button @click="goBack">返回修改信息</el-button>
+            <div class="error-actions">
+              <el-button type="primary" size="large" @click="handleRegenerate">
+                <el-icon><Refresh /></el-icon>
+                重新生成
+              </el-button>
+              <el-button size="large" @click="goBack">
+                <el-icon><Back /></el-icon>
+                返回修改信息
+              </el-button>
+            </div>
+            
+            <div class="error-tips">
+              <h4>💡 可能的原因：</h4>
+              <ul>
+                <li>网络连接不稳定</li>
+                <li>AI 服务暂时繁忙</li>
+                <li>API 配置问题</li>
+              </ul>
+              <p>如果问题持续，请联系技术支持。</p>
+            </div>
           </template>
         </el-result>
       </div>
@@ -161,8 +177,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled, Share } from '@element-plus/icons-vue'
+import { useRouter, useRoute } from 'vue-router'
+import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled, Share, Back } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { SECTION_TITLES } from '@/types'
 import type { GuideContent } from '@/types'
@@ -172,8 +188,10 @@ import { formatContent, stripHtmlTags } from '@/utils/contentFormatter'
 import { exportToPDF, prepareElementForExport } from '@/utils/pdfExporter'
 import { saveGuide, generateShareLink } from '@/services/guideService'
 import { useUserStore } from '@/stores/userStore'
+import { HistoryManager } from '@/utils/historyManager'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
 // 状态
@@ -217,14 +235,28 @@ onMounted(async () => {
   const { useAppStore } = await import('@/stores/appStore')
   const store = useAppStore()
   
-  // 先检查 localStorage 中是否有已生成的指南
-  if (store.guideContent) {
-    console.log('💾 从缓存恢复指南内容')
-    guideContent.value = store.guideContent
-    isGenerating.value = false
-    generationProgress.value = 100
-    currentSection.value = 12
-    return
+  // 检查是否是从历史记录进入
+  const historyId = route.params.historyId as string
+  if (historyId) {
+    // 加载历史记录
+    try {
+      const fullRecord = HistoryManager.getFullRecord(historyId)
+      if (fullRecord) {
+        guideContent.value = fullRecord.guideContent
+        isGenerating.value = false
+        ElMessage.success('已加载历史记录')
+        return
+      } else {
+        ElMessage.error('历史记录不存在或已损坏')
+        router.push('/analysis')
+        return
+      }
+    } catch (error) {
+      console.error('加载历史记录失败:', error)
+      ElMessage.error('加载历史记录失败')
+      router.push('/analysis')
+      return
+    }
   }
   
   if (!store.accountData) {
@@ -232,7 +264,36 @@ onMounted(async () => {
     return
   }
   
-  await generateGuide()
+  // 检查是否有已完成的指南
+  if (store.guideContent) {
+    // 有已完成的指南,询问用户是继续查看还是重新生成
+    ElMessageBox.confirm(
+      '检测到已有生成的指南,是否要重新生成?',
+      '提示',
+      {
+        confirmButtonText: '重新生成',
+        cancelButtonText: '查看旧指南',
+        type: 'info',
+        distinguishCancelAndClose: true
+      }
+    ).then(async () => {
+      // 用户选择重新生成
+      store.setGuideContent(null)
+      await generateGuide()
+    }).catch((action) => {
+      if (action === 'cancel') {
+        // 用户选择查看旧指南
+        guideContent.value = store.guideContent
+        isGenerating.value = false
+      } else {
+        // 用户关闭对话框,返回上一页
+        router.push('/analysis')
+      }
+    })
+  } else {
+    // 没有旧指南,直接生成新的
+    await generateGuide()
+  }
 })
 
 // 生成指南
@@ -267,6 +328,21 @@ const generateGuide = async () => {
     generationProgress.value = 100
     currentSection.value = 12
     
+    // 保存完整的历史记录
+    try {
+      HistoryManager.saveFullRecord({
+        accountName: store.accountData.username,
+        followers: store.accountData.followerCount,
+        notes: store.accountData.postCount,
+        category: store.accountData.contentCategory,
+        guideContent: content,
+        accountData: store.accountData
+      })
+      console.log('完整历史记录已保存')
+    } catch (error) {
+      console.error('保存完整历史记录失败:', error)
+    }
+    
     // 显示成功提示
     const { ElMessage } = await import('element-plus')
     ElMessage.success({
@@ -285,9 +361,33 @@ const generateGuide = async () => {
     
     // 显示错误提示
     const { ElMessage } = await import('element-plus')
+    
+    // 分类错误并提供具体的错误消息
+    let errorMessage = 'AI 生成失败'
+    
+    if (error instanceof Error) {
+      const msg = error.message.toLowerCase()
+      
+      if (msg.includes('network') || msg.includes('fetch') || msg.includes('econnrefused')) {
+        errorMessage = '网络连接失败，请检查网络后重试'
+      } else if (msg.includes('timeout')) {
+        errorMessage = '请求超时，请稍后重试'
+      } else if (msg.includes('配置') || msg.includes('api key') || msg.includes('configured')) {
+        errorMessage = 'AI 服务未配置，请联系管理员配置 API 密钥'
+      } else if (msg.includes('503') || msg.includes('overload') || msg.includes('繁忙')) {
+        errorMessage = 'AI 服务繁忙，请稍后重试'
+      } else if (msg.includes('429') || msg.includes('rate limit')) {
+        errorMessage = 'API 调用频率超限，请稍后重试'
+      } else if (msg.includes('parse') || msg.includes('json')) {
+        errorMessage = 'AI 返回格式错误，请重试'
+      } else {
+        errorMessage = error.message || 'AI 生成失败，请重试'
+      }
+    }
+    
     ElMessage.error({
-      message: error instanceof Error ? error.message : 'AI 生成失败，请检查 API 配置或稍后重试',
-      duration: 5000,
+      message: errorMessage,
+      duration: 6000,
       showClose: true
     })
   }
@@ -1388,6 +1488,47 @@ const goBack = () => {
   border-radius: 20px;
   padding: 40px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.error-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.error-tips {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: left;
+  background: #f9fafb;
+  padding: 24px;
+  border-radius: 12px;
+  border-left: 4px solid #f56c6c;
+}
+
+.error-tips h4 {
+  margin: 0 0 12px 0;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.error-tips ul {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.error-tips li {
+  margin: 8px 0;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.error-tips p {
+  margin: 12px 0 0 0;
+  color: #6b7280;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 768px) {

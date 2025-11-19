@@ -327,16 +327,21 @@ const analyzeImage = async (imageDataUrl: string) => {
     console.log('🔍 开始图像分析...')
     console.log('📡 API 配置状态:', aiService.isConfigured())
     
-    // 检查 API 配置
-    if (!aiService.isConfigured()) {
+    // 检查 API 配置（异步）
+    const isConfigured = await aiService.isConfiguredAsync()
+    if (!isConfigured) {
       console.error('❌ API 未配置')
       isAnalyzing.value = false
       accountData.value = null
       ElMessage.error({
-        message: 'AI 服务未配置，请联系管理员配置 API 密钥',
+        message: 'AI 服务未配置，请联系管理员。您可以使用手动输入功能继续。',
         duration: 5000,
         showClose: true
       })
+      // 自动显示手动输入选项
+      setTimeout(() => {
+        showManualDialog.value = true
+      }, 1000)
       return
     }
     
@@ -387,26 +392,42 @@ const analyzeImage = async (imageDataUrl: string) => {
     
     const { ElMessage } = await import('element-plus')
     
-    // 判断错误类型
-    let errorMessage = '图像分析失败，请重试'
+    // 判断错误类型并提供具体的错误消息
+    let errorMessage = '图像分析失败'
+    let showManualInputOption = true
     
     if (error instanceof Error) {
-      if (error.message.includes('fetch') || error.message.includes('network')) {
+      const msg = error.message.toLowerCase()
+      
+      if (msg.includes('network') || msg.includes('fetch') || msg.includes('econnrefused')) {
         errorMessage = '网络连接失败，请检查网络后重试'
-      } else if (error.message.includes('timeout')) {
+      } else if (msg.includes('timeout')) {
         errorMessage = '请求超时，请稍后重试'
-      } else if (error.message.includes('API')) {
-        errorMessage = 'API 服务异常，请稍后重试或联系管理员'
+      } else if (msg.includes('配置') || msg.includes('api key') || msg.includes('configured')) {
+        errorMessage = 'AI 服务未配置，请联系管理员'
+      } else if (msg.includes('503') || msg.includes('overload') || msg.includes('繁忙')) {
+        errorMessage = 'AI 服务繁忙，请稍后重试'
+      } else if (msg.includes('429') || msg.includes('rate limit')) {
+        errorMessage = 'API 调用频率超限，请稍后重试'
+      } else if (msg.includes('parse') || msg.includes('json')) {
+        errorMessage = 'AI 返回格式错误，请重试'
       } else {
-        errorMessage = error.message
+        errorMessage = error.message || '图像分析失败，请重试'
       }
     }
     
     ElMessage.error({
-      message: errorMessage,
-      duration: 5000,
+      message: `${errorMessage}。您可以使用手动输入功能继续。`,
+      duration: 6000,
       showClose: true
     })
+    
+    // 如果是配置错误，自动显示手动输入
+    if (showManualInputOption && errorMessage.includes('配置')) {
+      setTimeout(() => {
+        showManualDialog.value = true
+      }, 1500)
+    }
   }
 }
 

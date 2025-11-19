@@ -27,12 +27,16 @@ export const useUserStore = defineStore('user', () => {
   async function init() {
     loading.value = true
     try {
+      // 先尝试从 session 恢复用户
       const currentUser = await AuthService.getCurrentUser()
       if (currentUser) {
+        console.log('✅ 从 session 恢复用户:', currentUser.email)
         await setUser(currentUser)
+      } else {
+        console.log('ℹ️ 未找到已登录用户')
       }
     } catch (error) {
-      console.error('初始化用户状态失败:', error)
+      console.error('❌ 初始化用户状态失败:', error)
     } finally {
       loading.value = false
     }
@@ -40,8 +44,10 @@ export const useUserStore = defineStore('user', () => {
     // 监听认证状态变化
     AuthService.onAuthStateChange(async (newUser) => {
       if (newUser) {
+        console.log('🔔 用户登录:', newUser.email)
         await setUser(newUser)
       } else {
+        console.log('🔔 用户退出')
         clearUser()
       }
     })

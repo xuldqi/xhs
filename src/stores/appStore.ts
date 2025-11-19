@@ -75,9 +75,20 @@ export const useAppStore = defineStore('app', () => {
   }
   
   // 设置指南内容
-  function setGuideContent(content: GuideContent) {
+  function setGuideContent(content: GuideContent | null) {
     guideContent.value = content
-    saveToStorage()
+    if (content) {
+      saveToStorage()
+    } else {
+      // 清除指南内容时,只清除指南,保留其他数据
+      const data = {
+        uploadedImage: uploadedImage.value,
+        uploadedImages: uploadedImages.value.map(img => ({ dataUrl: img.dataUrl })),
+        accountData: accountData.value,
+        guideContent: null
+      }
+      localStorage.setItem('xiaohongshu-guide-data', JSON.stringify(data))
+    }
   }
   
   // 清空所有数据

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import type { Profile, Subscription, UsageLog, GuideHistory, PlanConfig } from '@/lib/supabase'
+import type { Profile, Subscription, GuideHistory, PlanConfig } from '@/lib/supabase'
 
 export class UserService {
   // 获取用户资料
@@ -94,7 +94,16 @@ export class UserService {
   ): Promise<{ allowed: boolean; reason?: string; remaining?: number }> {
     // 获取 VIP 状态
     const vipStatus = await this.getVIPStatus(userId)
+    
+    // 检查会员是否激活
     if (!vipStatus || !vipStatus.is_active) {
+      // 检查是否是因为过期
+      if (vipStatus && vipStatus.expires_at) {
+        const expiresAt = new Date(vipStatus.expires_at)
+        if (expiresAt < new Date()) {
+          return { allowed: false, reason: '您的会员已过期，请续费' }
+        }
+      }
       return { allowed: false, reason: '请先开通会员' }
     }
 

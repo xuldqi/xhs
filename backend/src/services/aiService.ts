@@ -1,5 +1,22 @@
 import fetch from 'node-fetch'
 
+// 错误类型枚举
+export enum AIErrorType {
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  API_ERROR = 'API_ERROR',
+  CONFIG_ERROR = 'CONFIG_ERROR',
+  PARSE_ERROR = 'PARSE_ERROR'
+}
+
+// 结构化错误响应
+export interface AIErrorResponse {
+  success: false
+  error: string
+  errorType: AIErrorType
+  details?: string
+  retryable: boolean
+}
+
 export class AIService {
   private deepseekApiKey: string
   private geminiApiKey: string
@@ -24,6 +41,91 @@ export class AIService {
     }
     if (!this.geminiProxyApiKey) {
       console.warn('⚠️ Warning: GEMINI_PROXY_API_KEY is not configured')
+    }
+  }
+
+  /**
+   * 分类错误类型
+   */
+  private categorizeError(error: any, statusCode?: number): { type: AIErrorType; retryable: boolean } {
+    // 网络错误
+    if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
+      return { type: AIErrorType.NETWORK_ERROR, retryable: true }
+    }
+
+    // API错误
+    if (statusCode) {
+      if (statusCode === 503 || statusCode === 429) {
+        return { type: AIErrorType.API_ERROR, retryable: true }
+      }
+      if (statusCode === 401 || statusCode === 403) {
+        return { type: AIErrorType.CONFIG_ERROR, retryable: false }
+      }
+      if (statusCode >= 400 && statusCode < 500) {
+        return { type: AIErrorType.API_ERROR, retryable: false }
+      }
+      if (statusCode >= 500) {
+        return { type: AIErrorType.API_ERROR, retryable: true }
+      }
+    }
+
+    // 解析错误
+    if (error.message?.includes('JSON') || error.message?.includes('parse')) {
+      return { type: AIErrorType.PARSE_ERROR, retryable: false }
+    }
+
+    // 配置错误
+    if (error.message?.includes('API key') || error.message?.includes('configured')) {
+      return { type: AIErrorType.CONFIG_ERROR, retryable: false }
+    }
+
+    // 默认为API错误
+    return { type: AIErrorType.API_ERROR, retryable: false }
+  }
+
+  /**
+   * 创建结构化错误响应
+   */
+  private createErrorResponse(error: any, statusCode?: number): AIErrorResponse {
+    const { type, retryable } = this.categorizeError(error, statusCode)
+    
+    let errorMessage = error.message || 'Unknown error'
+    let details = ''
+
+    // 根据错误类型提供更友好的消息
+    switch (type) {
+      case AIErrorType.NETWORK_ERROR:
+        errorMessage = '网络连接失败，请检查网络后重试'
+        details = error.message
+        break
+      case AIErrorType.CONFIG_ERROR:
+        errorMessage = 'AI 服务未配置，请联系管理员配置 API 密钥'
+        details = error.message
+        break
+      case AIErrorType.PARSE_ERROR:
+        errorMessage = 'AI 返回格式错误，请重试'
+        details = error.message
+        break
+      case AIErrorType.API_ERROR:
+        if (statusCode === 503) {
+          errorMessage = 'AI 服务繁忙，请稍后重试'
+        } else if (statusCode === 429) {
+          errorMessage = 'API 调用频率超限，请稍后重试'
+        } else {
+          errorMessage = 'AI 服务异常，请稍后重试'
+        }
+        details = error.message
+        break
+    }
+
+    console.error(`❌ [${type}] ${errorMessage}`, details ? `- ${details}` : '')
+
+    return {
+      success: false,
+      error: errorMessage,
+      errorType: type,
+      details: details || undefined,
+      retryable
     }
   }
 
@@ -63,116 +165,147 @@ export class AIService {
    * 使用原生 Gemini API 分析图片
    */
   private async analyzeImageWithNativeGemini(prompt: string, imageBase64: string): Promise<any> {
+    console.log('📡 调用原生 Gemini API...')
+    
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.geminiApiKey}`;
     
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: prompt },
-            {
-              inline_data: {
-                mime_type: 'image/jpeg',
-                data: imageBase64
+    try {
+      const response = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              {
+                inline_data: {
+                  mime_type: 'image/jpeg',
+                  data: imageBase64
+                }
               }
-            }
-          ]
-        }]
-      })
-    });
+            ]
+          }]
+        })
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`原生 Gemini API 错误 (${response.status}): ${errorText}`);
-    }
+      console.log(`📥 响应状态: ${response.status}`)
 
-    const data: any = await response.json();
-    
-    // 提取 Gemini 返回的文本内容
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!content) {
-      throw new Error('Gemini 返回内容为空');
-    }
-    
-    // 转换为统一格式
-    return {
-      choices: [{
-        message: {
-          content: content
-        }
-      }],
-      usage: {
-        total_tokens: data.usageMetadata?.totalTokenCount || 0
+      if (!response.ok) {
+        const errorText = await response.text();
+        const error = new Error(`原生 Gemini API 错误: ${errorText}`);
+        throw this.createErrorResponse(error, response.status);
       }
-    };
+
+      const data: any = await response.json();
+      
+      // 提取 Gemini 返回的文本内容
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (!content) {
+        throw this.createErrorResponse(new Error('Gemini 返回内容为空'));
+      }
+      
+      console.log('✅ 原生 Gemini API 调用成功')
+      
+      // 转换为统一格式
+      return {
+        choices: [{
+          message: {
+            content: content
+          }
+        }],
+        usage: {
+          total_tokens: data.usageMetadata?.totalTokenCount || 0
+        }
+      };
+    } catch (error: any) {
+      if (error.success === false) {
+        throw error; // 已经是结构化错误
+      }
+      throw this.createErrorResponse(error);
+    }
   }
 
   /**
    * 使用第三方中转 API 分析图片
    */
   private async analyzeImageWithProxyAPI(prompt: string, imageBase64: string): Promise<any> {
-    console.log('🔍 使用第三方中转 API 分析图片 (Gemini 原生格式)...');
+    console.log('📡 调用第三方中转 API (Gemini 原生格式)...');
     
-    // 使用 Gemini 原生格式端点
-    const response = await fetch(`${this.geminiBaseUrl}/v1beta/models/gemini-2.5-flash:generateContent`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.geminiProxyApiKey}`
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: prompt },
-            {
-              inline_data: {
-                mime_type: 'image/jpeg',
-                data: imageBase64
+    try {
+      // 使用 Gemini 原生格式端点
+      const response = await fetch(`${this.geminiBaseUrl}/v1beta/models/gemini-2.5-flash:generateContent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.geminiProxyApiKey}`
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              {
+                inline_data: {
+                  mime_type: 'image/jpeg',
+                  data: imageBase64
+                }
               }
-            }
-          ]
-        }]
-      })
-    });
+            ]
+          }]
+        })
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Gemini 中转 API 错误 (${response.status}): ${errorText}`);
-    }
+      console.log(`📥 响应状态: ${response.status}`)
 
-    const data: any = await response.json();
-    
-    // 提取 Gemini 返回的文本内容
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!content) {
-      throw new Error('Gemini 返回内容为空');
-    }
-    
-    // 转换为统一格式
-    return {
-      choices: [{
-        message: {
-          content: content
-        }
-      }],
-      usage: {
-        total_tokens: data.usageMetadata?.totalTokenCount || 0
+      if (!response.ok) {
+        const errorText = await response.text();
+        const error = new Error(`Gemini 中转 API 错误: ${errorText}`);
+        throw this.createErrorResponse(error, response.status);
       }
-    };
+
+      const data: any = await response.json();
+      
+      // 提取 Gemini 返回的文本内容
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (!content) {
+        throw this.createErrorResponse(new Error('Gemini 返回内容为空'));
+      }
+      
+      console.log('✅ 第三方中转 API 调用成功')
+      
+      // 转换为统一格式
+      return {
+        choices: [{
+          message: {
+            content: content
+          }
+        }],
+        usage: {
+          total_tokens: data.usageMetadata?.totalTokenCount || 0
+        }
+      };
+    } catch (error: any) {
+      if (error.success === false) {
+        throw error; // 已经是结构化错误
+      }
+      throw this.createErrorResponse(error);
+    }
   }
 
   /**
    * 生成内容 - 使用 DeepSeek
    */
   async generateContent(systemPrompt: string, userPrompt: string): Promise<any> {
-    console.log('🔑 DeepSeek API Key:', this.deepseekApiKey ? `${this.deepseekApiKey.substring(0, 10)}...` : 'NOT SET');
+    console.log('📡 调用 DeepSeek API...');
+    console.log('🔑 API Key:', this.deepseekApiKey ? `${this.deepseekApiKey.substring(0, 10)}...` : 'NOT SET');
     console.log('🔗 Base URL:', this.baseUrl);
+    
+    if (!this.deepseekApiKey) {
+      throw this.createErrorResponse(new Error('DeepSeek API key is not configured'));
+    }
     
     const requestBody = {
       model: 'deepseek-chat',
@@ -184,26 +317,36 @@ export class AIService {
       temperature: 0.7
     };
     
-    console.log('📤 Request:', JSON.stringify(requestBody).substring(0, 200));
+    console.log('📤 请求体:', JSON.stringify(requestBody).substring(0, 200) + '...');
     
-    const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.deepseekApiKey}`
-      },
-      body: JSON.stringify(requestBody)
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.deepseekApiKey}`
+        },
+        body: JSON.stringify(requestBody)
+      });
 
-    console.log('📥 Response status:', response.status);
+      console.log('📥 响应状态:', response.status);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Error response:', errorText);
-      throw new Error(`DeepSeek API error (${response.status}): ${errorText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ 错误响应:', errorText);
+        const error = new Error(`DeepSeek API 错误: ${errorText}`);
+        throw this.createErrorResponse(error, response.status);
+      }
+
+      const data = await response.json();
+      console.log('✅ DeepSeek API 调用成功');
+      return data;
+    } catch (error: any) {
+      if (error.success === false) {
+        throw error; // 已经是结构化错误
+      }
+      throw this.createErrorResponse(error);
     }
-
-    return await response.json();
   }
 
   /**

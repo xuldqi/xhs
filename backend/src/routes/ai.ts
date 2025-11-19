@@ -84,8 +84,16 @@ aiRouter.post('/', async (req: Request, res: Response) => {
       }
 
       console.log('📸 Analyzing image...')
-      const result = await getAIService().analyzeImage(prompt, image)
-      return res.json(result)
+      try {
+        const result = await getAIService().analyzeImage(prompt, image)
+        return res.json(result)
+      } catch (analysisError: any) {
+        // 如果是结构化错误响应,直接返回
+        if (analysisError.success === false) {
+          return res.status(500).json(analysisError)
+        }
+        throw analysisError
+      }
     } else if (type === 'generate') {
       const { systemPrompt, userPrompt } = data
       if (!systemPrompt || !userPrompt) {
@@ -96,8 +104,16 @@ aiRouter.post('/', async (req: Request, res: Response) => {
       }
 
       console.log('✍️ Generating content...')
-      const result = await getAIService().generateContent(systemPrompt, userPrompt)
-      return res.json(result)
+      try {
+        const result = await getAIService().generateContent(systemPrompt, userPrompt)
+        return res.json(result)
+      } catch (generationError: any) {
+        // 如果是结构化错误响应,直接返回
+        if (generationError.success === false) {
+          return res.status(500).json(generationError)
+        }
+        throw generationError
+      }
     } else {
       return res.status(400).json({
         error: 'Invalid request type',
@@ -109,6 +125,35 @@ aiRouter.post('/', async (req: Request, res: Response) => {
     res.status(500).json({
       error: 'Request failed',
       message: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+// 健康检查接口
+aiRouter.get('/health', (req: Request, res: Response) => {
+  try {
+    const service = getAIService()
+    const isConfigured = service.isConfigured()
+    
+    res.json({
+      configured: isConfigured,
+      services: {
+        gemini: !!process.env.GEMINI_API_KEY,
+        deepseek: !!process.env.DEEPSEEK_API_KEY
+      },
+      message: isConfigured 
+        ? 'AI services are configured and ready' 
+        : 'AI services are not properly configured. Please check API keys.'
+    })
+  } catch (error) {
+    res.status(500).json({
+      configured: false,
+      services: {
+        gemini: false,
+        deepseek: false
+      },
+      message: 'Health check failed',
+      error: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 })

@@ -14,6 +14,8 @@ class AIService {
   private apiKey: string
   private baseUrl: string
   private provider: 'openai' | 'deepseek' | 'gemini'
+  private healthCheckCache: { configured: boolean; timestamp: number } | null = null
+  private readonly HEALTH_CHECK_CACHE_TTL = 60000 // 1分钟缓存
   
   constructor() {
     // 优先使用代理模式（生产环境）
@@ -31,6 +33,49 @@ class AIService {
       this.provider = 'gemini'
     } else {
       this.provider = 'openai'
+    }
+  }
+
+  /**
+   * 检查后端健康状态
+   */
+  async checkHealth(): Promise<{ configured: boolean; services: any; message?: string }> {
+    // 如果不使用代理，直接返回前端配置状态
+    if (!this.useProxy) {
+      return {
+        configured: !!this.apiKey,
+        services: {},
+        message: this.apiKey ? 'Using direct API mode' : 'API key not configured'
+      }
+    }
+
+    try {
+      const response = await fetch(`${this.proxyUrl}/health`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        console.error('❌ Health check failed:', response.statusText)
+        return {
+          configured: false,
+          services: {},
+          message: 'Backend health check failed'
+        }
+      }
+
+      const data = await response.json()
+      console.log('✅ Health check:', data)
+      return data
+    } catch (error) {
+      console.error('❌ Health check error:', error)
+      return {
+        configured: false,
+        services: {},
+        message: 'Cannot connect to backend'
+      }
     }
   }
   
@@ -523,17 +568,49 @@ class AIService {
   }
   
   /**
-   * 检查 API 是否可用
-   * 代理模式下总是返回 true（后端负责API Key）
+   * 检查 API 是否可用（同步方法，用于快速检查）
+   * 代理模式下使用缓存的健康检查结果
    * 直接调用模式下检查前端API Key
    */
   isConfigured(): boolean {
-    // 代理模式下，不需要前端配置 API Key
-    if (this.useProxy) {
-      return true
+    // 直接调用模式下，检查前端 API Key
+    if (!this.useProxy) {
+      return !!this.apiKey && this.apiKey !== ''
     }
-    // 直接调用模式下，需要前端配置 API Key
-    return !!this.apiKey && this.apiKey !== ''
+    
+    // 代理模式下，使用缓存的健康检查结果
+    if (this.healthCheckCache) {
+      const now = Date.now()
+      if (now - this.healthCheckCache.timestamp < this.HEALTH_CHECK_CACHE_TTL) {
+        return this.healthCheckCache.configured
+      }
+    }
+    
+    // 如果没有缓存，异步执行健康检查并返回 true（乐观假设）
+    this.checkHealth().then(result => {
+      this.healthCheckCache = {
+        configured: result.configured,
+        timestamp: Date.now()
+      }
+    })
+    
+    return true // 代理模式下默认返回 true
+  }
+
+  /**
+   * 异步检查 API 是否可用（推荐使用）
+   */
+  async isConfiguredAsync(): Promise<boolean> {
+    if (!this.useProxy) {
+      return !!this.apiKey && this.apiKey !== ''
+    }
+    
+    const health = await this.checkHealth()
+    this.healthCheckCache = {
+      configured: health.configured,
+      timestamp: Date.now()
+    }
+    return health.configured
   }
   
   /**

@@ -15,8 +15,12 @@ app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
 
-// 初始化用户状态
+// 初始化用户状态（异步）
 const userStore = useUserStore()
-userStore.init()
+userStore.init().then(() => {
+  console.log('✅ 用户状态初始化完成')
+}).catch((error) => {
+  console.error('❌ 用户状态初始化失败:', error)
+})
 
 app.mount('#app')

@@ -34,5 +34,6 @@ onMounted(() => {
 #app {
   width: 100%;
   min-height: 100vh;
+  padding-top: 68px; /* 导航栏高度 */
 }
 </style>

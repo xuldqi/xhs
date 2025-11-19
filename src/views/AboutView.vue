@@ -1,7 +1,5 @@
 <template>
   <div class="about-view">
-    <AppHeader />
-    
     <div class="container">
       <div class="about-header">
         <h1>关于我们</h1>
@@ -108,7 +106,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 const currentYear = computed(() => new Date().getFullYear())
