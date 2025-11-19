@@ -281,6 +281,17 @@ const rules: FormRules = {
 
 // 开始分析
 onMounted(async () => {
+  // 1. 检查权限
+  const { usePermission } = await import('@/composables/usePermission')
+  const { checkGeneratePermission } = usePermission()
+  
+  const hasPermission = await checkGeneratePermission()
+  if (!hasPermission) {
+    router.push('/login?redirect=/upload')
+    return
+  }
+  
+  // 2. 获取上传的图片
   const { useAppStore } = await import('@/stores/appStore')
   const store = useAppStore()
   
@@ -294,7 +305,8 @@ onMounted(async () => {
   }
   
   uploadedImageUrl.value = images[0].dataUrl
-  // 分析第一张图片（主页截图）
+  
+  // 3. 分析第一张图片（主页截图）
   await analyzeImage(images[0].dataUrl)
 })
 
