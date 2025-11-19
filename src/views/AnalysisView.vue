@@ -281,33 +281,38 @@ const rules: FormRules = {
 
 // 开始分析
 onMounted(async () => {
-  // 1. 检查权限
-  const { usePermission } = await import('@/composables/usePermission')
-  const { checkGeneratePermission } = usePermission()
-  
-  const hasPermission = await checkGeneratePermission()
-  if (!hasPermission) {
-    router.push('/login?redirect=/upload')
-    return
+  try {
+    // 1. 检查权限
+    const { usePermission } = await import('@/composables/usePermission')
+    const { checkGeneratePermission } = usePermission()
+    
+    const hasPermission = await checkGeneratePermission()
+    if (!hasPermission) {
+      await router.push('/login?redirect=/upload')
+      return
+    }
+    
+    // 2. 获取上传的图片
+    const { useAppStore } = await import('@/stores/appStore')
+    const store = useAppStore()
+    
+    // 优先使用多图，兼容旧版单图
+    const images = store.uploadedImages.length > 0 ? store.uploadedImages : 
+                   store.uploadedImage ? [{ dataUrl: store.uploadedImage }] : []
+    
+    if (images.length === 0) {
+      await router.push('/')
+      return
+    }
+    
+    uploadedImageUrl.value = images[0].dataUrl
+    
+    // 3. 分析第一张图片（主页截图）
+    await analyzeImage(images[0].dataUrl)
+  } catch (error) {
+    console.error('初始化失败:', error)
+    await router.push('/')
   }
-  
-  // 2. 获取上传的图片
-  const { useAppStore } = await import('@/stores/appStore')
-  const store = useAppStore()
-  
-  // 优先使用多图，兼容旧版单图
-  const images = store.uploadedImages.length > 0 ? store.uploadedImages : 
-                 store.uploadedImage ? [{ dataUrl: store.uploadedImage }] : []
-  
-  if (images.length === 0) {
-    router.push('/')
-    return
-  }
-  
-  uploadedImageUrl.value = images[0].dataUrl
-  
-  // 3. 分析第一张图片（主页截图）
-  await analyzeImage(images[0].dataUrl)
 })
 
 const analyzeImage = async (imageDataUrl: string) => {
