@@ -594,6 +594,23 @@ const handleExport = async () => {
 const handleExportHTML = () => {
   if (!guideContent.value) return
   
+  // 根据当前格式选择导出内容
+  let htmlContent = ''
+  
+  if (documentFormat.value === 'professional') {
+    // 专业格式：直接获取 professional-document 的 HTML
+    const professionalDoc = document.querySelector('.professional-document')
+    if (professionalDoc) {
+      htmlContent = professionalDoc.innerHTML
+    }
+  } else {
+    // 卡片格式：使用原有的章节拼接方式
+    htmlContent = guideContent.value.sections.map(section => `
+      <h2>${section.id}. ${section.title}</h2>
+      <div>${formatContent(section.content)}</div>
+    `).join('')
+  }
+  
   const html = `
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -914,6 +931,134 @@ const handleExportHTML = () => {
         transform: none;
       }
     }
+    
+    /* 专业文档格式样式 */
+    .doc-h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 40px 0 20px;
+      color: #000000;
+      border-bottom: 3px solid #ff2442;
+      padding-bottom: 10px;
+      text-align: left;
+    }
+    
+    .doc-h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 30px 0 15px;
+      color: #1a1a1a;
+      text-align: left;
+    }
+    
+    .doc-h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: #333333;
+      text-align: left;
+    }
+    
+    .doc-paragraph {
+      margin: 12px 0;
+      text-align: justify;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    
+    .doc-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    
+    .doc-metric-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .doc-metric-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    
+    .doc-metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #ff2442;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    
+    .doc-metric-desc {
+      font-size: 12px;
+      color: #999;
+      text-align: left;
+    }
+    
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      font-size: 14px;
+      margin: 24px 0;
+    }
+    
+    .doc-table th {
+      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      border: 1px solid #d0d0d0;
+      color: #333;
+    }
+    
+    .doc-table td {
+      padding: 10px 16px;
+      border: 1px solid #e0e0e0;
+      color: #555;
+    }
+    
+    .doc-table tr:nth-child(even) {
+      background: #fafafa;
+    }
+    
+    .doc-info-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .doc-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .doc-list {
+      margin: 16px 0;
+      padding-left: 2em;
+      text-align: left;
+    }
+    
+    .doc-list-item {
+      margin: 8px 0;
+      line-height: 1.6;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
@@ -923,10 +1068,7 @@ const handleExportHTML = () => {
       生成时间：${formatDate(guideContent.value.metadata.generatedAt)} | 
       目标粉丝：${guideContent.value.metadata.targetFollowers}
     </div>
-    ${guideContent.value.sections.map(section => `
-      <h2>${section.id}. ${section.title}</h2>
-      <div>${formatContent(section.content)}</div>
-    `).join('')}
+    ${htmlContent}
   </div>
 </body>
 </html>
@@ -950,19 +1092,29 @@ const handleExportPDF = async () => {
   try {
     ElMessage.info('正在生成 PDF，请稍候...')
     
-    const contentSection = document.querySelector('.content-section') as HTMLElement
-    if (!contentSection) {
+    // 根据当前格式选择正确的元素
+    let targetElement: HTMLElement | null = null
+    
+    if (documentFormat.value === 'professional') {
+      // 专业格式：查找 professional-document 元素
+      targetElement = document.querySelector('.professional-document') as HTMLElement
+    } else {
+      // 卡片格式：查找 content-section 元素
+      targetElement = document.querySelector('.content-section') as HTMLElement
+    }
+    
+    if (!targetElement) {
       throw new Error('找不到内容区域')
     }
     
     // 准备导出（展开所有折叠面板）
-    const restore = prepareElementForExport(contentSection)
+    const restore = prepareElementForExport(targetElement)
     
     // 等待DOM更新
     await new Promise(resolve => setTimeout(resolve, 500))
     
     // 导出PDF
-    await exportToPDF(contentSection, {
+    await exportToPDF(targetElement, {
       filename: `小红书涨粉指南_${guideContent.value.metadata.accountName}.pdf`
     })
     
