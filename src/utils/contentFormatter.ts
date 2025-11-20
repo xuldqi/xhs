@@ -215,12 +215,17 @@ function generateBlocksHtml(blocks: ContentBlock[]): string {
  * 格式化完整内容
  * 处理 Markdown、表格、标签等
  */
-export function formatContent(content: string): string {
+export function formatContent(content: string, isProfessional = false): string {
   if (!content) {
     return '<p style="color: #999;">内容为空</p>'
   }
   
   let formatted = content
+  
+  // 专业模式：保留结构但使用正式格式
+  if (isProfessional) {
+    return formatProfessionalContent(formatted)
+  }
   
   // 1. 处理 Markdown 标题（在解析内容块之前）
   formatted = formatted.replace(/^#### (.+)$/gm, '<h4 class="content-h4">$1</h4>')
@@ -251,6 +256,160 @@ export function formatContent(content: string): string {
   formatted = formatParagraphs(formatted)
   
   return formatted
+}
+
+/**
+ * 专业文档格式化
+ * 移除 emoji，但保留卡片和结构化布局
+ */
+function formatProfessionalContent(content: string): string {
+  // 1. 先解析内容块（保留原始结构）
+  const { blocks } = parseContentBlocks(content)
+  
+  if (blocks.length === 0) {
+    // 如果没有内容块，使用简单格式化
+    return formatSimpleProfessionalContent(content)
+  }
+  
+  // 2. 为每个块生成专业格式的 HTML
+  return blocks.map((block, index) => {
+    // 移除标题中的 emoji
+    const cleanTitle = block.title.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}]/gu, '').trim()
+    
+    // 根据块的类型选择样式
+    const cardClass = `doc-info-card doc-card-${index % 3 + 1}`
+    
+    // 格式化内容
+    const formattedContent = block.content.map(line => {
+      // 移除 emoji
+      let cleanLine = line.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}]/gu, '').trim()
+      
+      // 处理加粗
+      cleanLine = cleanLine.replace(/\*\*(.+?)\*\*/g, '<strong class="doc-strong">$1</strong>')
+      // 处理标签
+      cleanLine = cleanLine.replace(/【(.+?)】/g, '<span class="doc-tag">$1</span>')
+      // 处理时间
+      cleanLine = cleanLine.replace(/(\d{1,2}:\d{2})/g, '<span class="doc-time">$1</span>')
+      
+      // 检查是否是列表项
+      if (cleanLine.match(/^[-•]\s/)) {
+        return `<li class="doc-card-item">${cleanLine.substring(2)}</li>`
+      }
+      
+      // 检查是否是小标题（带冒号）
+      if (cleanLine.includes('：') || cleanLine.includes(':')) {
+        const colonIndex = cleanLine.indexOf('：') !== -1 ? cleanLine.indexOf('：') : cleanLine.indexOf(':')
+        const subtitle = cleanLine.substring(0, colonIndex).trim()
+        const subcontent = cleanLine.substring(colonIndex + 1).trim()
+        
+        if (subcontent) {
+          return `<div class="doc-card-subtitle">${subtitle}：</div><p class="doc-card-text">${subcontent}</p>`
+        } else {
+          return `<div class="doc-card-subtitle">${subtitle}</div>`
+        }
+      }
+      
+      return `<p class="doc-card-text">${cleanLine}</p>`
+    }).join('\n')
+    
+    // 检查是否有列表项
+    const hasListItems = block.content.some(line => line.match(/^[-•]\s/))
+    
+    return `
+      <div class="${cardClass}">
+        <h3 class="doc-card-title">${cleanTitle}</h3>
+        <div class="doc-card-content">
+          ${hasListItems ? '<ul class="doc-card-list">' : ''}
+          ${formattedContent}
+          ${hasListItems ? '</ul>' : ''}
+        </div>
+      </div>
+    `
+  }).join('\n')
+}
+
+/**
+ * 简单的专业格式化（当没有内容块时使用）
+ */
+function formatSimpleProfessionalContent(content: string): string {
+  let formatted = content
+  
+  // 移除 emoji
+  formatted = formatted.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}]/gu, ' ')
+  formatted = formatted.replace(/[◆●▶★■]/g, ' ')
+  formatted = formatted.replace(/[^\S\n]+/g, ' ')
+  
+  const lines = formatted.split('\n').map(line => line.trim()).filter(line => line)
+  const result: string[] = []
+  let inList = false
+  
+  for (const line of lines) {
+    if (!line) continue
+    
+    // 检测标题
+    if (line.length < 30 && !line.match(/^[-•]/) && !(line.includes('：') || line.includes(':'))) {
+      if (inList) {
+        result.push('</ol>')
+        inList = false
+      }
+      result.push(`<h3 class="doc-h3">${line}</h3>`)
+    }
+    // 列表项
+    else if (line.match(/^[-•]\s/)) {
+      if (!inList) {
+        result.push('<ol class="doc-list doc-list-ordered">')
+        inList = true
+      }
+      const text = line.substring(2).trim()
+      result.push(`<li class="doc-list-item">${text}</li>`)
+    }
+    // 普通段落
+    else {
+      if (inList) {
+        result.push('</ol>')
+        inList = false
+      }
+      let formattedLine = line.replace(/\*\*(.+?)\*\*/g, '<strong class="doc-strong">$1</strong>')
+      formattedLine = formattedLine.replace(/【(.+?)】/g, '<span class="doc-tag">$1</span>')
+      result.push(`<p class="doc-paragraph">${formattedLine}</p>`)
+    }
+  }
+  
+  if (inList) {
+    result.push('</ol>')
+  }
+  
+  return result.join('\n')
+}
+
+/**
+ * 格式化专业表格
+ */
+function formatProfessionalTable(rows: string[]): string {
+  if (rows.length === 0) return ''
+  
+  let html = '<div class="doc-table-container"><table class="doc-table">'
+  
+  rows.forEach((row, index) => {
+    const cells = row.split('|').filter(cell => cell.trim()).map(cell => cell.trim())
+    if (cells.length === 0) return
+    
+    // 跳过分隔行
+    if (cells[0].match(/^-+$/)) return
+    
+    const tag = index === 0 ? 'th' : 'td'
+    html += '<tr>'
+    cells.forEach(cell => {
+      // 检测是否是数字
+      const isNumber = /^\d+(\.\d+)?%?$/.test(cell)
+      const className = isNumber ? ' class="number"' : ''
+      html += `<${tag}${className}>${cell}</${tag}>`
+    })
+    html += '</tr>'
+  })
+  
+  html += '</table></div>'
+  return html
 }
 
 /**

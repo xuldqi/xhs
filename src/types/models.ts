@@ -131,3 +131,35 @@ export interface GuideState {
   guideContent: GuideContent | null
   generationProgress: number
 }
+
+// 文档格式枚举
+export enum DocumentFormat {
+  CARD = 'card',
+  PROFESSIONAL = 'professional'
+}
+
+// 格式偏好
+export interface FormatPreference {
+  format: DocumentFormat
+  lastUpdated: Date
+}
+
+// 图表数据
+export interface ChartData {
+  labels: string[]
+  datasets: {
+    label: string
+    data: number[]
+    backgroundColor?: string | string[]
+    borderColor?: string
+    fill?: boolean
+  }[]
+}
+
+// 图表配置
+export interface ChartConfig {
+  type: 'line' | 'bar' | 'pie' | 'doughnut'
+  title: string
+  data: ChartData
+  options?: any
+}

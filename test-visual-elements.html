@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>专业视觉元素展示</title>
+  <link rel="stylesheet" href="src/styles/professional-document.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+      background: #f5f7fa;
+      padding: 40px 20px;
+      margin: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 60px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      font-size: 32px;
+      color: #1a1a1a;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #ff2442;
+    }
+    
+    h2 {
+      font-size: 24px;
+      color: #333;
+      margin: 40px 0 20px;
+    }
+    
+    .demo-section {
+      margin: 60px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 专业视觉元素展示</h1>
+    
+    <!-- 信息卡片 -->
+    <div class="demo-section">
+      <h2>1. 信息卡片（带优先级标签）</h2>
+      <div class="doc-info-cards">
+        <div class="doc-info-card" style="border-left-color: #ef4444">
+          <div class="info-card-header">
+            <div class="info-card-title">快速突破冷启动期</div>
+            <div class="info-card-priority priority-high">高优先级</div>
+          </div>
+          <div class="info-card-description">
+            采用"3-3-3"策略：每天发布3条优质内容，参与3个热门话题，互动30条评论
+          </div>
+          <div class="info-card-impact">预期效果：预计30天内粉丝增长至1000+</div>
+        </div>
+        
+        <div class="doc-info-card" style="border-left-color: #f59e0b">
+          <div class="info-card-header">
+            <div class="info-card-title">建立内容资产库</div>
+            <div class="info-card-priority priority-medium">中优先级</div>
+          </div>
+          <div class="info-card-description">
+            制定内容日历，确保每周至少发布3-5篇笔记，建立稳定的更新节奏
+          </div>
+          <div class="info-card-impact">预期效果：提升账号权重，增加推荐概率</div>
+        </div>
+        
+        <div class="doc-info-card" style="border-left-color: #3b82f6">
+          <div class="info-card-header">
+            <div class="info-card-title">优化内容结构</div>
+            <div class="info-card-priority priority-low">低优先级</div>
+          </div>
+          <div class="info-card-description">
+            采用"封面+标题+正文+互动"四要素模型，提高内容完播率和互动率
+          </div>
+          <div class="info-card-impact">预期效果：互动率提升50%以上</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 进度条 -->
+    <div class="demo-section">
+      <h2>2. 进度条</h2>
+      <div class="doc-progress-bars">
+        <div class="doc-progress-item">
+          <div class="progress-label">
+            <span>Day 1 完成度</span>
+            <span class="progress-value">100%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: 100%; background: #10b981"></div>
+          </div>
+        </div>
+        
+        <div class="doc-progress-item">
+          <div class="progress-label">
+            <span>Day 2 完成度</span>
+            <span class="progress-value">75%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: 75%; background: #3b82f6"></div>
+          </div>
+        </div>
+        
+        <div class="doc-progress-item">
+          <div class="progress-label">
+            <span>Day 3 完成度</span>
+            <span class="progress-value">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: 0%; background: #e5e7eb"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 时间轴 -->
+    <div class="demo-section">
+      <h2>3. 时间轴</h2>
+      <div class="doc-timeline">
+        <div class="timeline-item status-completed">
+          <div class="timeline-marker">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-time">Day 1</div>
+            <div class="timeline-title">账号基础搭建</div>
+            <div class="timeline-description">完善账号资料，发布首篇内容，建立初始印象</div>
+          </div>
+          <div class="timeline-line"></div>
+        </div>
+        
+        <div class="timeline-item status-current">
+          <div class="timeline-marker">●</div>
+          <div class="timeline-content">
+            <div class="timeline-time">Day 2</div>
+            <div class="timeline-title">内容持续输出</div>
+            <div class="timeline-description">保持更新频率，积极互动，提升账号活跃度</div>
+          </div>
+          <div class="timeline-line"></div>
+        </div>
+        
+        <div class="timeline-item status-pending">
+          <div class="timeline-marker">○</div>
+          <div class="timeline-content">
+            <div class="timeline-time">Day 3</div>
+            <div class="timeline-title">流量突破冲刺</div>
+            <div class="timeline-description">发布爆款内容，多渠道引流，实现粉丝快速增长</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 徽章 -->
+    <div class="demo-section">
+      <h2>4. 徽章</h2>
+      <div class="doc-badges">
+        <div class="doc-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+          <span class="badge-icon">⭐</span>
+          <div class="badge-content">
+            <div class="badge-label">核心要点</div>
+            <div class="badge-value">4个</div>
+          </div>
+        </div>
+        
+        <div class="doc-badge" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+          <span class="badge-icon">📅</span>
+          <div class="badge-content">
+            <div class="badge-label">执行周期</div>
+            <div class="badge-value">30天</div>
+          </div>
+        </div>
+        
+        <div class="doc-badge" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+          <span class="badge-icon">📈</span>
+          <div class="badge-content">
+            <div class="badge-label">预期效果</div>
+            <div class="badge-value">显著</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 数据卡片 -->
+    <div class="demo-section">
+      <h2>5. 数据卡片</h2>
+      <div class="doc-data-cards">
+        <div class="doc-data-card" style="border-left-color: #10b981">
+          <div class="card-label">目标粉丝</div>
+          <div class="card-value" style="color: #10b981">500+</div>
+        </div>
+        
+        <div class="doc-data-card" style="border-left-color: #3b82f6">
+          <div class="card-label">发布笔记</div>
+          <div class="card-value" style="color: #3b82f6">9篇</div>
+        </div>
+        
+        <div class="doc-data-card" style="border-left-color: #f59e0b">
+          <div class="card-label">预计曝光</div>
+          <div class="card-value" style="color: #f59e0b">5000+</div>
+        </div>
+        
+        <div class="doc-data-card" style="border-left-color: #8b5cf6">
+          <div class="card-label">互动目标</div>
+          <div class="card-value" style="color: #8b5cf6">200+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

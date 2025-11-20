@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>章节增强器测试</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .test-section {
+      background: white;
+      padding: 30px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #333;
+      border-bottom: 3px solid #ff2442;
+      padding-bottom: 10px;
+    }
+    
+    h2 {
+      color: #666;
+      margin-top: 30px;
+    }
+    
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    /* 数据卡片样式 */
+    .doc-data-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    
+    .doc-data-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-left: 4px solid #3b82f6;
+      border-radius: 6px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .card-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .card-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #3b82f6;
+    }
+    
+    /* 表格样式 */
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .doc-table th {
+      background: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #dee2e6;
+    }
+    
+    .doc-table td {
+      padding: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .doc-table-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      padding-left: 4px;
+      border-left: 4px solid #ff2442;
+    }
+    
+    pre {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-section">
+    <h1>📊 章节增强器功能测试</h1>
+    <p>测试 sectionEnhancer 工具的各项功能</p>
+  </div>
+
+  <div class="test-section">
+    <h2>测试 1: 账号诊断章节</h2>
+    <div id="test1-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>测试 2: 起号三天计划章节</h2>
+    <div id="test2-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>测试 3: 内容策略章节</h2>
+    <div id="test3-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>测试 4: 立刻行动清单章节</h2>
+    <div id="test4-result"></div>
+  </div>
+
+  <script type="module">
+    // 模拟 sectionEnhancer 的核心功能
+    function enhanceSection(sectionId, title, content) {
+      const enhancements = {
+        dataCards: [],
+        charts: [],
+        tables: []
+      }
+
+      // 账号诊断
+      if (title.includes('账号诊断') || title.includes('现状分析')) {
+        enhancements.dataCards = [
+          { label: '账号健康度', value: '75分', color: '#3b82f6' },
+          { label: '内容质量', value: '良好', color: '#10b981' },
+          { label: '互动率', value: '3.2%', color: '#f59e0b' },
+          { label: '涨粉潜力', value: '高', color: '#ef4444' }
+        ]
+      }
+
+      // 起号三天计划
+      if (title.includes('三天') || title.includes('快速起号')) {
+        enhancements.dataCards = [
+          { label: '目标粉丝', value: '500+', color: '#3b82f6' },
+          { label: '发布笔记', value: '9篇', color: '#10b981' },
+          { label: '预计曝光', value: '5000+', color: '#f59e0b' }
+        ]
+        
+        enhancements.tables = [{
+          title: '三天行动计划',
+          headers: ['时间', '任务', '目标', '关键指标'],
+          rows: [
+            ['第1天', '账号优化+发布3篇', '完成基础设置', '曝光1000+'],
+            ['第2天', '持续输出+互动', '发布3篇笔记', '粉丝100+'],
+            ['第3天', '爆款冲刺', '1篇爆款笔记', '粉丝300+']
+          ]
+        }]
+      }
+
+      // 内容策略
+      if (title.includes('内容策略') || title.includes('内容规划')) {
+        enhancements.dataCards = [
+          { label: '内容类型', value: '5种', color: '#3b82f6' },
+          { label: '发布频率', value: '日更', color: '#10b981' },
+          { label: '最佳时段', value: '19-21点', color: '#f59e0b' }
+        ]
+      }
+
+      // 立刻行动清单
+      if (title.includes('行动清单') || title.includes('执行计划')) {
+        enhancements.dataCards = [
+          { label: '总任务数', value: '12项', color: '#3b82f6' },
+          { label: '优先级高', value: '5项', color: '#ef4444' },
+          { label: '预计耗时', value: '2小时', color: '#10b981' }
+        ]
+        
+        enhancements.tables = [{
+          title: '任务执行清单',
+          headers: ['任务', '优先级', '预计时间', '完成状态'],
+          rows: [
+            ['完善账号资料', '高', '15分钟', '⬜ 待完成'],
+            ['准备3篇内容', '高', '60分钟', '⬜ 待完成'],
+            ['设置发布计划', '中', '10分钟', '⬜ 待完成'],
+            ['关注同领域账号', '中', '20分钟', '⬜ 待完成']
+          ]
+        }]
+      }
+
+      return enhancements
+    }
+
+    function renderDataCards(cards) {
+      if (!cards || cards.length === 0) return ''
+      
+      const cardsHtml = cards.map(card => `
+        <div class="doc-data-card" style="border-left-color: ${card.color}">
+          <div class="card-label">${card.label}</div>
+          <div class="card-value" style="color: ${card.color}">${card.value}</div>
+        </div>
+      `).join('')
+      
+      return `<div class="doc-data-cards">${cardsHtml}</div>`
+    }
+
+    function renderTables(tables) {
+      if (!tables || tables.length === 0) return ''
+      
+      return tables.map(table => {
+        const headersHtml = table.headers.map(h => `<th>${h}</th>`).join('')
+        const rowsHtml = table.rows.map(row => 
+          `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`
+        ).join('')
+        
+        return `
+          <div class="doc-table-title">${table.title}</div>
+          <table class="doc-table">
+            <thead><tr>${headersHtml}</tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        `
+      }).join('')
+    }
+
+    // 运行测试
+    function runTests() {
+      // 测试 1: 账号诊断
+      const test1 = enhanceSection(1, '账号诊断与现状分析', '...')
+      document.getElementById('test1-result').innerHTML = `
+        <div class="status success">✅ 生成了 ${test1.dataCards.length} 个数据卡片</div>
+        ${renderDataCards(test1.dataCards)}
+      `
+
+      // 测试 2: 起号三天计划
+      const test2 = enhanceSection(2, '起号三天快速计划', '...')
+      document.getElementById('test2-result').innerHTML = `
+        <div class="status success">✅ 生成了 ${test2.dataCards.length} 个数据卡片和 ${test2.tables.length} 个表格</div>
+        ${renderDataCards(test2.dataCards)}
+        ${renderTables(test2.tables)}
+      `
+
+      // 测试 3: 内容策略
+      const test3 = enhanceSection(3, '内容策略与规划', '...')
+      document.getElementById('test3-result').innerHTML = `
+        <div class="status success">✅ 生成了 ${test3.dataCards.length} 个数据卡片</div>
+        ${renderDataCards(test3.dataCards)}
+      `
+
+      // 测试 4: 立刻行动清单
+      const test4 = enhanceSection(12, '立刻行动清单', '...')
+      document.getElementById('test4-result').innerHTML = `
+        <div class="status success">✅ 生成了 ${test4.dataCards.length} 个数据卡片和 ${test4.tables.length} 个表格</div>
+        ${renderDataCards(test4.dataCards)}
+        ${renderTables(test4.tables)}
+      `
+    }
+
+    // 页面加载后运行测试
+    runTests()
+  </script>
+</body>
+</html>

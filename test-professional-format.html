@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>专业文档格式测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Source Han Sans CN', 'Microsoft YaHei', sans-serif;
+      background: #f5f5f5;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 40px;
+    }
+
+    .preview {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .metric-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .metric-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #ff2442;
+      margin-bottom: 8px;
+    }
+
+    .metric-desc {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .swot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .swot-card {
+      background: #ffffff;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .swot-card.strengths { border-color: #10b981; }
+    .swot-card.weaknesses { border-color: #f59e0b; }
+    .swot-card.opportunities { border-color: #3b82f6; }
+    .swot-card.threats { border-color: #ef4444; }
+
+    .swot-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swot-card.strengths .swot-title { color: #10b981; }
+    .swot-card.weaknesses .swot-title { color: #f59e0b; }
+    .swot-card.opportunities .swot-title { color: #3b82f6; }
+    .swot-card.threats .swot-title { color: #ef4444; }
+
+    .swot-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .swot-list li {
+      padding: 8px 0;
+      padding-left: 20px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .swot-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .chart-container {
+      margin: 30px 0;
+      padding: 24px;
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .chart-title {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: 400px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 专业文档格式预览</h1>
+    
+    <div class="preview">
+      <h2>关键指标分析</h2>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">粉丝规模</div>
+          <div class="metric-value">5,230</div>
+          <div class="metric-desc">成长期账号，具备基础影响力</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">内容产出</div>
+          <div class="metric-value">87</div>
+          <div class="metric-desc">已发布 87 篇笔记</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">预估互动率</div>
+          <div class="metric-value">3.2%</div>
+          <div class="metric-desc">互动表现优秀，用户粘性强</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">账号成熟度</div>
+          <div class="metric-value">65/100</div>
+          <div class="metric-desc">账号较为成熟，可以探索深度运营</div>
+        </div>
+      </div>
+
+      <h2>数据可视化分析</h2>
+      <div class="chart-container">
+        <div class="chart-title">账号发展阶段分析</div>
+        <canvas id="chart1"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title">内容表现预测（未来30天）</div>
+        <canvas id="chart2"></canvas>
+      </div>
+
+      <h2>SWOT 战略分析</h2>
+      <div class="swot-grid">
+        <div class="swot-card strengths">
+          <div class="swot-title">
+            <span>💪</span>
+            <span>优势 (Strengths)</span>
+          </div>
+          <ul class="swot-list">
+            <li>已建立稳定的粉丝基础，具备一定影响力</li>
+            <li>内容积累丰富，创作经验充足</li>
+            <li>美妆领域定位明确，垂直度高</li>
+          </ul>
+        </div>
+        <div class="swot-card weaknesses">
+          <div class="swot-title">
+            <span>⚠️</span>
+            <span>劣势 (Weaknesses)</span>
+          </div>
+          <ul class="swot-list">
+            <li>品牌认知度有待提升，需要强化个人IP</li>
+            <li>内容同质化风险，需要差异化创新</li>
+            <li>商业变现能力有待开发</li>
+          </ul>
+        </div>
+        <div class="swot-card opportunities">
+          <div class="swot-title">
+            <span>🎯</span>
+            <span>机会 (Opportunities)</span>
+          </div>
+          <ul class="swot-list">
+            <li>美妆赛道仍有较大增长空间</li>
+            <li>平台算法持续优化，优质内容获得更多流量支持</li>
+            <li>用户对专业内容需求增加，垂直领域创作者受青睐</li>
+          </ul>
+        </div>
+        <div class="swot-card threats">
+          <div class="swot-title">
+            <span>⚡</span>
+            <span>威胁 (Threats)</span>
+          </div>
+          <ul class="swot-list">
+            <li>同类账号竞争激烈，需要差异化定位</li>
+            <li>用户注意力分散，内容需要更强吸引力</li>
+            <li>平台规则变化可能影响流量获取</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 图表1：饼图
+    const ctx1 = document.getElementById('chart1').getContext('2d');
+    new Chart(ctx1, {
+      type: 'doughnut',
+      data: {
+        labels: ['已完成', '进行中', '待开发'],
+        datasets: [{
+          data: [45, 30, 25],
+          backgroundColor: ['#10b981', '#f59e0b', '#e5e7eb']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+    // 图表2：柱状图
+    const ctx2 = document.getElementById('chart2').getContext('2d');
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: ['第1周', '第2周', '第3周', '第4周'],
+        datasets: [{
+          label: '预计曝光量',
+          data: [10460, 12552, 15690, 18828],
+          backgroundColor: '#3b82f6'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

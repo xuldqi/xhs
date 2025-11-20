@@ -95,49 +95,66 @@
           </div>
         </div>
         
-        <!-- 导言说明 -->
-        <div class="introduction">
-          <div class="intro-card">
-            <div class="intro-icon">📖</div>
-            <h3>关于本指南</h3>
-            <p>这是一份根据您的账号实际情况量身定制的涨粉实操指南。包含12个核心模块，从账号诊断到立即行动，每一步都有具体可执行的方法。</p>
+        <!-- 格式选择器 -->
+        <FormatSelector
+          :current-format="documentFormat"
+          @format-change="handleFormatChange"
+        />
+        
+        <!-- 卡片格式 -->
+        <div v-if="documentFormat === 'card'">
+          <!-- 导言说明 -->
+          <div class="introduction">
+            <div class="intro-card">
+              <div class="intro-icon">📖</div>
+              <h3>关于本指南</h3>
+              <p>这是一份根据您的账号实际情况量身定制的涨粉实操指南。包含12个核心模块，从账号诊断到立即行动，每一步都有具体可执行的方法。</p>
+            </div>
+            
+            <div class="intro-card">
+              <div class="intro-icon">🎯</div>
+              <h3>如何使用</h3>
+              <p>建议按顺序阅读每个章节，重点关注"立刻行动清单"。每个模块都可以独立展开查看，点击标题即可折叠或展开内容。</p>
+            </div>
+            
+            <div class="intro-card">
+              <div class="intro-icon">💡</div>
+              <h3>实操建议</h3>
+              <p>不要试图一次性完成所有内容。先从"起号三天计划"开始，每天完成一个小目标。记住：持续行动比完美计划更重要。</p>
+            </div>
           </div>
           
-          <div class="intro-card">
-            <div class="intro-icon">🎯</div>
-            <h3>如何使用</h3>
-            <p>建议按顺序阅读每个章节，重点关注"立刻行动清单"。每个模块都可以独立展开查看，点击标题即可折叠或展开内容。</p>
-          </div>
-          
-          <div class="intro-card">
-            <div class="intro-icon">💡</div>
-            <h3>实操建议</h3>
-            <p>不要试图一次性完成所有内容。先从"起号三天计划"开始，每天完成一个小目标。记住：持续行动比完美计划更重要。</p>
+          <!-- 内容 - 使用折叠面板 -->
+          <div class="sections">
+            <el-collapse v-model="activeNames" accordion>
+              <el-collapse-item
+                v-for="section in guideContent.sections"
+                :key="section.id"
+                :name="section.id"
+              >
+                <template #title>
+                  <div class="collapse-title">
+                    <span class="section-number">{{ section.id }}</span>
+                    <span class="section-name">{{ section.title }}</span>
+                    <span class="section-badge">{{ getContentLength(section.content) }}字</span>
+                  </div>
+                </template>
+                <div 
+                  class="section-content" 
+                  v-html="formatContent(section.content)" 
+                />
+              </el-collapse-item>
+            </el-collapse>
           </div>
         </div>
         
-        <!-- 内容 - 使用折叠面板 -->
-        <div class="sections">
-          <el-collapse v-model="activeNames" accordion>
-            <el-collapse-item
-              v-for="section in guideContent.sections"
-              :key="section.id"
-              :name="section.id"
-            >
-              <template #title>
-                <div class="collapse-title">
-                  <span class="section-number">{{ section.id }}</span>
-                  <span class="section-name">{{ section.title }}</span>
-                  <span class="section-badge">{{ getContentLength(section.content) }}字</span>
-                </div>
-              </template>
-              <div 
-                class="section-content" 
-                v-html="formatContent(section.content)" 
-              />
-            </el-collapse-item>
-          </el-collapse>
-        </div>
+        <!-- 专业文档格式 -->
+        <ProfessionalDocument
+          v-else
+          :account-data="professionalAccountData"
+          :content="allSectionsContent"
+          :sections="guideContent.sections"
+        />
       </div>
       
       <!-- 生成失败 -->
@@ -183,12 +200,17 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { SECTION_TITLES } from '@/types'
 import type { GuideContent } from '@/types'
 import TipsCarousel from '@/components/TipsCarousel.vue'
+import FormatSelector from '@/components/guide/FormatSelector.vue'
+import ProfessionalDocument from '@/components/guide/ProfessionalDocument.vue'
 import '@/styles/guide-content.css'
+import '@/styles/professional-document.css'
 import { formatContent, stripHtmlTags } from '@/utils/contentFormatter'
+import type { AccountData } from '@/types'
 import { exportToPDF, prepareElementForExport } from '@/utils/pdfExporter'
 import { saveGuide, generateShareLink } from '@/services/guideService'
 import { useUserStore } from '@/stores/userStore'
 import { HistoryManager } from '@/utils/historyManager'
+import type { DocumentFormat } from '@/types/models'
 
 const router = useRouter()
 const route = useRoute()
@@ -203,6 +225,13 @@ const activeNames = ref<number[]>([1]) // 默认展开第一个章节
 const startTime = ref<number>(0)
 const saving = ref(false)
 const shareId = ref('')
+const documentFormat = ref<DocumentFormat>('card')
+const accountData = ref({
+  username: '',
+  followers: 0,
+  notes: 0,
+  category: ''
+})
 
 // 计算属性
 const isLoggedIn = computed(() => userStore.isLoggedIn)
@@ -212,6 +241,25 @@ const progressColor = computed(() => {
   if (generationProgress.value < 30) return '#409EFF'
   if (generationProgress.value < 70) return '#67C23A'
   return '#E6A23C'
+})
+
+// 专业文档所需的账号数据
+const professionalAccountData = computed<AccountData>(() => {
+  // 优先从 guideContent.metadata 获取，因为这是生成时保存的完整数据
+  const metadata = guideContent.value?.metadata
+  
+  return {
+    username: metadata?.accountName || accountData.value.username || '未知账号',
+    followerCount: metadata?.accountData?.followerCount || accountData.value.followers || 0,
+    postCount: metadata?.accountData?.postCount || accountData.value.notes || 0,
+    contentCategory: metadata?.accountData?.contentCategory || accountData.value.category || '未分类'
+  }
+})
+
+// 合并所有章节内容
+const allSectionsContent = computed(() => {
+  if (!guideContent.value) return ''
+  return guideContent.value.sections.map(s => s.content).join('\n\n')
 })
 
 // 预计剩余时间
@@ -234,6 +282,9 @@ const estimatedTime = computed(() => {
 onMounted(async () => {
   const { useAppStore } = await import('@/stores/appStore')
   const store = useAppStore()
+  
+  // 加载格式偏好
+  loadFormatPreference()
   
   // 检查是否是从历史记录进入
   const historyId = route.params.historyId as string
@@ -308,6 +359,14 @@ const generateGuide = async () => {
     const store = useAppStore()
     
     if (!store.accountData) return
+    
+    // 保存账号数据用于专业文档格式
+    accountData.value = {
+      username: store.accountData.username,
+      followers: store.accountData.followerCount || 0,
+      notes: store.accountData.postCount || 0,
+      category: store.accountData.contentCategory || '未分类'
+    }
     
     // 使用 guideGenerator 服务
     const { generateGuide: generateGuideContent } = await import('@/services/guideGenerator')
@@ -426,6 +485,21 @@ const getContentLength = (content: string): number => {
   // 移除 HTML 标签后计算长度
   const text = content.replace(/<[^>]*>/g, '')
   return text.length
+}
+
+// 格式切换
+const handleFormatChange = (format: DocumentFormat) => {
+  documentFormat.value = format
+  // 保存到 localStorage
+  localStorage.setItem('preferredFormat', format)
+}
+
+// 加载格式偏好
+const loadFormatPreference = () => {
+  const saved = localStorage.getItem('preferredFormat')
+  if (saved && (saved === 'card' || saved === 'professional')) {
+    documentFormat.value = saved as DocumentFormat
+  }
 }
 
 // 导出 PDF

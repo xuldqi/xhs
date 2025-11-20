@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PPT 风格元素展示</title>
+  <link rel="stylesheet" href="src/styles/professional-document.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+      background: #f5f7fa;
+      padding: 40px 20px;
+      margin: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 60px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      font-size: 36px;
+      color: #1a1a1a;
+      margin-bottom: 50px;
+      padding-bottom: 20px;
+      border-bottom: 4px solid #ff2442;
+      text-align: center;
+    }
+    
+    h2 {
+      font-size: 24px;
+      color: #333;
+      margin: 60px 0 30px;
+      padding-left: 16px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .demo-section {
+      margin: 60px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 PPT 风格专业元素展示</h1>
+    
+    <!-- 大数字卡片 -->
+    <div class="demo-section">
+      <h2>1. 大数字卡片</h2>
+      <div class="doc-big-numbers">
+        <div class="big-number-card">
+          <div class="big-number" style="color: white">53</div>
+          <div class="big-number-label">综合评分</div>
+          <div class="big-number-description">中等水平，有较大提升空间</div>
+        </div>
+        
+        <div class="big-number-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+          <div class="big-number" style="color: white">47</div>
+          <div class="big-number-label">改进空间</div>
+          <div class="big-number-description">通过优化可提升至优秀</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 对比卡片 -->
+    <div class="demo-section">
+      <h2>2. 对比卡片（优化前后）</h2>
+      <div class="doc-comparison">
+        <div class="comparison-card before">
+          <div class="comparison-badge">优化前</div>
+          <div class="comparison-title">互动率</div>
+          <div class="comparison-value">1.5%</div>
+          <div class="comparison-description">互动率低，内容缺乏吸引力</div>
+        </div>
+        <div class="comparison-arrow">→</div>
+        <div class="comparison-card after">
+          <div class="comparison-badge">优化后</div>
+          <div class="comparison-title">互动率</div>
+          <div class="comparison-value">4.2%</div>
+          <div class="comparison-description">互动率提升180%，用户粘性增强</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 步骤指示器 -->
+    <div class="demo-section">
+      <h2>3. 步骤指示器</h2>
+      <div class="doc-steps">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <div class="step-title">确定内容方向</div>
+            <div class="step-description">基于账号定位，明确70%垂直内容+20%热点+10%创新的内容配比</div>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <div class="step-title">制定发布计划</div>
+            <div class="step-description">建立内容日历，确保每日2-3篇的稳定更新频率</div>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <div class="step-title">优化内容质量</div>
+            <div class="step-description">采用"封面+标题+正文+互动"四要素模型，提升内容吸引力</div>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        
+        <div class="step-item">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <div class="step-title">数据追踪优化</div>
+            <div class="step-description">定期分析数据，根据用户反馈持续优化内容方向</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 重点提示框 -->
+    <div class="demo-section">
+      <h2>4. 重点提示框</h2>
+      
+      <div class="doc-highlight highlight-tip">
+        <div class="highlight-icon">💡</div>
+        <div class="highlight-content">
+          <div class="highlight-title">专业提示</div>
+          <div class="highlight-text">19-21点是小红书流量高峰期，这个时段发布的内容曝光量可提升3-5倍</div>
+        </div>
+      </div>
+      
+      <div class="doc-highlight highlight-warning">
+        <div class="highlight-icon">⚠️</div>
+        <div class="highlight-content">
+          <div class="highlight-title">紧急改进项</div>
+          <div class="highlight-text">发布频率过低是当前最大问题，建议立即提升至每日2-3篇的更新频率</div>
+        </div>
+      </div>
+      
+      <div class="doc-highlight highlight-success">
+        <div class="highlight-icon">✅</div>
+        <div class="highlight-content">
+          <div class="highlight-title">优势保持</div>
+          <div class="highlight-text">账号定位清晰是你的优势，继续保持垂直领域深耕</div>
+        </div>
+      </div>
+      
+      <div class="doc-highlight highlight-info">
+        <div class="highlight-icon">ℹ️</div>
+        <div class="highlight-content">
+          <div class="highlight-title">重要信息</div>
+          <div class="highlight-text">小红书算法更新频繁，建议每周关注平台最新动态和规则变化</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 组合展示 -->
+    <div class="demo-section">
+      <h2>5. 组合展示效果</h2>
+      
+      <!-- 徽章 + 数据卡片 -->
+      <div class="doc-badges">
+        <div class="doc-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+          <span class="badge-icon">⭐</span>
+          <div class="badge-content">
+            <div class="badge-label">核心要点</div>
+            <div class="badge-value">4个</div>
+          </div>
+        </div>
+        
+        <div class="doc-badge" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+          <span class="badge-icon">📅</span>
+          <div class="badge-content">
+            <div class="badge-label">执行周期</div>
+            <div class="badge-value">30天</div>
+          </div>
+        </div>
+        
+        <div class="doc-badge" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+          <span class="badge-icon">📈</span>
+          <div class="badge-content">
+            <div class="badge-label">预期效果</div>
+            <div class="badge-value">显著</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="doc-data-cards" style="margin-top: 30px;">
+        <div class="doc-data-card" style="border-left-color: #10b981">
+          <div class="card-label">目标粉丝</div>
+          <div class="card-value" style="color: #10b981">500+</div>
+        </div>
+        
+        <div class="doc-data-card" style="border-left-color: #3b82f6">
+          <div class="card-label">发布笔记</div>
+          <div class="card-value" style="color: #3b82f6">9篇</div>
+        </div>
+        
+        <div class="doc-data-card" style="border-left-color: #f59e0b">
+          <div class="card-label">预计曝光</div>
+          <div class="card-value" style="color: #f59e0b">5000+</div>
+        </div>
+        
+        <div class="doc-data-card" style="border-left-color: #8b5cf6">
+          <div class="card-label">互动目标</div>
+          <div class="card-value" style="color: #8b5cf6">200+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
