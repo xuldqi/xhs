@@ -209,6 +209,34 @@
               <el-option label="其他" value="其他" />
             </el-select>
           </el-form-item>
+          
+          <el-divider content-position="left">
+            <span style="color: #909399; font-size: 14px;">📝 补充信息（可选，帮助生成更精准的指南）</span>
+          </el-divider>
+          
+          <el-form-item label="内容方向">
+            <el-input
+              v-model="manualFormData.contentDirection"
+              type="textarea"
+              :rows="3"
+              placeholder="例如：专注于职场穿搭分享，主要面向25-35岁的职场女性，风格偏向简约优雅"
+            />
+            <div style="color: #909399; font-size: 12px; margin-top: 4px;">
+              💡 描述您的内容定位、目标受众、风格特点等
+            </div>
+          </el-form-item>
+          
+          <el-form-item label="热门笔记标题">
+            <el-input
+              v-model="manualFormData.exampleTitles"
+              type="textarea"
+              :rows="4"
+              placeholder="请输入您最近几篇热门笔记的标题，每行一个，例如：&#10;秋冬必备！5套通勤穿搭模板&#10;小个子女生显高秘籍｜158cm穿搭分享&#10;平价好物｜这些单品让你气质翻倍"
+            />
+            <div style="color: #909399; font-size: 12px; margin-top: 4px;">
+              💡 提供3-5个您的热门笔记标题，帮助AI了解您的内容风格
+            </div>
+          </el-form-item>
         </el-form>
         
         <template #footer>
@@ -257,7 +285,9 @@ const manualFormData = reactive({
   username: '',
   followerCount: 0,
   postCount: 0,
-  contentCategory: ''
+  contentCategory: '',
+  contentDirection: '',
+  exampleTitles: ''
 })
 
 // 表单验证规则

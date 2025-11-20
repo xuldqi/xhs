@@ -4,6 +4,8 @@ export interface AccountData {
   followerCount: number         // 当前粉丝数
   postCount: number            // 发布笔记数
   contentCategory: string      // 内容类别
+  contentDirection?: string    // 内容方向描述（可选）
+  exampleTitles?: string       // 示例标题列表（可选）
   recentPosts: PostInfo[]      // 最近发布的笔记
   analysisDate: Date           // 分析日期
 }
