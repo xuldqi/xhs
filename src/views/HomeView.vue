@@ -149,6 +149,214 @@
       <!-- 历史记录 -->
       <HistoryPanel ref="historyPanelRef" />
 
+      <!-- 结果展示区 -->
+      <section class="results-showcase">
+        <h2 class="section-title">你将获得什么？</h2>
+        <p class="section-subtitle">一份完整的、可执行的涨粉实操手册</p>
+        
+        <div class="value-grid">
+          <div class="value-card">
+            <div class="value-icon">📊</div>
+            <h3>账号全面诊断</h3>
+            <p>分析你的账号现状、优势和改进方向，给出涨粉难度评估和预期时间</p>
+          </div>
+          
+          <div class="value-card">
+            <div class="value-icon">📅</div>
+            <h3>3天起号计划</h3>
+            <p>Day 1-3详细行动步骤，包含对标研究、选题方向、发布策略、薯条投放</p>
+          </div>
+          
+          <div class="value-card">
+            <div class="value-icon">💡</div>
+            <h3>爆款笔记公式</h3>
+            <p>标题模板、封面设计、正文结构，可直接套用的爆款创作方法论</p>
+          </div>
+          
+          <div class="value-card">
+            <div class="value-icon">📈</div>
+            <h3>数据复盘模板</h3>
+            <p>每周复盘表格、核心指标追踪、优化方向建议，让数据指导决策</p>
+          </div>
+          
+          <div class="value-card">
+            <div class="value-icon">💰</div>
+            <h3>变现路径规划</h3>
+            <p>不同粉丝量级的变现方式和预估收入，清晰的商业化路径</p>
+          </div>
+          
+          <div class="value-card">
+            <div class="value-icon">✅</div>
+            <h3>立即行动清单</h3>
+            <p>今晚必做、明天要完成、本周关键里程碑，不再迷茫</p>
+          </div>
+        </div>
+        
+        <div class="showcase-stats">
+          <div class="stat-card">
+            <div class="stat-number">12</div>
+            <div class="stat-label">个专业章节</div>
+            <div class="stat-desc">完整的涨粉知识体系</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">条实操建议</div>
+            <div class="stat-desc">每一条都可以立即执行</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">18</div>
+            <div class="stat-label">维度拆解框架</div>
+            <div class="stat-desc">系统化学习对标账号</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">5分钟</div>
+            <div class="stat-label">智能生成</div>
+            <div class="stat-desc">AI自动分析和撰写</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 成功案例 -->
+      <section class="success-stories">
+        <h2 class="section-title">真实用户成功案例</h2>
+        <p class="section-subtitle">他们都通过我们的指南实现了涨粉目标</p>
+        
+        <div class="cases-grid">
+          <div class="case-card">
+            <div class="case-header">
+              <div class="case-avatar">👩</div>
+              <div class="case-info">
+                <div class="case-name">美妆博主 @小美</div>
+                <div class="case-category">美妆护肤</div>
+              </div>
+            </div>
+            
+            <div class="case-growth">
+              <div class="growth-item">
+                <span class="label">使用前</span>
+                <span class="number">50</span>
+                <span class="unit">粉丝</span>
+              </div>
+              <div class="growth-arrow">
+                <span class="arrow-icon">→</span>
+                <span class="growth-rate">+2300%</span>
+              </div>
+              <div class="growth-item highlight">
+                <span class="label">30天后</span>
+                <span class="number">1,200</span>
+                <span class="unit">粉丝</span>
+              </div>
+            </div>
+            
+            <div class="case-quote">
+              "按照指南的爆款公式，第一篇笔记就上了热门！对标账号拆解框架特别实用，让我找到了清晰的方向。"
+            </div>
+            
+            <div class="case-highlights">
+              <span class="highlight">✓ 首篇爆款</span>
+              <span class="highlight">✓ 30天破千粉</span>
+              <span class="highlight">✓ 接到品牌合作</span>
+            </div>
+          </div>
+          
+          <div class="case-card">
+            <div class="case-header">
+              <div class="case-avatar">👨</div>
+              <div class="case-info">
+                <div class="case-name">穿搭博主 @时尚达人</div>
+                <div class="case-category">穿搭时尚</div>
+              </div>
+            </div>
+            
+            <div class="case-growth">
+              <div class="growth-item">
+                <span class="label">使用前</span>
+                <span class="number">120</span>
+                <span class="unit">粉丝</span>
+              </div>
+              <div class="growth-arrow">
+                <span class="arrow-icon">→</span>
+                <span class="growth-rate">+650%</span>
+              </div>
+              <div class="growth-item highlight">
+                <span class="label">45天后</span>
+                <span class="number">900</span>
+                <span class="unit">粉丝</span>
+              </div>
+            </div>
+            
+            <div class="case-quote">
+              "3天起号计划非常详细，每一步都有具体的操作指导。数据复盘模板帮我找到了内容优化方向。"
+            </div>
+            
+            <div class="case-highlights">
+              <span class="highlight">✓ 笔记互动率提升3倍</span>
+              <span class="highlight">✓ 45天近千粉</span>
+            </div>
+          </div>
+          
+          <div class="case-card">
+            <div class="case-header">
+              <div class="case-avatar">🍜</div>
+              <div class="case-info">
+                <div class="case-name">美食博主 @吃货小王</div>
+                <div class="case-category">美食探店</div>
+              </div>
+            </div>
+            
+            <div class="case-growth">
+              <div class="growth-item">
+                <span class="label">使用前</span>
+                <span class="number">0</span>
+                <span class="unit">粉丝</span>
+              </div>
+              <div class="growth-arrow">
+                <span class="arrow-icon">→</span>
+                <span class="growth-rate">从0到1</span>
+              </div>
+              <div class="growth-item highlight">
+                <span class="label">60天后</span>
+                <span class="number">1,500</span>
+                <span class="unit">粉丝</span>
+              </div>
+            </div>
+            
+            <div class="case-quote">
+              "完全零基础开始，指南给了我系统的方法论。冷启动技巧和每日固定动作让我养成了良好的运营习惯。"
+            </div>
+            
+            <div class="case-highlights">
+              <span class="highlight">✓ 零基础起号</span>
+              <span class="highlight">✓ 60天破1500粉</span>
+              <span class="highlight">✓ 开始接广告</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="overall-stats">
+          <div class="stat">
+            <span class="stat-number">10,000+</span>
+            <span class="stat-label">累计使用次数</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">85%</span>
+            <span class="stat-label">用户达成涨粉目标</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">4.8/5.0</span>
+            <span class="stat-label">用户满意度评分</span>
+          </div>
+        </div>
+        
+        <div class="cta-section">
+          <h3>看完案例，是不是也想试试？</h3>
+          <p>上传截图，5分钟获取你的专属涨粉方案</p>
+          <el-button type="primary" size="large" @click="scrollToUpload">
+            开始生成我的指南
+          </el-button>
+        </div>
+      </section>
+
       <!-- 功能介绍区域 -->
       <div id="features" class="features-section">
         <h2 class="section-title">核心功能</h2>
@@ -414,6 +622,14 @@ const handleStartAnalysis = async () => {
 // 显示示例
 const showExample = () => {
   exampleModalRef.value?.show()
+}
+
+// 滚动到上传区域
+const scrollToUpload = () => {
+  const uploadZone = document.querySelector('.upload-zone')
+  if (uploadZone) {
+    uploadZone.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
 }
 </script>
 
@@ -869,3 +1085,351 @@ const showExample = () => {
   }
 }
 </style>
+
+
+/* 结果展示区 */
+.results-showcase {
+  margin-top: 80px;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 20px;
+}
+
+.value-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin: 40px 0;
+}
+
+.value-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.value-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(64, 158, 255, 0.15);
+  border-color: #409EFF;
+}
+
+.value-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.value-card h3 {
+  font-size: 1.25rem;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.value-card p {
+  font-size: 0.9375rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.showcase-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: #409EFF;
+  transform: translateY(-2px);
+}
+
+.stat-card .stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #409EFF;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.stat-card .stat-label {
+  font-size: 1rem;
+  color: #374151;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stat-card .stat-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* 成功案例 */
+.success-stories {
+  margin-top: 80px;
+  padding: 60px 0;
+}
+
+.cases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  margin: 40px 0;
+}
+
+.case-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.case-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.case-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.case-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.case-info {
+  flex: 1;
+}
+
+.case-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.case-category {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.case-growth {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.growth-item {
+  text-align: center;
+}
+
+.growth-item .label {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+
+.growth-item .number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.growth-item.highlight .number {
+  color: #10b981;
+}
+
+.growth-item .unit {
+  display: block;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.growth-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.arrow-icon {
+  font-size: 1.5rem;
+  color: #10b981;
+  font-weight: bold;
+}
+
+.growth-rate {
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 600;
+  background: #d1fae5;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.case-quote {
+  font-size: 0.9375rem;
+  color: #4b5563;
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 16px;
+  padding-left: 16px;
+  border-left: 3px solid #e5e7eb;
+}
+
+.case-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.case-highlights .highlight {
+  font-size: 0.8125rem;
+  color: #059669;
+  background: #d1fae5;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.overall-stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin: 48px 0;
+  padding: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  flex-wrap: wrap;
+}
+
+.overall-stats .stat {
+  text-align: center;
+  color: white;
+}
+
+.overall-stats .stat-number {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.overall-stats .stat-label {
+  display: block;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.cta-section {
+  text-align: center;
+  padding: 48px 32px;
+  background: #f9fafb;
+  border-radius: 20px;
+  margin-top: 48px;
+}
+
+.cta-section h3 {
+  font-size: 1.875rem;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  font-weight: 700;
+}
+
+.cta-section p {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .results-showcase {
+    padding: 40px 24px;
+    margin-top: 60px;
+  }
+
+  .value-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .value-card {
+    padding: 24px 20px;
+  }
+
+  .showcase-stats {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .success-stories {
+    margin-top: 60px;
+    padding: 40px 0;
+  }
+
+  .cases-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .case-card {
+    padding: 24px;
+  }
+
+  .case-growth {
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .growth-arrow {
+    transform: rotate(90deg);
+  }
+
+  .overall-stats {
+    flex-direction: column;
+    gap: 32px;
+    padding: 32px 24px;
+  }
+
+  .cta-section {
+    padding: 32px 24px;
+  }
+
+  .cta-section h3 {
+    font-size: 1.5rem;
+  }
+}
