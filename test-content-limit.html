@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内容限制功能演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            background: #f5f7fa;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 32px;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .plan-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #409EFF;
+        }
+        
+        .plan-title.limited {
+            border-bottom-color: #ffc107;
+        }
+        
+        .plan-title.full {
+            border-bottom-color: #67C23A;
+        }
+        
+        .content-preview {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .chapter {
+            background: #f8f9fa;
+            border-left: 4px solid #409EFF;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .chapter-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .chapter-content {
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        /* 受限内容样式 */
+        .limited-content {
+            position: relative;
+        }
+        
+        .limited-content::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.9), white);
+            pointer-events: none;
+        }
+        
+        .paywall {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 2px solid #409EFF;
+            margin-top: -100px;
+            z-index: 10;
+        }
+        
+        .paywall-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .paywall h3 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        
+        .paywall-desc {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+        
+        .paywall-features {
+            list-style: none;
+            text-align: left;
+            max-width: 400px;
+            margin: 24px auto;
+        }
+        
+        .paywall-features li {
+            font-size: 15px;
+            color: #333;
+            margin: 12px 0;
+            padding-left: 8px;
+        }
+        
+        .upgrade-btn {
+            background: #409EFF;
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upgrade-btn:hover {
+            background: #66b1ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+        }
+        
+        .full-access-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #67C23A 0%, #85ce61 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .info-box {
+            background: #e8f4fd;
+            border-left: 4px solid #409EFF;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-box h3 {
+            color: #409EFF;
+            margin-bottom: 15px;
+        }
+        
+        .info-box ul {
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin: 8px 0;
+            color: #333;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-limited {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .status-full {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 内容限制功能演示</h1>
+        
+        <!-- 免费/体验用户 -->
+        <div class="demo-section">
+            <div class="plan-title limited">
+                🆓 免费用户 & 9.9元体验用户 - 受限访问
+            </div>
+            
+            <div class="content-preview limited-content">
+                <div class="chapter">
+                    <div class="chapter-title">第1章：账号定位分析</div>
+                    <div class="chapter-content">
+                        根据你的账号数据，我们为你制定专属的定位策略。通过分析你的内容类别、粉丝画像和互动数据，找到最适合你的涨粉方向...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第2章：内容创作技巧</div>
+                    <div class="chapter-content">
+                        掌握小红书爆款内容的创作秘诀。从选题策划到文案撰写，从图片设计到视频剪辑，全方位提升你的内容质量...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第3章：发布时间优化</div>
+                    <div class="chapter-content">
+                        找到你的最佳发布时间，提升曝光率。通过数据分析，确定你的目标用户最活跃的时间段...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第4章：标签优化策略</div>
+                    <div class="chapter-content">
+                        精准标签选择，提升内容被发现的概率。学会使用热门标签和长尾标签的组合策略...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第5章：互动增长技巧</div>
+                    <div class="chapter-content">
+                        提升粉丝互动率的实用方法。从评论回复到私信管理，建立与粉丝的深度连接...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第6章：数据分析指南</div>
+                    <div class="chapter-content">
+                        通过数据洞察优化运营策略。学会看懂小红书后台数据，找到增长的关键指标...
+                    </div>
+                </div>
+            </div>
+            
+            <div class="paywall">
+                <div class="paywall-icon">🔒</div>
+                <h3>解锁完整涨粉秘籍</h3>
+                <p class="paywall-desc">升级到基础会员及以上，查看完整的12章节涨粉指南</p>
+                <ul class="paywall-features">
+                    <li>✅ 完整12章节涨粉策略</li>
+                    <li>✅ 详细操作步骤指导</li>
+                    <li>✅ 实战案例分析</li>
+                    <li>✅ 数据分析技巧</li>
+                </ul>
+                <button class="upgrade-btn">立即升级 ¥29.9</button>
+            </div>
+        </div>
+        
+        <!-- 付费用户 -->
+        <div class="demo-section">
+            <div class="plan-title full">
+                ✅ 基础会员及以上 (¥29.9+) - 完整访问
+            </div>
+            
+            <div class="full-access-badge">🎉 完整访问权限</div>
+            
+            <div class="content-preview">
+                <div class="chapter">
+                    <div class="chapter-title">第1章：账号定位分析</div>
+                    <div class="chapter-content">
+                        根据你的账号数据，我们为你制定专属的定位策略...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第2章：内容创作技巧</div>
+                    <div class="chapter-content">
+                        掌握小红书爆款内容的创作秘诀...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第3章：发布时间优化</div>
+                    <div class="chapter-content">
+                        找到你的最佳发布时间，提升曝光率...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第4章：标签优化策略</div>
+                    <div class="chapter-content">
+                        精准标签选择，提升内容被发现的概率...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第5章：互动增长技巧</div>
+                    <div class="chapter-content">
+                        提升粉丝互动率的实用方法...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第6章：数据分析指南</div>
+                    <div class="chapter-content">
+                        通过数据洞察优化运营策略...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第7章：爆款内容复制</div>
+                    <div class="chapter-content">
+                        学习如何复制爆款内容的成功经验...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第8章：粉丝运营策略</div>
+                    <div class="chapter-content">
+                        建立粉丝社群，提升粉丝粘性...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第9章：变现路径规划</div>
+                    <div class="chapter-content">
+                        从涨粉到变现的完整路径...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第10章：竞品分析方法</div>
+                    <div class="chapter-content">
+                        学会分析竞品，找到差异化优势...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第11章：危机应对指南</div>
+                    <div class="chapter-content">
+                        应对负面评论和账号危机...
+                    </div>
+                </div>
+                
+                <div class="chapter">
+                    <div class="chapter-title">第12章：长期增长规划</div>
+                    <div class="chapter-content">
+                        制定可持续的长期增长策略...
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; padding: 30px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 12px; margin-top: 20px;">
+                <h3 style="color: #2e7d32; margin-bottom: 10px;">🎉 恭喜！你可以查看完整的12章节内容</h3>
+                <p style="color: #1b5e20;">享受完整的涨粉指南体验，助力你的小红书账号快速成长！</p>
+            </div>
+        </div>
+        
+        <!-- 功能说明 -->
+        <div class="info-box">
+            <h3>💡 功能说明</h3>
+            <ul>
+                <li><strong>免费用户 & 9.9元体验用户：</strong>只能查看前6个章节（50%内容）</li>
+                <li><strong>基础会员及以上（¥29.9+）：</strong>可以查看完整的12个章节</li>
+                <li><strong>付费墙：</strong>在内容末尾显示升级提示，引导用户升级</li>
+                <li><strong>渐变遮罩：</strong>营造内容被截断的视觉效果，激发用户好奇心</li>
+                <li><strong>一键升级：</strong>点击按钮直接跳转到套餐页面</li>
+            </ul>
+        </div>
+        
+        <!-- 套餐对比表 -->
+        <div class="demo-section">
+            <h2 style="margin-bottom: 20px;">📊 套餐权益对比</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>套餐类型</th>
+                        <th>价格</th>
+                        <th>内容访问权限</th>
+                        <th>章节数量</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>免费体验</td>
+                        <td>¥0</td>
+                        <td>50%</td>
+                        <td>~6章节</td>
+                        <td><span class="status-badge status-limited">受限</span></td>
+                    </tr>
+                    <tr>
+                        <td>三天体验</td>
+                        <td>¥9.9</td>
+                        <td>50%</td>
+                        <td>~6章节</td>
+                        <td><span class="status-badge status-limited">受限</span></td>
+                    </tr>
+                    <tr>
+                        <td>基础会员</td>
+                        <td>¥29.9</td>
+                        <td>100%</td>
+                        <td>12章节</td>
+                        <td><span class="status-badge status-full">完整</span></td>
+                    </tr>
+                    <tr>
+                        <td>专业会员</td>
+                        <td>¥99</td>
+                        <td>100%</td>
+                        <td>12章节</td>
+                        <td><span class="status-badge status-full">完整</span></td>
+                    </tr>
+                    <tr>
+                        <td>终身会员</td>
+                        <td>¥299</td>
+                        <td>100%</td>
+                        <td>12章节</td>
+                        <td><span class="status-badge status-full">完整</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

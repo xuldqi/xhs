@@ -7,10 +7,22 @@
         <p class="main-description">
           上传你的小红书主页截图，AI 自动分析账号数据，生成专属的 12 章节涨粉实操指南
         </p>
-        <el-button type="primary" plain @click="showExample">
-          <el-icon><View /></el-icon>
-          查看示例指南
-        </el-button>
+        
+        <!-- 统计数据 -->
+        <div class="hero-stats-banner">
+          <StatsCounter ref="statsCounterRef" />
+        </div>
+        
+        <div class="hero-actions">
+          <el-button type="primary" plain @click="showExample">
+            <el-icon><View /></el-icon>
+            查看示例指南
+          </el-button>
+          <el-button plain @click="showTutorial">
+            <el-icon><QuestionFilled /></el-icon>
+            新手教程
+          </el-button>
+        </div>
         <div class="hero-stats">
           <div class="stat-item">
             <div class="stat-number">12</div>
@@ -478,20 +490,31 @@
     <AppFooter />
     
     <ExampleModal ref="exampleModalRef" />
+    <OnboardingTutorial ref="onboardingRef" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Upload, Lock, CircleCheck, View, Close, Plus, InfoFilled } from '@element-plus/icons-vue'
+import { Upload, Lock, CircleCheck, View, Close, Plus, InfoFilled, QuestionFilled } from '@element-plus/icons-vue'
 import AppFooter from '@/components/AppFooter.vue'
 import HistoryPanel from '@/components/HistoryPanel.vue'
 import ExampleModal from '@/components/ExampleModal.vue'
+import OnboardingTutorial from '@/components/OnboardingTutorial.vue'
+import StatsCounter from '@/components/StatsCounter.vue'
+import { analytics } from '@/utils/analytics'
 
 const router = useRouter()
 const historyPanelRef = ref()
 const exampleModalRef = ref()
+const onboardingRef = ref()
+const statsCounterRef = ref()
+
+// 追踪页面浏览
+onMounted(() => {
+  analytics.trackPageView('/', '首页')
+})
 
 interface UploadedImage {
   file: File
@@ -607,6 +630,10 @@ const removeImage = (index: number) => {
 const handleStartAnalysis = async () => {
   if (uploadedImages.value.length === 0) return
   
+  // 追踪上传事件
+  analytics.trackUpload(uploadedImages.value.length)
+  analytics.trackFunnelStep('upload_complete', 1)
+  
   const { useAppStore } = await import('@/stores/appStore')
   const store = useAppStore()
   
@@ -621,7 +648,22 @@ const handleStartAnalysis = async () => {
 
 // 显示示例
 const showExample = () => {
+  analytics.trackEvent({
+    action: 'view_example',
+    category: 'engagement',
+    label: 'hero_button'
+  })
   exampleModalRef.value?.show()
+}
+
+// 显示新手教程
+const showTutorial = () => {
+  analytics.trackEvent({
+    action: 'view_tutorial',
+    category: 'engagement',
+    label: 'hero_button'
+  })
+  onboardingRef.value?.show()
 }
 
 // 滚动到上传区域
@@ -630,6 +672,11 @@ const scrollToUpload = () => {
   if (uploadZone) {
     uploadZone.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
+  analytics.trackEvent({
+    action: 'scroll_to_upload',
+    category: 'engagement',
+    label: 'cta_button'
+  })
 }
 </script>
 
@@ -670,6 +717,22 @@ const scrollToUpload = () => {
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.hero-stats-banner {
+  margin: 24px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
 }
 
 .hero-stats {

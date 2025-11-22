@@ -57,6 +57,16 @@ const routes: RouteRecordRaw[] = [
     path: '/share/:shareId',
     name: 'Share',
     component: () => import('@/views/ShareView.vue')
+  },
+  {
+    path: '/secrets',
+    name: 'Secrets',
+    component: () => import('@/views/blog/BlogView.vue')
+  },
+  {
+    path: '/secrets/:slug',
+    name: 'SecretPost',
+    component: () => import('@/views/blog/BlogPost.vue')
   }
 ]
 

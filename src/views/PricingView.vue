@@ -1,5 +1,6 @@
 <template>
   <div class="pricing-container">
+    <Breadcrumb />
     <div class="pricing-header">
       <h1>选择适合你的套餐</h1>
       <p>开通会员，解锁更多功能</p>
@@ -103,6 +104,7 @@ import { UserService } from '@/services/userService'
 import { useUserStore } from '@/stores/userStore'
 import type { PlanConfig } from '@/lib/supabase'
 import axios from 'axios'
+import Breadcrumb from '@/components/Breadcrumb.vue'
 
 const router = useRouter()
 const userStore = useUserStore()

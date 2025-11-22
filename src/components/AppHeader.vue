@@ -8,6 +8,10 @@
       
       <nav class="nav-links">
         <router-link to="/" class="nav-link">首页</router-link>
+        <router-link to="/secrets" class="nav-link">
+          <span>涨粉秘籍</span>
+          <el-tag size="small" type="danger" style="margin-left: 4px;">VIP</el-tag>
+        </router-link>
         <router-link to="/pricing" class="nav-link">会员套餐</router-link>
         <router-link to="/about" class="nav-link">关于工具</router-link>
         

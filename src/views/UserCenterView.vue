@@ -1,5 +1,6 @@
 <template>
   <div class="user-center-container">
+    <Breadcrumb />
     <div class="user-header">
       <div class="user-info">
         <el-avatar :size="80" :src="profile?.avatar_url">
@@ -37,6 +38,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { User } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
+import Breadcrumb from '@/components/Breadcrumb.vue'
 import VIPInfo from '@/components/user/VIPInfo.vue'
 import UsageHistory from '@/components/user/UsageHistory.vue'
 import OrderHistory from '@/components/user/OrderHistory.vue'

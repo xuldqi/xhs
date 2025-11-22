@@ -23,9 +23,10 @@ CREATE TABLE IF NOT EXISTS public.plan_configs (
 -- 3. 插入或更新套餐配置
 INSERT INTO public.plan_configs (plan_type, name, price, duration_days, daily_generate_limit, daily_export_limit, history_limit, priority, features) VALUES
   ('free', '免费体验', 0, NULL, 1, 1, 3, FALSE, '{"customTemplate": false, "earlyAccess": false}'::jsonb),
-  ('basic', '基础会员', 29.9, 30, 3, 5, 10, FALSE, '{"customTemplate": false, "earlyAccess": false}'::jsonb),
-  ('pro', '专业会员', 99, 30, 10, 20, 50, TRUE, '{"customTemplate": true, "earlyAccess": false}'::jsonb),
-  ('lifetime', '终身会员', 299, NULL, 30, 50, 200, TRUE, '{"customTemplate": true, "earlyAccess": true}'::jsonb)
+  ('trial', '三天体验', 9.9, 3, 3, 999, 20, FALSE, '{"customTemplate": false, "earlyAccess": false}'::jsonb),
+  ('basic', '基础会员', 29.9, 30, 10, 999, 50, FALSE, '{"customTemplate": false, "earlyAccess": false}'::jsonb),
+  ('pro', '专业会员', 99, 30, 999, 999, 999, TRUE, '{"customTemplate": true, "earlyAccess": false}'::jsonb),
+  ('lifetime', '终身会员', 299, NULL, 999, 999, 999, TRUE, '{"customTemplate": true, "earlyAccess": true}'::jsonb)
 ON CONFLICT (plan_type) 
 DO UPDATE SET
   name = EXCLUDED.name,
@@ -54,7 +55,7 @@ DECLARE
 BEGIN
   SELECT COUNT(*) INTO plan_count FROM public.plan_configs;
   
-  IF plan_count = 4 THEN
+  IF plan_count = 5 THEN
     RAISE NOTICE '✅ 套餐配置已成功初始化，共 % 个套餐', plan_count;
   ELSE
     RAISE WARNING '⚠️  套餐数量不正确，当前有 % 个套餐', plan_count;

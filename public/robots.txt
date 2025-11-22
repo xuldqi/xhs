@@ -1,36 +1,17 @@
-# 允许所有搜索引擎抓取
+# robots.txt for 小红书涨粉助手
+
 User-agent: *
 Allow: /
-
-# 禁止抓取的路径
 Disallow: /api/
 Disallow: /admin/
 Disallow: /*.json$
-Disallow: /*?*
 
-# 特别允许的路径
-Allow: /api/health
-
-# 百度爬虫
+# Crawl-delay for specific bots
 User-agent: Baiduspider
-Allow: /
 Crawl-delay: 1
 
-# Google爬虫
 User-agent: Googlebot
-Allow: /
+Crawl-delay: 0
 
-# 必应爬虫
-User-agent: Bingbot
-Allow: /
-
-# 360爬虫
-User-agent: 360Spider
-Allow: /
-
-# 搜狗爬虫
-User-agent: Sogou web spider
-Allow: /
-
-# Sitemap位置
+# Sitemap location
 Sitemap: https://xhs-helper.vercel.app/sitemap.xml

@@ -1,5 +1,6 @@
 <template>
   <div class="guide-view">
+    <Breadcrumb />
     <div class="guide-container">
       <!-- 生成中 -->
       <div v-if="isGenerating" class="generating-section">
@@ -125,36 +126,75 @@
           </div>
           
           <!-- 内容 - 使用折叠面板 -->
-          <div class="sections">
-            <el-collapse v-model="activeNames" accordion>
-              <el-collapse-item
-                v-for="section in guideContent.sections"
-                :key="section.id"
-                :name="section.id"
-              >
-                <template #title>
-                  <div class="collapse-title">
-                    <span class="section-number">{{ section.id }}</span>
-                    <span class="section-name">{{ section.title }}</span>
-                    <span class="section-badge">{{ getContentLength(section.content) }}字</span>
-                  </div>
-                </template>
-                <div 
-                  class="section-content" 
-                  v-html="formatContent(section.content)" 
-                />
-              </el-collapse-item>
-            </el-collapse>
+          <div class="sections-container" :class="{ 'has-paywall': shouldShowPaywall }">
+            <div class="sections">
+              <el-collapse v-model="activeNames" accordion>
+                <el-collapse-item
+                  v-for="section in limitedGuideContent.sections"
+                  :key="section.id"
+                  :name="section.id"
+                >
+                  <template #title>
+                    <div class="collapse-title">
+                      <span class="section-number">{{ section.id }}</span>
+                      <span class="section-name">{{ section.title }}</span>
+                      <span class="section-badge">{{ getContentLength(section.content) }}字</span>
+                    </div>
+                  </template>
+                  <div 
+                    class="section-content" 
+                    v-html="formatContent(section.content)" 
+                  />
+                </el-collapse-item>
+              </el-collapse>
+            </div>
+            
+            <!-- 付费墙遮罩 -->
+            <div v-if="shouldShowPaywall" class="paywall-overlay">
+              <div class="paywall-content">
+                <div class="paywall-icon">🔒</div>
+                <h3>解锁完整涨粉秘籍</h3>
+                <p class="paywall-desc">升级到基础会员及以上，查看完整的12章节涨粉指南</p>
+                <ul class="paywall-features">
+                  <li>✅ 完整12章节涨粉策略</li>
+                  <li>✅ 详细操作步骤指导</li>
+                  <li>✅ 实战案例分析</li>
+                  <li>✅ 数据分析技巧</li>
+                </ul>
+                <el-button type="primary" size="large" @click="handleUpgrade">
+                  立即升级 ¥29.9
+                </el-button>
+              </div>
+            </div>
           </div>
         </div>
         
         <!-- 专业文档格式 -->
-        <ProfessionalDocument
-          v-else
-          :account-data="professionalAccountData"
-          :content="allSectionsContent"
-          :sections="guideContent.sections"
-        />
+        <div v-else class="professional-container" :class="{ 'has-paywall': shouldShowPaywall }">
+          <ProfessionalDocument
+            :account-data="professionalAccountData"
+            :content="allSectionsContent"
+            :sections="limitedGuideContent.sections"
+          />
+          
+          <!-- 付费墙遮罩 -->
+          <div v-if="shouldShowPaywall" class="paywall-overlay">
+            <div class="paywall-content">
+              <div class="paywall-icon">🔒</div>
+              <h3>解锁完整涨粉秘籍</h3>
+              <p class="paywall-desc">升级到基础会员及以上，查看完整的12章节涨粉指南</p>
+              <ul class="paywall-features">
+                <li>✅ 完整12章节涨粉策略</li>
+                <li>✅ 详细操作步骤指导</li>
+                <li>✅ 实战案例分析</li>
+                <li>✅ 数据分析技巧</li>
+              </ul>
+              <el-button type="primary" size="large" @click="handleUpgrade">
+                立即升级 ¥29.9
+              </el-button>
+            </div>
+          </div>
+        </div>
       </div>
       
       <!-- 生成失败 -->
@@ -199,6 +239,7 @@ import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { SECTION_TITLES } from '@/types'
 import type { GuideContent } from '@/types'
+import Breadcrumb from '@/components/Breadcrumb.vue'
 import TipsCarousel from '@/components/TipsCarousel.vue'
 import FormatSelector from '@/components/guide/FormatSelector.vue'
 import ProfessionalDocument from '@/components/guide/ProfessionalDocument.vue'
@@ -235,6 +276,33 @@ const accountData = ref({
 
 // 计算属性
 const isLoggedIn = computed(() => userStore.isLoggedIn)
+
+// 权限检查 - 基础会员及以上可以查看完整内容
+const canViewFullContent = computed(() => {
+  const planType = userStore.user?.planType
+  return planType === 'basic' || planType === 'pro' || planType === 'lifetime'
+})
+
+// 是否显示付费墙
+const shouldShowPaywall = computed(() => {
+  return guideContent.value && !canViewFullContent.value
+})
+
+// 限制内容（只显示一半章节）
+const limitedGuideContent = computed(() => {
+  if (!guideContent.value || canViewFullContent.value) {
+    return guideContent.value
+  }
+  
+  // 只显示前6个章节（一半内容）
+  const sections = guideContent.value.sections || []
+  const limitedSections = sections.slice(0, Math.ceil(sections.length / 2))
+  
+  return {
+    ...guideContent.value,
+    sections: limitedSections
+  }
+})
 
 // 进度条颜色
 const progressColor = computed(() => {
@@ -1195,6 +1263,11 @@ const handleRegenerate = () => {
 const goBack = () => {
   router.push('/analysis')
 }
+
+// 升级会员
+const handleUpgrade = () => {
+  router.push('/pricing')
+}
 </script>
 
 <style scoped>
@@ -1790,3 +1863,103 @@ const goBack = () => {
   }
 }
 </style>
+
+
+/* 付费墙样式 */
+.sections-container,
+.professional-container {
+  position: relative;
+}
+
+.sections-container.has-paywall .sections,
+.professional-container.has-paywall {
+  position: relative;
+}
+
+.sections-container.has-paywall .sections::after,
+.professional-container.has-paywall::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.9), white);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.paywall-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 40px 20px;
+}
+
+.paywall-content {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  border: 2px solid #409EFF;
+}
+
+.paywall-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.paywall-content h3 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.paywall-desc {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.paywall-features {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  text-align: left;
+}
+
+.paywall-features li {
+  font-size: 15px;
+  color: #333;
+  margin: 12px 0;
+  padding-left: 8px;
+  line-height: 1.6;
+}
+
+.paywall-content .el-button {
+  font-size: 18px;
+  padding: 16px 48px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}

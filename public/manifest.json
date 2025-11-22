@@ -1,0 +1,61 @@
+{
+  "name": "小红书涨粉助手",
+  "short_name": "涨粉助手",
+  "description": "AI 智能生成小红书涨粉指南，上传截图即可获得 12 章节实操方案",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff2442",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "business", "social"],
+  "screenshots": [
+    {
+      "src": "/screenshot-1.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "label": "首页 - 上传截图"
+    },
+    {
+      "src": "/screenshot-2.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "label": "AI 分析账号"
+    },
+    {
+      "src": "/screenshot-3.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "label": "生成完整指南"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "开始生成",
+      "short_name": "生成",
+      "description": "上传截图生成涨粉指南",
+      "url": "/",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "查看历史",
+      "short_name": "历史",
+      "description": "查看历史生成记录",
+      "url": "/#history",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -7,6 +7,8 @@ import App from './App.vue'
 import './style.css'
 import './styles/guide-content.css'
 import { useUserStore } from './stores/userStore'
+import { analytics } from './utils/analytics'
+import { inject } from '@vercel/analytics'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -14,6 +16,12 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
+
+// 初始化 Google Analytics
+analytics.init()
+
+// 初始化 Vercel Analytics（自动追踪页面浏览）
+inject()
 
 // 初始化用户状态（异步）
 const userStore = useUserStore()

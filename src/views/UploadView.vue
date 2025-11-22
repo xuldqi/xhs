@@ -1,5 +1,6 @@
 <template>
   <div class="upload-view">
+    <Breadcrumb />
     <div class="upload-container">
       <h2>上传小红书主页截图</h2>
       <p class="subtitle">支持 PNG、JPG、JPEG 格式，文件大小不超过 10MB</p>
@@ -84,6 +85,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Upload, Lock } from '@element-plus/icons-vue'
 import { PRIVACY_NOTICE } from '@/types'
+import Breadcrumb from '@/components/Breadcrumb.vue'
 
 const router = useRouter()
 
