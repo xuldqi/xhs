@@ -25,6 +25,25 @@
 
       <el-divider />
 
+      <!-- 会员到期提醒 -->
+      <div class="expiry-warning" v-if="vipStatus?.expires_at && daysUntilExpiry <= 7 && daysUntilExpiry > 0">
+        <el-alert
+          :title="`会员将在 ${daysUntilExpiry} 天后到期`"
+          type="warning"
+          :closable="false"
+          show-icon
+        >
+          <template #default>
+            <p>您的会员将在 {{ formatDate(vipStatus.expires_at) }} 到期，续费可继续享受会员权益。</p>
+            <el-button type="primary" size="small" @click="goToPricing" style="margin-top: 8px;">
+              立即续费
+            </el-button>
+          </template>
+        </el-alert>
+      </div>
+
+      <el-divider v-if="vipStatus?.expires_at && daysUntilExpiry <= 7" />
+
       <div class="usage-stats">
         <h4>今日使用情况</h4>
         <div class="stats-grid">
@@ -42,6 +61,40 @@
           </div>
         </div>
       </div>
+
+      <!-- 会员权益 -->
+      <el-divider />
+      <div class="member-benefits">
+        <h4>会员权益</h4>
+        <div class="benefits-list">
+          <div class="benefit-item" v-if="userStore.isVIP">
+            <el-icon><Check /></el-icon>
+            <span>所有工具无限使用</span>
+          </div>
+          <div class="benefit-item" v-if="userStore.isVIP">
+            <el-icon><Check /></el-icon>
+            <span>优先客服支持</span>
+          </div>
+          <div class="benefit-item" v-if="userStore.isVIP">
+            <el-icon><Check /></el-icon>
+            <span>新功能优先体验</span>
+          </div>
+          <div class="benefit-item" v-if="userStore.isVIP && planConfig?.features?.customTemplate">
+            <el-icon><Check /></el-icon>
+            <span>自定义模板</span>
+          </div>
+          <template v-if="!userStore.isVIP">
+            <div class="benefit-item">
+              <el-icon><Close /></el-icon>
+              <span class="disabled">所有工具无限使用（需升级）</span>
+            </div>
+            <div class="benefit-item">
+              <el-icon><Close /></el-icon>
+              <span class="disabled">优先客服支持（需升级）</span>
+            </div>
+          </template>
+        </div>
+      </div>
     </el-card>
   </div>
 </template>
@@ -49,6 +102,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Check, Close } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
 import { UserService } from '@/services/userService'
 
@@ -61,6 +115,16 @@ const todayExport = ref(0)
 const vipStatus = computed(() => userStore.vipStatus)
 const planName = computed(() => userStore.planName)
 const planConfig = computed(() => userStore.planConfig)
+
+// 计算距离到期的天数
+const daysUntilExpiry = computed(() => {
+  if (!vipStatus.value?.expires_at) return 0
+  const expiryDate = new Date(vipStatus.value.expires_at)
+  const today = new Date()
+  const diffTime = expiryDate.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays > 0 ? diffDays : 0
+})
 
 onMounted(async () => {
   await loadTodayUsage()
@@ -146,5 +210,32 @@ const goToPricing = () => {
   font-size: 24px;
   font-weight: 600;
   color: #667eea;
+}
+
+.expiry-warning {
+  margin-bottom: 24px;
+}
+
+.member-benefits h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.benefits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.benefit-item .disabled {
+  color: #999;
 }
 </style>

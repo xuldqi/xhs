@@ -379,11 +379,38 @@ class AIService {
     
     let prompt = template
     
-    // 替换模板变量
-    prompt = prompt.replace(/\{username\}/g, accountData.username)
-    prompt = prompt.replace(/\{followerCount\}/g, accountData.followerCount.toString())
-    prompt = prompt.replace(/\{postCount\}/g, accountData.postCount.toString())
-    prompt = prompt.replace(/\{contentCategory\}/g, accountData.contentCategory)
+    // 基础数据替换
+    prompt = prompt.replace(/\{username\}/g, accountData.username || '未知账号')
+    prompt = prompt.replace(/\{followerCount\}/g, (accountData.followerCount || 0).toString())
+    prompt = prompt.replace(/\{followingCount\}/g, (accountData.followingCount || 0).toString())
+    prompt = prompt.replace(/\{likesCount\}/g, (accountData.likesCount || 0).toString())
+    prompt = prompt.replace(/\{postCount\}/g, (accountData.postCount || 0).toString())
+    prompt = prompt.replace(/\{contentCategory\}/g, accountData.contentCategory || '综合')
+    prompt = prompt.replace(/\{contentStyle\}/g, accountData.contentStyle || '日常分享型')
+    prompt = prompt.replace(/\{bio\}/g, accountData.bio || '暂无简介')
+    prompt = prompt.replace(/\{accountLevel\}/g, accountData.accountLevel || '新手')
+    prompt = prompt.replace(/\{updateFrequency\}/g, accountData.updateFrequency || '不固定')
+    
+    // 计算派生指标
+    const avgLikes = accountData.avgLikes || 
+      (accountData.likesCount && accountData.postCount 
+        ? Math.round(accountData.likesCount / accountData.postCount) 
+        : 0)
+    const postsPerFollower = accountData.postsPerFollower ||
+      (accountData.postCount && accountData.followerCount
+        ? (accountData.postCount / accountData.followerCount).toFixed(2)
+        : '0')
+    
+    prompt = prompt.replace(/\{avgLikes\}/g, avgLikes.toString())
+    prompt = prompt.replace(/\{postsPerFollower\}/g, postsPerFollower.toString())
+    
+    // 补充信息替换
+    if (accountData.contentDirection) {
+      prompt = prompt.replace(/\{contentDirection\}/g, accountData.contentDirection)
+    }
+    if (accountData.exampleTitles) {
+      prompt = prompt.replace(/\{exampleTitles\}/g, accountData.exampleTitles)
+    }
     
     if (context) {
       prompt += `\n\n额外上下文：${context}`

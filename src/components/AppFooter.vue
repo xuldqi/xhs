@@ -23,8 +23,8 @@
           <h3 class="footer-title">法律信息</h3>
           <ul class="footer-links">
             <li><router-link to="/privacy">隐私政策</router-link></li>
-            <li><a href="#terms">使用条款</a></li>
-            <li><a href="#disclaimer">免责声明</a></li>
+            <li><router-link to="/terms">服务条款</router-link></li>
+            <li><router-link to="/about">关于我们</router-link></li>
           </ul>
         </div>
         
@@ -36,10 +36,19 @@
         </div>
       </div>
       
+      <!-- 免责声明 -->
+      <div class="footer-disclaimer">
+        <el-icon class="disclaimer-icon"><InfoFilled /></el-icon>
+        <p class="disclaimer-text">
+          本平台为独立开发的第三方工具，非小红书官方平台。
+          我们致力于为小红书运营者和爱好者提供学习交流社区。
+        </p>
+      </div>
+      
       <!-- 底部版权 -->
       <div class="footer-bottom">
         <p class="copyright">
-          © {{ currentYear }} 小红书涨粉助手. All rights reserved.
+          © {{ currentYear }} 小红书流量学院. All rights reserved.
         </p>
         <div class="footer-badges">
           <span class="badge">
@@ -50,6 +59,10 @@
             <el-icon><CircleCheck /></el-icon>
             AI 驱动
           </span>
+          <span class="badge">
+            <el-icon><User /></el-icon>
+            社区驱动
+          </span>
         </div>
       </div>
     </div>
@@ -58,7 +71,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Lock, CircleCheck } from '@element-plus/icons-vue'
+import { Lock, CircleCheck, User, InfoFilled } from '@element-plus/icons-vue'
 
 const currentYear = computed(() => new Date().getFullYear())
 </script>
@@ -121,6 +134,30 @@ const currentYear = computed(() => new Date().getFullYear())
 
 .footer-links a:hover {
   color: #409EFF;
+}
+
+.footer-disclaimer {
+  background: #374151;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.disclaimer-icon {
+  color: #60A5FA;
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.disclaimer-text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #D1D5DB;
+  margin: 0;
 }
 
 .footer-bottom {

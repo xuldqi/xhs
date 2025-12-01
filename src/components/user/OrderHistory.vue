@@ -120,7 +120,7 @@ const formatDateTime = (dateStr: string) => {
 
 const continuePay = async (order: Order) => {
   try {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
     const response = await axios.get(`${backendUrl}/api/payment/query-order`, {
       params: { orderNo: order.order_no },
     })

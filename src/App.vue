@@ -2,16 +2,38 @@
   <ErrorBoundary>
     <div id="app">
       <AppHeader />
-      <router-view />
+      <PageLoader :loading="isLoading" message="加载中..." />
+      <router-view v-slot="{ Component, route }">
+        <PageTransition>
+          <component :is="Component" :key="route.path" />
+        </PageTransition>
+      </router-view>
     </div>
   </ErrorBoundary>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
 import ErrorBoundary from '@/components/ErrorBoundary.vue'
+import PageTransition from '@/components/PageTransition.vue'
+import PageLoader from '@/components/PageLoader.vue'
 import { errorHandler } from '@/utils/errorHandler'
+
+const router = useRouter()
+const isLoading = ref(false)
+
+// 路由加载状态
+router.beforeEach(() => {
+  isLoading.value = true
+})
+
+router.afterEach(() => {
+  setTimeout(() => {
+    isLoading.value = false
+  }, 300)
+})
 
 // 全局错误处理
 onMounted(() => {

@@ -21,6 +21,9 @@
       <el-tab-pane label="会员信息" name="vip">
         <VIPInfo />
       </el-tab-pane>
+      <el-tab-pane label="工具统计" name="tool-stats">
+        <ToolUsageStats />
+      </el-tab-pane>
       <el-tab-pane label="使用记录" name="usage">
         <UsageHistory />
       </el-tab-pane>
@@ -40,6 +43,7 @@ import { User } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import VIPInfo from '@/components/user/VIPInfo.vue'
+import ToolUsageStats from '@/components/user/ToolUsageStats.vue'
 import UsageHistory from '@/components/user/UsageHistory.vue'
 import OrderHistory from '@/components/user/OrderHistory.vue'
 import UserSettings from '@/components/user/UserSettings.vue'

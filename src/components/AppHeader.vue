@@ -1,22 +1,53 @@
 <template>
   <header class="app-header">
     <div class="header-container">
-      <div class="logo-section" @click="$router.push('/')">
-        <img src="/favicon.svg" alt="小红书学院" class="logo-icon" />
-        <span class="logo-text">小红书学院</span>
-      </div>
+      <BrandLogo size="medium" />
       
-      <nav class="nav-links">
-        <router-link to="/" class="nav-link">首页</router-link>
-        <router-link to="/secrets" class="nav-link">
-          <span>涨粉秘籍</span>
-          <el-tag size="small" type="danger" style="margin-left: 4px;">VIP</el-tag>
-        </router-link>
-        <router-link to="/pricing" class="nav-link">会员套餐</router-link>
-        <router-link to="/about" class="nav-link">关于工具</router-link>
+      <!-- 桌面端导航 -->
+      <nav class="nav-links desktop-nav">
+        <template v-for="item in navigationItems" :key="item.id">
+          <!-- 有子菜单的导航项 -->
+          <el-dropdown v-if="item.children && item.children.length > 0" trigger="hover" @command="handleNavCommand">
+            <div class="nav-link dropdown-trigger">
+              <span>{{ item.label }}</span>
+              <el-tag v-if="item.badge" :type="getBadgeType(item.badge)" size="small" class="nav-badge">
+                {{ getBadgeText(item.badge) }}
+              </el-tag>
+              <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  v-for="child in item.children"
+                  :key="child.id"
+                  :command="child.path"
+                >
+                  <div class="dropdown-item-content">
+                    <span>{{ child.label }}</span>
+                    <el-tag v-if="child.badge" :type="getBadgeType(child.badge)" size="small">
+                      {{ getBadgeText(child.badge) }}
+                    </el-tag>
+                  </div>
+                  <div v-if="child.description" class="dropdown-item-desc">
+                    {{ child.description }}
+                  </div>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+
+          <!-- 无子菜单的导航项 -->
+          <router-link v-else :to="item.path" class="nav-link">
+            <span>{{ item.label }}</span>
+            <el-tag v-if="item.badge" :type="getBadgeType(item.badge)" size="small" class="nav-badge">
+              {{ getBadgeText(item.badge) }}
+            </el-tag>
+          </router-link>
+        </template>
         
+        <!-- 用户菜单 -->
         <template v-if="userStore.isLoggedIn">
-          <el-dropdown @command="handleCommand">
+          <el-dropdown @command="handleUserCommand">
             <div class="user-dropdown">
               <el-avatar :size="32" :src="userStore.profile?.avatar_url">
                 {{ userStore.profile?.nickname?.[0] || 'U' }}
@@ -49,20 +80,58 @@
           </el-button>
         </template>
       </nav>
+
+      <!-- 移动端菜单按钮 -->
+      <button class="mobile-menu-button" @click="toggleMobileMenu" aria-label="打开菜单">
+        <el-icon><Menu /></el-icon>
+      </button>
     </div>
+
+    <!-- 移动端菜单 -->
+    <MobileMenu
+      :is-open="isMobileMenuOpen"
+      :items="mobileNavigationItems"
+      @close="closeMobileMenu"
+    />
   </header>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ArrowDown, User, Star, SwitchButton } from '@element-plus/icons-vue'
+import { ArrowDown, User, Star, SwitchButton, Menu } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
+import BrandLogo from './BrandLogo.vue'
+import MobileMenu from './MobileMenu.vue'
+import { navigationStructure, mobileNavigationStructure } from '@/data/navigationData'
 
 const router = useRouter()
 const userStore = useUserStore()
+const isMobileMenuOpen = ref(false)
 
-const handleCommand = async (command: string) => {
+// 过滤掉会员套餐，放到用户菜单中
+const navigationItems = computed(() => {
+  return navigationStructure.filter(item => item.id !== 'pricing')
+})
+
+const mobileNavigationItems = computed(() => {
+  return mobileNavigationStructure
+})
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+}
+
+const handleNavCommand = (path: string) => {
+  router.push(path)
+}
+
+const handleUserCommand = async (command: string) => {
   switch (command) {
     case 'user-center':
       router.push('/user-center')
@@ -80,6 +149,24 @@ const handleCommand = async (command: string) => {
       }
       break
   }
+}
+
+const getBadgeType = (badge: string) => {
+  const types: Record<string, any> = {
+    new: 'success',
+    hot: 'danger',
+    vip: 'warning'
+  }
+  return types[badge] || 'info'
+}
+
+const getBadgeText = (badge: string) => {
+  const texts: Record<string, string> = {
+    new: '新',
+    hot: '热',
+    vip: 'VIP'
+  }
+  return texts[badge] || badge
 }
 </script>
 
@@ -104,43 +191,89 @@ const handleCommand = async (command: string) => {
   align-items: center;
 }
 
-.logo-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-}
 
-.logo-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-}
-
-.logo-text {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-}
 
 .nav-links {
   display: flex;
-  gap: 32px;
+  gap: 24px;
   align-items: center;
+}
+
+.desktop-nav {
+  display: flex;
 }
 
 .nav-link {
-  color: #6b7280;
+  color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.9375rem;
-  transition: color 0.2s;
+  font-size: 15px;
+  transition: color var(--transition-fast);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
-  color: #409EFF;
+  color: var(--brand-primary);
+}
+
+.nav-link.router-link-active {
+  color: var(--brand-primary);
+  font-weight: var(--font-medium);
+}
+
+.dropdown-trigger {
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.dropdown-trigger:hover {
+  background: var(--bg-secondary);
+}
+
+.dropdown-icon {
+  font-size: 12px;
+  transition: transform var(--transition-fast);
+}
+
+.nav-badge {
+  margin-left: 4px;
+}
+
+.dropdown-item-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.dropdown-item-desc {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+.mobile-menu-button {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--text-primary);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.mobile-menu-button:hover {
+  background: var(--bg-secondary);
 }
 
 .user-dropdown {
@@ -168,16 +301,12 @@ const handleCommand = async (command: string) => {
     padding: 12px 16px;
   }
   
-  .logo-text {
-    font-size: 1.125rem;
+  .desktop-nav {
+    display: none;
   }
-  
-  .nav-links {
-    gap: 16px;
-  }
-  
-  .nav-link {
-    font-size: 0.875rem;
+
+  .mobile-menu-button {
+    display: flex;
   }
 }
 </style>

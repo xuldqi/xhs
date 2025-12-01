@@ -3,25 +3,32 @@
     <div class="selector-label">显示格式：</div>
     <div class="selector-buttons">
       <button
+        :class="['format-btn', { active: currentFormat === 'report' }]"
+        @click="handleFormatChange('report')"
+      >
+        <el-icon><TrendCharts /></el-icon>
+        <span>报告</span>
+      </button>
+      <button
         :class="['format-btn', { active: currentFormat === 'card' }]"
         @click="handleFormatChange('card')"
       >
         <el-icon><Grid /></el-icon>
-        <span>卡片格式</span>
+        <span>卡片</span>
       </button>
       <button
         :class="['format-btn', { active: currentFormat === 'professional' }]"
         @click="handleFormatChange('professional')"
       >
         <el-icon><Document /></el-icon>
-        <span>专业文档</span>
+        <span>文档</span>
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Grid, Document } from '@element-plus/icons-vue'
+import { Grid, Document, TrendCharts } from '@element-plus/icons-vue'
 import { DocumentFormat } from '@/types/models'
 
 interface Props {

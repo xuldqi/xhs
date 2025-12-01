@@ -62,7 +62,7 @@ defineExpose({
 .stats-counter {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .stat-item {
@@ -70,29 +70,29 @@ defineExpose({
 }
 
 .stat-number {
-  font-size: 2.5rem;
+  font-size: 1.75rem;  /* 缩小 */
   font-weight: 700;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: 1;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .stat-label {
-  font-size: 0.875rem;
+  font-size: 0.75rem;  /* 缩小 */
   color: #6b7280;
   font-weight: 500;
 }
 
 @media (max-width: 768px) {
   .stat-number {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 
   .stat-label {
-    font-size: 0.8125rem;
+    font-size: 0.7rem;
   }
 }
 </style>

@@ -1,17 +1,22 @@
-# robots.txt for 小红书涨粉助手
-
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+
+# Disallow admin and private pages
+Disallow: /user-center
+Disallow: /payment/
 Disallow: /api/
-Disallow: /admin/
-Disallow: /*.json$
 
-# Crawl-delay for specific bots
-User-agent: Baiduspider
-Crawl-delay: 1
+# Allow important pages
+Allow: /knowledge
+Allow: /cases
+Allow: /intelligence
+Allow: /tools
+Allow: /community
+Allow: /blog
 
-User-agent: Googlebot
-Crawl-delay: 0
-
-# Sitemap location
+# Sitemap
 Sitemap: https://xhs-helper.vercel.app/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

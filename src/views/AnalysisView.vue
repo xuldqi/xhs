@@ -1,21 +1,21 @@
 <template>
   <div class="analysis-view">
     <div class="analysis-container">
-      <h2>账号数据分析</h2>
+      <h2>账号信息确认</h2>
       
       <!-- 分析进度 -->
       <div v-if="isAnalyzing" class="analyzing-section">
-        <el-icon class="rotating" :size="60" color="#409EFF">
+        <el-icon class="rotating" :size="48" color="#667eea">
           <Loading />
         </el-icon>
         <p class="analyzing-text">AI 正在分析您的账号数据...</p>
-        <el-progress :percentage="analysisProgress" :stroke-width="8" />
+        <el-progress :percentage="analysisProgress" :stroke-width="6" color="#667eea" />
       </div>
       
       <!-- 分析结果 -->
       <div v-else-if="accountData" class="result-section">
         <el-alert
-          title="分析完成！请确认或修改以下信息"
+          title="✅ 分析完成！请确认以下信息"
           type="success"
           :closable="false"
           class="success-alert"
@@ -25,14 +25,14 @@
           ref="formRef"
           :model="formData"
           :rules="rules"
-          label-width="120px"
+          label-width="100px"
+          label-position="left"
           class="data-form"
         >
           <el-form-item label="账号名称" prop="username">
             <el-input
               v-model="formData.username"
               placeholder="请输入账号名称"
-              :disabled="!isEditing"
             />
           </el-form-item>
           
@@ -40,18 +40,18 @@
             <el-input-number
               v-model="formData.followerCount"
               :min="0"
-              :max="1000000"
-              :disabled="!isEditing"
+              :max="10000000"
+              :controls="true"
               style="width: 100%"
             />
           </el-form-item>
           
-          <el-form-item label="发布笔记数" prop="postCount">
+          <el-form-item label="笔记数" prop="postCount">
             <el-input-number
               v-model="formData.postCount"
               :min="0"
               :max="10000"
-              :disabled="!isEditing"
+              :controls="true"
               style="width: 100%"
             />
           </el-form-item>
@@ -59,55 +59,64 @@
           <el-form-item label="内容类别" prop="contentCategory">
             <el-select
               v-model="formData.contentCategory"
-              placeholder="请选择内容类别"
-              :disabled="!isEditing"
+              placeholder="选择内容类别"
               style="width: 100%"
             >
-              <el-option label="美妆" value="美妆" />
-              <el-option label="穿搭" value="穿搭" />
-              <el-option label="美食" value="美食" />
-              <el-option label="旅行" value="旅行" />
+              <el-option label="美妆护肤" value="美妆" />
+              <el-option label="穿搭时尚" value="穿搭" />
+              <el-option label="美食探店" value="美食" />
+              <el-option label="旅行攻略" value="旅行" />
               <el-option label="知识分享" value="知识分享" />
               <el-option label="生活方式" value="生活方式" />
-              <el-option label="健身" value="健身" />
+              <el-option label="健身运动" value="健身" />
               <el-option label="摄影" value="摄影" />
+              <el-option label="母婴育儿" value="母婴" />
+              <el-option label="家居装修" value="家居" />
+              <el-option label="数码科技" value="数码" />
+              <el-option label="职场成长" value="职场" />
               <el-option label="其他" value="其他" />
             </el-select>
+          </el-form-item>
+          
+          <!-- 补充信息（可选） -->
+          <el-divider>
+            <span class="divider-text">📝 补充信息（可选）</span>
+          </el-divider>
+          
+          <el-form-item label="内容描述">
+            <el-input
+              v-model="formData.contentDirection"
+              type="textarea"
+              :rows="2"
+              placeholder="例如：专注职场穿搭，面向25-35岁职场女性"
+            />
+          </el-form-item>
+          
+          <el-form-item label="热门标题">
+            <el-input
+              v-model="formData.exampleTitles"
+              type="textarea"
+              :rows="3"
+              placeholder="粘贴您的热门笔记标题（每行一个），帮助AI分析内容风格"
+            />
           </el-form-item>
         </el-form>
         
         <!-- 验证错误 -->
         <el-alert
           v-if="validationErrors.length > 0"
-          title="请修正以下错误："
+          title="请修正以下错误"
           type="error"
           :closable="false"
           class="error-alert"
         >
           <ul>
-            <li v-for="(error, index) in validationErrors" :key="index">
-              {{ error }}
-            </li>
+            <li v-for="(error, index) in validationErrors" :key="index">{{ error }}</li>
           </ul>
         </el-alert>
         
-        <!-- 操作按钮 -->
+        <!-- 操作按钮 - 简化布局 -->
         <div class="action-buttons">
-          <el-button size="large" @click="goBack">返回</el-button>
-          <el-button
-            v-if="!isEditing"
-            size="large"
-            @click="isEditing = true"
-          >
-            修改信息
-          </el-button>
-          <el-button
-            v-if="isEditing"
-            size="large"
-            @click="cancelEdit"
-          >
-            取消修改
-          </el-button>
           <el-button
             type="primary"
             size="large"
@@ -116,6 +125,7 @@
           >
             确认并生成指南
           </el-button>
+          <el-button size="large" @click="goBack">返回修改</el-button>
         </div>
       </div>
       
@@ -278,7 +288,9 @@ const formData = reactive({
   username: '',
   followerCount: 0,
   postCount: 0,
-  contentCategory: ''
+  contentCategory: '',
+  contentDirection: '',
+  exampleTitles: ''
 })
 
 const manualFormData = reactive({
@@ -461,9 +473,9 @@ const analyzeImage = async (imageDataUrl: string) => {
   }
 }
 
-// 返回
+// 返回首页
 const goBack = () => {
-  router.push('/upload')
+  router.push('/')
 }
 
 // 取消编辑
@@ -549,32 +561,32 @@ const handleRetry = async () => {
 <style scoped>
 .analysis-view {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  padding: 80px 20px 40px;
+  background: var(--bg-secondary, #f8fafc);
 }
 
 .analysis-container {
-  max-width: 800px;
+  max-width: 640px;
   width: 100%;
-  background: white;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  margin: 0 auto;
+  background: var(--bg-primary, white);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-light, #e5e7eb);
 }
 
 h2 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  color: var(--text-primary, #1f2937);
+  margin: 0 0 24px 0;
   text-align: center;
+  font-weight: 600;
 }
 
 .analyzing-section {
   text-align: center;
-  padding: 60px 20px;
+  padding: 48px 20px;
 }
 
 .rotating {
@@ -582,106 +594,162 @@ h2 {
 }
 
 @keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .analyzing-text {
-  font-size: 1.2rem;
-  color: #666;
-  margin: 2rem 0;
+  font-size: 1rem;
+  color: var(--text-secondary, #6b7280);
+  margin: 20px 0;
 }
 
 .result-section {
-  margin-top: 2rem;
+  margin-top: 20px;
 }
 
 .success-alert {
-  margin-bottom: 2rem;
+  margin-bottom: 20px;
+  border-radius: 8px;
 }
 
 .data-form {
-  margin: 2rem 0;
+  margin: 20px 0;
+}
+
+.data-form :deep(.el-form-item__label) {
+  font-weight: 500;
+  color: var(--text-primary, #374151);
+}
+
+.data-form :deep(.el-input__wrapper),
+.data-form :deep(.el-select .el-input__wrapper) {
+  border-radius: 8px;
+}
+
+.divider-text {
+  font-size: 0.8rem;
+  color: var(--text-tertiary, #9ca3af);
+}
+
+.data-form :deep(.el-divider) {
+  margin: 20px 0;
+}
+
+.data-form :deep(.el-textarea__inner) {
+  border-radius: 8px;
 }
 
 .error-alert {
-  margin: 1rem 0;
+  margin: 16px 0;
+  border-radius: 8px;
 }
 
 .error-alert ul {
-  margin: 0.5rem 0 0 1rem;
+  margin: 8px 0 0 16px;
   padding: 0;
 }
 
 .error-alert li {
-  margin: 0.25rem 0;
+  margin: 4px 0;
 }
 
+/* 按钮区域 - 统一布局 */
 .action-buttons {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 2rem;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.action-buttons .el-button {
+  width: 100%;
+  height: 44px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.action-buttons .el-button--primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+}
+
+.action-buttons .el-button--primary:hover {
+  opacity: 0.9;
+}
+
+.action-buttons .el-button--default {
+  background: var(--bg-secondary, #f3f4f6);
+  border: 1px solid var(--border-light, #e5e7eb);
+  color: var(--text-secondary, #6b7280);
 }
 
 .error-section {
-  padding: 40px 20px;
+  padding: 32px 16px;
 }
 
 .error-actions {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   gap: 12px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.error-actions .el-button {
+  width: 100%;
+  height: 44px;
+  border-radius: 8px;
 }
 
 .error-tips {
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
   text-align: left;
-  background: #f9fafb;
-  padding: 24px;
+  background: var(--bg-secondary, #f9fafb);
+  padding: 20px;
   border-radius: 12px;
-  border-left: 4px solid #409EFF;
+  border-left: 3px solid #667eea;
 }
 
 .error-tips h4 {
   margin: 0 0 12px 0;
-  color: #1f2937;
-  font-size: 1rem;
+  color: var(--text-primary, #1f2937);
+  font-size: 0.9rem;
 }
 
 .error-tips ul {
   margin: 0;
-  padding-left: 20px;
+  padding-left: 16px;
 }
 
 .error-tips li {
-  margin: 8px 0;
-  color: #6b7280;
-  line-height: 1.6;
+  margin: 6px 0;
+  color: var(--text-secondary, #6b7280);
+  line-height: 1.5;
+  font-size: 0.875rem;
 }
 
 @media (max-width: 768px) {
+  .analysis-view {
+    padding: 70px 16px 24px;
+  }
+  
   .analysis-container {
     padding: 20px;
+    border-radius: 12px;
   }
   
   h2 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+    margin-bottom: 16px;
   }
   
-  .action-buttons {
-    flex-direction: column;
+  .analyzing-section {
+    padding: 32px 16px;
   }
   
-  .action-buttons .el-button {
-    width: 100%;
+  .data-form :deep(.el-form-item__label) {
+    font-size: 0.875rem;
   }
 }
 </style>

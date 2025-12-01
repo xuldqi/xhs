@@ -17,47 +17,62 @@
       <p class="empty-hint">完成分析后，历史记录会自动保存在这里</p>
     </div>
     
-    <div v-else class="history-list">
+    <div v-else class="history-grid">
       <div
         v-for="record in history"
         :key="record.id"
-        class="history-item"
+        class="history-card"
         @click="handleRecordClick(record)"
       >
-        <div class="record-info">
-          <div class="record-header">
-            <div class="record-name">{{ record.accountName }}</div>
-            <el-tag v-if="record.isCloud" size="small" type="success">云端</el-tag>
-            <el-tag v-else size="small" type="info">本地</el-tag>
-          </div>
-          <div class="record-stats">
-            <span>{{ formatNumber(record.followers) }} 粉丝</span>
-            <span class="divider">·</span>
-            <span>{{ record.category }}</span>
-            <span v-if="record.isCloud && record.viewCount > 0" class="divider">·</span>
-            <span v-if="record.isCloud && record.viewCount > 0">{{ record.viewCount }} 次浏览</span>
-          </div>
-          <div class="record-time">{{ formatTime(record.createdAt) }}</div>
+        <div class="card-header">
+          <div class="card-title">{{ record.accountName }}</div>
+          <el-tag v-if="record.isCloud" size="small" type="success">云端</el-tag>
+          <el-tag v-else size="small" type="info">本地</el-tag>
         </div>
         
-        <div class="record-actions">
-          <el-button
-            v-if="record.isCloud"
-            text
-            type="primary"
-            size="small"
-            @click.stop="handleShare(record, $event)"
-          >
-            <el-icon><Share /></el-icon>
-          </el-button>
-          <el-button
-            text
-            type="danger"
-            size="small"
-            @click.stop="handleDelete(record)"
-          >
-            <el-icon><Delete /></el-icon>
-          </el-button>
+        <div class="card-stats">
+          <div class="stat-item">
+            <span class="stat-icon">👥</span>
+            <span class="stat-value">{{ formatNumber(record.followers) }}</span>
+            <span class="stat-label">粉丝</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">📝</span>
+            <span class="stat-value">{{ record.notes }}</span>
+            <span class="stat-label">笔记</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">🏷️</span>
+            <span class="stat-value">{{ record.category }}</span>
+          </div>
+        </div>
+        
+        <div v-if="record.isCloud && record.viewCount > 0" class="card-views">
+          <el-icon><View /></el-icon>
+          <span>{{ record.viewCount }} 次浏览</span>
+        </div>
+        
+        <div class="card-footer">
+          <div class="card-time">{{ formatTime(record.createdAt) }}</div>
+          <div class="card-actions">
+            <el-button
+              v-if="record.isCloud"
+              text
+              type="primary"
+              size="small"
+              @click.stop="handleShare(record, $event)"
+            >
+              <el-icon><Share /></el-icon>
+            </el-button>
+            <el-button
+              text
+              type="danger"
+              size="small"
+              @click.stop="handleDelete(record)"
+            >
+              <el-icon><Delete /></el-icon>
+            </el-button>
+          </div>
         </div>
       </div>
     </div>
@@ -67,7 +82,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Clock, Delete, Share } from '@element-plus/icons-vue'
+import { Clock, Delete, Share, View } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { HistoryManager, type HistoryRecord } from '@/utils/historyManager'
 import { getUserGuides, deleteGuide, generateShareLink, type SavedGuide } from '@/services/guideService'
@@ -92,6 +107,7 @@ const history = computed(() => {
       id: item.id,
       accountName: item.account_name,
       followers: item.account_data?.followerCount || 0,
+      notes: item.account_data?.postCount || 0,
       category: item.account_data?.contentCategory || '未知',
       createdAt: item.created_at,
       isCloud: true,
@@ -287,64 +303,106 @@ defineExpose({
   gap: 8px;
 }
 
-.history-list {
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.history-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #e5e7eb;
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+.history-card:hover {
+  border-color: #409EFF;
+  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.15);
+  transform: translateY(-4px);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
 }
 
-.history-item {
-  background: white;
-  border-radius: 8px;
-  padding: 12px 16px;
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-stats {
   display: flex;
-  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid #e5e7eb;
-}
-
-.history-item:hover {
-  border-color: #409EFF;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.1);
-}
-
-.record-info {
+  gap: 4px;
   flex: 1;
 }
 
-.record-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+.stat-icon {
+  font-size: 1.25rem;
 }
 
-.record-name {
-  font-size: 0.9375rem;
-  font-weight: 500;
+.stat-value {
+  font-size: 0.875rem;
+  font-weight: 600;
   color: #1f2937;
 }
 
-.record-actions {
-  display: flex;
-  gap: 4px;
+.stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
 }
 
-.record-stats {
+.card-views {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.8125rem;
   color: #6b7280;
-  margin-bottom: 4px;
 }
 
-.divider {
-  margin: 0 6px;
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.record-time {
+.card-time {
   font-size: 0.75rem;
   color: #9ca3af;
+}
+
+.card-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.history-card:hover .card-actions {
+  opacity: 1;
 }
 
 .empty-state {
@@ -365,13 +423,43 @@ defineExpose({
   margin: 0;
 }
 
-@media (max-width: 768px) {
+/* 响应式断点 */
+@media (min-width: 1024px) {
+  .history-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .history-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
   .history-panel {
     padding: 16px;
   }
   
-  .history-item {
-    padding: 10px 12px;
+  .history-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .history-card {
+    padding: 16px;
+  }
+  
+  .card-stats {
+    gap: 12px;
+  }
+  
+  .stat-icon {
+    font-size: 1rem;
+  }
+  
+  .card-actions {
+    opacity: 1;
   }
   
   .empty-state {

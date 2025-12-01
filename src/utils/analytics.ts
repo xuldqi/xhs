@@ -60,6 +60,26 @@ class Analytics {
     })
   }
 
+  // track 方法（兼容性方法，简化调用）
+  track(action: string, params?: Record<string, any>) {
+    if (!this.initialized) return
+
+    // 将参数转换为 AnalyticsEvent 格式
+    const event: AnalyticsEvent = {
+      action: action,
+      category: params?.category || 'general',
+      label: params?.label,
+      value: params?.value
+    }
+
+    this.trackEvent(event)
+
+    // 同时发送自定义参数
+    if (params) {
+      window.gtag?.('event', action, params)
+    }
+  }
+
   // 追踪用户注册
   trackSignup(method: string = 'email') {
     this.trackEvent({

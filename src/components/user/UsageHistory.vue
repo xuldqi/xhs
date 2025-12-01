@@ -13,9 +13,11 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="metadata" label="详情">
+        <el-table-column prop="metadata" label="详情" min-width="200">
           <template #default="{ row }">
-            {{ formatMetadata(row.metadata) }}
+            <div class="metadata-content">
+              {{ formatMetadata(row.metadata) }}
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="created_at" label="时间" width="180">
@@ -86,6 +88,12 @@ const getActionTypeName = (type: string) => {
     generate_guide: '生成指南',
     export_html: '导出HTML',
     view_history: '查看历史',
+    title_generator: '标题生成器',
+    viral_generator: '爆款生成器',
+    background_remover: '图片背景移除',
+    manga_generator: '漫画风生成器',
+    hot_words_insight: '热词洞察工具',
+    topic_inspiration: '灵感话题库',
   }
   return names[type] || type
 }
@@ -95,6 +103,12 @@ const getActionTypeTag = (type: string) => {
     generate_guide: 'success',
     export_html: 'warning',
     view_history: 'info',
+    title_generator: 'primary',
+    viral_generator: 'success',
+    background_remover: 'warning',
+    manga_generator: 'warning',
+    hot_words_insight: 'info',
+    topic_inspiration: 'info',
   }
   return tags[type] || ''
 }
@@ -109,3 +123,12 @@ const formatDateTime = (dateStr: string) => {
   return new Date(dateStr).toLocaleString('zh-CN')
 }
 </script>
+
+<style scoped>
+.metadata-content {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>

@@ -158,47 +158,44 @@
         </div>
       </div>
 
-      <!-- 历史记录 -->
-      <HistoryPanel ref="historyPanelRef" />
-
       <!-- 结果展示区 -->
       <section class="results-showcase">
         <h2 class="section-title">你将获得什么？</h2>
         <p class="section-subtitle">一份完整的、可执行的涨粉实操手册</p>
         
-        <div class="value-grid">
-          <div class="value-card">
-            <div class="value-icon">📊</div>
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-number">📊</div>
             <h3>账号全面诊断</h3>
             <p>分析你的账号现状、优势和改进方向，给出涨粉难度评估和预期时间</p>
           </div>
           
-          <div class="value-card">
-            <div class="value-icon">📅</div>
+          <div class="benefit-card">
+            <div class="benefit-number">📅</div>
             <h3>3天起号计划</h3>
             <p>Day 1-3详细行动步骤，包含对标研究、选题方向、发布策略、薯条投放</p>
           </div>
           
-          <div class="value-card">
-            <div class="value-icon">💡</div>
+          <div class="benefit-card">
+            <div class="benefit-number">💡</div>
             <h3>爆款笔记公式</h3>
             <p>标题模板、封面设计、正文结构，可直接套用的爆款创作方法论</p>
           </div>
           
-          <div class="value-card">
-            <div class="value-icon">📈</div>
+          <div class="benefit-card">
+            <div class="benefit-number">📈</div>
             <h3>数据复盘模板</h3>
             <p>每周复盘表格、核心指标追踪、优化方向建议，让数据指导决策</p>
           </div>
           
-          <div class="value-card">
-            <div class="value-icon">💰</div>
+          <div class="benefit-card">
+            <div class="benefit-number">💰</div>
             <h3>变现路径规划</h3>
             <p>不同粉丝量级的变现方式和预估收入，清晰的商业化路径</p>
           </div>
           
-          <div class="value-card">
-            <div class="value-icon">✅</div>
+          <div class="benefit-card">
+            <div class="benefit-number">✅</div>
             <h3>立即行动清单</h3>
             <p>今晚必做、明天要完成、本周关键里程碑，不再迷茫</p>
           </div>
@@ -225,147 +222,6 @@
             <div class="stat-label">智能生成</div>
             <div class="stat-desc">AI自动分析和撰写</div>
           </div>
-        </div>
-      </section>
-
-      <!-- 成功案例 -->
-      <section class="success-stories">
-        <h2 class="section-title">真实用户成功案例</h2>
-        <p class="section-subtitle">他们都通过我们的指南实现了涨粉目标</p>
-        
-        <div class="cases-grid">
-          <div class="case-card">
-            <div class="case-header">
-              <div class="case-avatar">👩</div>
-              <div class="case-info">
-                <div class="case-name">美妆博主 @小美</div>
-                <div class="case-category">美妆护肤</div>
-              </div>
-            </div>
-            
-            <div class="case-growth">
-              <div class="growth-item">
-                <span class="label">使用前</span>
-                <span class="number">50</span>
-                <span class="unit">粉丝</span>
-              </div>
-              <div class="growth-arrow">
-                <span class="arrow-icon">→</span>
-                <span class="growth-rate">+2300%</span>
-              </div>
-              <div class="growth-item highlight">
-                <span class="label">30天后</span>
-                <span class="number">1,200</span>
-                <span class="unit">粉丝</span>
-              </div>
-            </div>
-            
-            <div class="case-quote">
-              "按照指南的爆款公式，第一篇笔记就上了热门！对标账号拆解框架特别实用，让我找到了清晰的方向。"
-            </div>
-            
-            <div class="case-highlights">
-              <span class="highlight">✓ 首篇爆款</span>
-              <span class="highlight">✓ 30天破千粉</span>
-              <span class="highlight">✓ 接到品牌合作</span>
-            </div>
-          </div>
-          
-          <div class="case-card">
-            <div class="case-header">
-              <div class="case-avatar">👨</div>
-              <div class="case-info">
-                <div class="case-name">穿搭博主 @时尚达人</div>
-                <div class="case-category">穿搭时尚</div>
-              </div>
-            </div>
-            
-            <div class="case-growth">
-              <div class="growth-item">
-                <span class="label">使用前</span>
-                <span class="number">120</span>
-                <span class="unit">粉丝</span>
-              </div>
-              <div class="growth-arrow">
-                <span class="arrow-icon">→</span>
-                <span class="growth-rate">+650%</span>
-              </div>
-              <div class="growth-item highlight">
-                <span class="label">45天后</span>
-                <span class="number">900</span>
-                <span class="unit">粉丝</span>
-              </div>
-            </div>
-            
-            <div class="case-quote">
-              "3天起号计划非常详细，每一步都有具体的操作指导。数据复盘模板帮我找到了内容优化方向。"
-            </div>
-            
-            <div class="case-highlights">
-              <span class="highlight">✓ 笔记互动率提升3倍</span>
-              <span class="highlight">✓ 45天近千粉</span>
-            </div>
-          </div>
-          
-          <div class="case-card">
-            <div class="case-header">
-              <div class="case-avatar">🍜</div>
-              <div class="case-info">
-                <div class="case-name">美食博主 @吃货小王</div>
-                <div class="case-category">美食探店</div>
-              </div>
-            </div>
-            
-            <div class="case-growth">
-              <div class="growth-item">
-                <span class="label">使用前</span>
-                <span class="number">0</span>
-                <span class="unit">粉丝</span>
-              </div>
-              <div class="growth-arrow">
-                <span class="arrow-icon">→</span>
-                <span class="growth-rate">从0到1</span>
-              </div>
-              <div class="growth-item highlight">
-                <span class="label">60天后</span>
-                <span class="number">1,500</span>
-                <span class="unit">粉丝</span>
-              </div>
-            </div>
-            
-            <div class="case-quote">
-              "完全零基础开始，指南给了我系统的方法论。冷启动技巧和每日固定动作让我养成了良好的运营习惯。"
-            </div>
-            
-            <div class="case-highlights">
-              <span class="highlight">✓ 零基础起号</span>
-              <span class="highlight">✓ 60天破1500粉</span>
-              <span class="highlight">✓ 开始接广告</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="overall-stats">
-          <div class="stat">
-            <span class="stat-number">10,000+</span>
-            <span class="stat-label">累计使用次数</span>
-          </div>
-          <div class="stat">
-            <span class="stat-number">85%</span>
-            <span class="stat-label">用户达成涨粉目标</span>
-          </div>
-          <div class="stat">
-            <span class="stat-number">4.8/5.0</span>
-            <span class="stat-label">用户满意度评分</span>
-          </div>
-        </div>
-        
-        <div class="cta-section">
-          <h3>看完案例，是不是也想试试？</h3>
-          <p>上传截图，5分钟获取你的专属涨粉方案</p>
-          <el-button type="primary" size="large" @click="scrollToUpload">
-            开始生成我的指南
-          </el-button>
         </div>
       </section>
 
@@ -499,14 +355,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Upload, Lock, CircleCheck, View, Close, Plus, InfoFilled, QuestionFilled } from '@element-plus/icons-vue'
 import AppFooter from '@/components/AppFooter.vue'
-import HistoryPanel from '@/components/HistoryPanel.vue'
 import ExampleModal from '@/components/ExampleModal.vue'
 import OnboardingTutorial from '@/components/OnboardingTutorial.vue'
 import StatsCounter from '@/components/StatsCounter.vue'
 import { analytics } from '@/utils/analytics'
 
 const router = useRouter()
-const historyPanelRef = ref()
 const exampleModalRef = ref()
 const onboardingRef = ref()
 const statsCounterRef = ref()
@@ -683,123 +537,211 @@ const scrollToUpload = () => {
 <style scoped>
 .home-view {
   min-height: 100vh;
-  background: white;
+  background: linear-gradient(180deg, var(--color-primary-50) 0%, var(--color-white) 100%);
   display: flex;
   flex-direction: column;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 60px 20px;
+  padding: 40px 20px 80px;
   flex: 1;
 }
 
-/* 顶部标题区域 */
+/* 顶部标题区域 - 优化后的 Hero Section */
 .hero-header {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: var(--spacing-15);  /* 60px - 区块最小间距 */
+  padding: var(--spacing-12) var(--spacing-6);  /* 48px 32px */
+  background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-secondary-50) 100%);
+  border-radius: var(--radius-2xl);  /* 24px */
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 添加背景装饰 */
+.hero-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--color-primary-200) 0%, transparent 70%);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.hero-header::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--color-secondary-200) 0%, transparent 70%);
+  opacity: 0.3;
+  pointer-events: none;
 }
 
 .main-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 16px 0;
-  line-height: 1.2;
+  font-size: var(--font-5xl);  /* 48px - 首屏标题桌面端 */
+  font-weight: var(--font-extrabold);  /* 800 */
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 var(--spacing-6) 0;  /* 24px */
+  line-height: var(--leading-tight);  /* 1.25 */
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
 }
 
 .main-description {
-  font-size: 1.125rem;
-  color: #6b7280;
-  line-height: 1.75;
-  margin: 0 0 24px 0;
-  max-width: 600px;
+  font-size: var(--font-xl);  /* 20px - 首屏副标题 */
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);  /* 1.6 */
+  margin: 0 0 var(--spacing-8) 0;  /* 32px */
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
+  font-weight: var(--font-medium);  /* 500 */
+  position: relative;
+  z-index: 1;
 }
 
 .hero-stats-banner {
-  margin: 24px 0;
-  padding: 20px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-radius: 12px;
+  margin: var(--spacing-4) 0;  /* 16px - 减小间距 */
+  padding: var(--spacing-3) var(--spacing-5);  /* 12px 20px - 更紧凑 */
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border-radius: var(--radius-md);  /* 12px */
   display: inline-block;
+  border: 1px solid rgba(102, 126, 234, 0.15);
 }
 
 .hero-actions {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
-  margin-top: 16px;
+  margin-top: 24px;
+}
+
+.hero-actions .el-button {
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.hero-actions .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.25);
 }
 
 .hero-stats {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 32px;
-  margin-top: 32px;
+  gap: var(--spacing-8);  /* 32px - 减小间距 */
+  margin-top: var(--spacing-5);  /* 20px - 减小间距 */
+  padding-top: var(--spacing-4);  /* 16px */
+  border-top: 1px solid var(--border-light);
 }
 
 .stat-item {
   text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
 }
 
 .stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #409EFF;
+  font-size: 1.5rem;  /* 减小字号 */
+  font-weight: var(--font-bold);  /* 700 */
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: 1;
-  margin-bottom: 8px;
+  margin-bottom: var(--spacing-1);  /* 4px */
 }
 
 .stat-label {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: 0.75rem;  /* 减小字号 */
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);  /* 500 */
 }
 
 .stat-divider {
   width: 1px;
-  height: 40px;
-  background: #e5e7eb;
+  height: 32px;  /* 减小高度 */
+  background: linear-gradient(180deg, transparent 0%, var(--border-light) 50%, transparent 100%);
 }
 
 /* 工具卡片 */
 .tool-card {
-  background: white;
-  border-radius: 16px;
-  padding: 40px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-2xl);  /* 24px */
+  padding: var(--spacing-12);  /* 48px */
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-light);
 }
 
 /* 上传区域 */
 .upload-zone {
-  border: 2px dashed #d1d5db;
-  border-radius: 12px;
-  padding: 60px 30px;
+  border: 3px dashed var(--border-medium);
+  border-radius: var(--radius-xl);  /* 20px */
+  padding: 64px 40px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  background: #fafafa;
-  margin-bottom: 24px;
+  transition: all var(--transition-slow);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--color-primary-50) 100%);
+  margin-bottom: var(--spacing-8);  /* 32px */
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-slow);
 }
 
 .upload-zone:hover {
-  border-color: #409EFF;
-  background: #f0f9ff;
+  border-color: var(--color-primary-500);
+  background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-secondary-50) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.15);
+}
+
+.upload-zone:hover::before {
+  opacity: 1;
 }
 
 .upload-zone.is-dragging {
-  border-color: #409EFF;
-  background: #e6f7ff;
-  transform: scale(1.01);
+  border-color: var(--color-primary-500);
+  background: linear-gradient(135deg, var(--color-primary-100) 0%, var(--color-secondary-100) 100%);
+  transform: scale(1.02);
+  box-shadow: 0 16px 48px rgba(102, 126, 234, 0.2);
 }
 
 .upload-zone.has-images {
-  padding: 20px;
-  border: 2px solid #409EFF;
-  background: #f0f9ff;
+  padding: var(--spacing-6);  /* 24px */
+  border: 3px solid var(--color-primary-500);
+  background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-secondary-50) 100%);
 }
 
 .preview-grid {
@@ -810,11 +752,11 @@ const scrollToUpload = () => {
 
 .preview-item {
   position: relative;
-  border-radius: 12px;
+  border-radius: var(--radius-md);  /* 12px */
   overflow: hidden;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   aspect-ratio: 9/16;
-  background: #fafafa;
+  background: var(--bg-secondary);
 }
 
 .preview-img {
@@ -826,19 +768,19 @@ const scrollToUpload = () => {
 
 .preview-badge {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  background: #409EFF;
-  color: white;
+  top: var(--spacing-2);  /* 8px */
+  left: var(--spacing-2);
+  background: var(--color-primary-500);
+  color: var(--text-inverse);
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 0.875rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-weight: var(--font-bold);  /* 700 */
+  font-size: var(--font-sm);  /* 14px */
+  box-shadow: var(--shadow-sm);
 }
 
 .remove-btn {
@@ -854,32 +796,32 @@ const scrollToUpload = () => {
 }
 
 .add-more {
-  border: 2px dashed #409EFF;
-  border-radius: 12px;
+  border: 2px dashed var(--color-primary-400);
+  border-radius: var(--radius-md);  /* 12px */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
-  background: white;
+  transition: all var(--transition-fast);
+  background: var(--bg-primary);
   aspect-ratio: 9/16;
 }
 
 .add-more:hover {
-  background: #f0f9ff;
-  border-color: #66b1ff;
+  background: var(--color-primary-50);
+  border-color: var(--color-primary-500);
 }
 
 .add-more p {
-  margin: 8px 0 0 0;
-  color: #409EFF;
-  font-size: 0.875rem;
+  margin: var(--spacing-2) 0 0 0;  /* 8px */
+  color: var(--color-primary-500);
+  font-size: var(--font-sm);  /* 14px */
 }
 
 .add-more .hint {
-  color: #9ca3af;
-  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-size: var(--font-xs);  /* 12px */
 }
 
 .upload-placeholder {
@@ -890,26 +832,26 @@ const scrollToUpload = () => {
 }
 
 .upload-text {
-  font-size: 1.125rem;
-  color: #374151;
+  font-size: var(--font-lg);  /* 18px */
+  color: var(--text-primary);
   margin: 0;
-  font-weight: 500;
+  font-weight: var(--font-medium);  /* 500 */
 }
 
 .upload-hint {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 8px 0;
+  font-size: var(--font-sm);  /* 14px */
+  color: var(--text-secondary);
+  margin: var(--spacing-2) 0;  /* 8px */
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--spacing-2);  /* 8px */
 }
 
 .upload-hint-small {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin: 4px 0 0 0;
+  font-size: var(--font-xs);  /* 12px */
+  color: var(--text-tertiary);
+  margin: var(--spacing-1) 0 0 0;  /* 4px */
 }
 
 /* 进度 */
@@ -919,108 +861,124 @@ const scrollToUpload = () => {
 
 .progress-tip {
   text-align: center;
-  margin-top: 8px;
-  color: #6b7280;
-  font-size: 0.875rem;
+  margin-top: var(--spacing-2);  /* 8px */
+  color: var(--text-secondary);
+  font-size: var(--font-sm);  /* 14px */
 }
 
 /* 开始按钮 */
 .start-button {
   width: 100%;
-  height: 48px;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 24px;
+  height: 56px;
+  font-size: var(--font-lg);  /* 18px */
+  font-weight: var(--font-bold);  /* 700 */
+  margin-bottom: var(--spacing-8);  /* 32px */
+  border-radius: var(--radius-lg);  /* 16px */
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+  border: none;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  transition: all var(--transition-slow);
+}
+
+.start-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+}
+
+.start-button:active {
+  transform: translateY(0);
 }
 
 /* 底部提示 */
 .bottom-tips {
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: var(--spacing-6);  /* 24px */
   flex-wrap: wrap;
-  padding-top: 24px;
-  border-top: 1px solid #e5e7eb;
+  padding-top: var(--spacing-6);
+  border-top: 1px solid var(--border-light);
 }
 
 .tip-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #6b7280;
-  font-size: 0.875rem;
+  gap: var(--spacing-2);  /* 8px */
+  color: var(--text-secondary);
+  font-size: var(--font-sm);  /* 14px */
 }
 
 /* 功能介绍区域 */
 .features-section {
-  margin-top: 80px;
+  margin-top: var(--spacing-20);  /* 80px */
 }
 
 .section-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: var(--font-2xl);  /* 24px */
+  font-weight: var(--font-bold);  /* 700 */
+  color: var(--text-primary);
   text-align: center;
-  margin: 0 0 12px 0;
+  margin: 0 0 var(--spacing-3) 0;  /* 12px */
 }
 
 .section-subtitle {
-  font-size: 1.125rem;
-  color: #6b7280;
+  font-size: var(--font-lg);  /* 18px */
+  color: var(--text-secondary);
   text-align: center;
-  margin: 0 0 48px 0;
+  margin: 0 0 var(--spacing-12) 0;  /* 48px */
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
+  gap: var(--spacing-6);  /* 24px */
 }
 
 .feature-card {
-  background: #fafafa;
-  border-radius: 12px;
-  padding: 32px 24px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);  /* 12px */
+  padding: var(--spacing-8) var(--spacing-6);  /* 32px 24px */
   text-align: center;
-  transition: all 0.3s;
+  transition: all var(--transition-slow);
 }
 
 .feature-card:hover {
-  background: #f0f9ff;
+  background: var(--color-primary-50);
   transform: translateY(-2px);
 }
 
 .feature-card h3 {
-  font-size: 1.25rem;
-  color: #1f2937;
-  margin: 0 0 12px 0;
-  font-weight: 600;
+  font-size: var(--font-xl);  /* 20px */
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-3) 0;  /* 12px */
+  font-weight: var(--font-semibold);  /* 600 */
 }
 
 .feature-card p {
-  font-size: 0.9375rem;
-  color: #6b7280;
-  line-height: 1.6;
+  font-size: var(--font-base);  /* 16px */
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);  /* 1.6 */
   margin: 0;
+  text-align: left;
+  word-wrap: break-word;
 }
 
 /* 使用步骤 */
 .steps-section {
-  margin-top: 80px;
+  margin-top: var(--spacing-20);  /* 80px */
 }
 
 .steps-grid {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: var(--spacing-6);  /* 24px */
   flex-wrap: wrap;
 }
 
 .step-card {
-  background: #fafafa;
-  border-radius: 12px;
-  padding: 32px 24px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);  /* 12px */
+  padding: var(--spacing-8) var(--spacing-6);  /* 32px 24px */
   text-align: center;
   flex: 1;
   min-width: 200px;
@@ -1030,95 +988,163 @@ const scrollToUpload = () => {
 .step-number {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+  color: var(--text-inverse);
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 auto 16px;
+  font-size: var(--font-xl);  /* 20px */
+  font-weight: var(--font-bold);  /* 700 */
+  margin: 0 auto var(--spacing-4);  /* 16px */
 }
 
 .step-card h3 {
-  font-size: 1.125rem;
-  color: #1f2937;
-  margin: 0 0 12px 0;
-  font-weight: 600;
+  font-size: var(--font-lg);  /* 18px */
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-3) 0;  /* 12px */
+  font-weight: var(--font-semibold);  /* 600 */
 }
 
 .step-card p {
-  font-size: 0.9375rem;
-  color: #6b7280;
-  line-height: 1.6;
+  font-size: var(--font-base);  /* 16px */
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);  /* 1.6 */
   margin: 0;
+  text-align: left;
+  word-wrap: break-word;
 }
 
 .step-arrow {
-  font-size: 2rem;
-  color: #d1d5db;
+  font-size: var(--font-2xl);  /* 24px */
+  color: var(--border-medium);
   font-weight: 300;
 }
 
 /* FAQ */
 .faq-section {
-  margin-top: 80px;
-  margin-bottom: 40px;
+  margin-top: var(--spacing-20);  /* 80px */
+  margin-bottom: var(--spacing-10);  /* 40px */
 }
 
 .faq-list {
-  max-width: 700px;
+  max-width: 800px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-4);  /* 16px */
 }
 
 .faq-item {
-  background: #fafafa;
-  border-radius: 12px;
-  padding: 24px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);  /* 12px */
+  padding: var(--spacing-6);  /* 24px */
+  margin-bottom: var(--spacing-4);  /* 16px */
+}
+
+.faq-item:last-child {
+  margin-bottom: 0;
 }
 
 .faq-item h3 {
-  font-size: 1.125rem;
-  color: #1f2937;
-  margin: 0 0 12px 0;
-  font-weight: 600;
+  font-size: var(--font-lg);  /* 18px */
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-4) 0;  /* 16px */
+  font-weight: var(--font-semibold);  /* 600 */
+  line-height: var(--leading-normal);  /* 1.5 */
 }
 
 .faq-item p {
-  font-size: 0.9375rem;
-  color: #6b7280;
-  line-height: 1.6;
+  font-size: var(--font-base);  /* 16px */
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);  /* 1.6 */
   margin: 0;
+  text-align: left;
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 /* 响应式 */
 @media (max-width: 768px) {
   .container {
-    padding: 40px 16px;
+    padding: 20px 16px;
+  }
+
+  /* 移动端精简 hero 区域，确保上传在第一屏 */
+  .hero-header {
+    padding: 16px 0 12px;
+    margin-bottom: 16px;
   }
 
   .main-title {
-    font-size: 1.875rem;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
   }
 
   .main-description {
-    font-size: 1rem;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  /* 移动端隐藏次要元素 */
+  .hero-stats-banner {
+    display: none;
+  }
+
+  .hero-stats {
+    display: none;
+  }
+
+  .hero-actions {
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  .hero-actions .el-button {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+
+  /* 移动端隐藏背景装饰 */
+  .hero-header::before,
+  .hero-header::after {
+    display: none;
   }
 
   .tool-card {
-    padding: 24px;
+    padding: 16px;
+    margin-top: 0;
   }
 
   .upload-zone {
-    padding: 40px 20px;
+    padding: 24px 16px;
+  }
+
+  .upload-placeholder .el-icon {
+    font-size: 48px !important;
+  }
+
+  .upload-text {
+    font-size: 1rem;
+  }
+
+  .upload-hint {
+    font-size: 0.8rem;
+  }
+
+  .upload-hint-small {
+    font-size: 0.75rem;
   }
 
   .bottom-tips {
-    gap: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .bottom-tips .tip-item {
+    font-size: 0.75rem;
   }
 
   .section-title {
@@ -1129,7 +1155,8 @@ const scrollToUpload = () => {
     font-size: 1rem;
   }
 
-  .features-grid {
+  .features-grid,
+  .benefits-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1143,60 +1170,60 @@ const scrollToUpload = () => {
 
   .features-section,
   .steps-section,
-  .faq-section {
-    margin-top: 60px;
+  .faq-section,
+  .results-showcase {
+    margin-top: 40px;
   }
 }
-</style>
-
 
 /* 结果展示区 */
 .results-showcase {
-  margin-top: 80px;
-  padding: 60px 40px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-radius: 20px;
+  margin-top: var(--spacing-20);  /* 80px */
 }
 
-.value-grid {
+.benefits-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-  margin: 40px 0;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-6);  /* 24px */
+  margin-bottom: var(--spacing-12);  /* 48px */
 }
 
-.value-card {
-  background: white;
-  border-radius: 16px;
-  padding: 32px 24px;
+.benefit-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);  /* 12px */
+  padding: var(--spacing-8) var(--spacing-6);  /* 32px 24px */
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all var(--transition-slow);
   border: 2px solid transparent;
 }
 
-.value-card:hover {
+.benefit-card:hover {
+  background: var(--color-primary-50);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(64, 158, 255, 0.15);
-  border-color: #409EFF;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
 }
 
-.value-icon {
+.benefit-number {
   font-size: 3rem;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-4);  /* 16px */
+  display: block;
 }
 
-.value-card h3 {
-  font-size: 1.25rem;
-  color: #1f2937;
-  margin: 0 0 12px 0;
-  font-weight: 600;
+.benefit-card h3 {
+  font-size: var(--font-lg);  /* 18px */
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-3) 0;  /* 12px */
+  font-weight: var(--font-semibold);  /* 600 */
 }
 
-.value-card p {
-  font-size: 0.9375rem;
-  color: #6b7280;
-  line-height: 1.6;
+.benefit-card p {
+  font-size: var(--font-base);  /* 16px */
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);  /* 1.6 */
   margin: 0;
+  text-align: left;
+  word-wrap: break-word;
 }
 
 .showcase-stats {
@@ -1496,3 +1523,4 @@ const scrollToUpload = () => {
     font-size: 1.5rem;
   }
 }
+</style>

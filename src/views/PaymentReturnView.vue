@@ -72,7 +72,7 @@ const checkPaymentResult = async () => {
     const maxAttempts = 10
 
     while (attempts < maxAttempts) {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
       const response = await axios.get(`${backendUrl}/api/payment/query-order`, {
         params: { orderNo },
       })

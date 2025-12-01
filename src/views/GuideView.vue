@@ -103,50 +103,43 @@
         />
         
         <!-- 卡片格式 -->
-        <div v-if="documentFormat === 'card'">
-          <!-- 导言说明 -->
-          <div class="introduction">
-            <div class="intro-card">
-              <div class="intro-icon">📖</div>
-              <h3>关于本指南</h3>
-              <p>这是一份根据您的账号实际情况量身定制的涨粉实操指南。包含12个核心模块，从账号诊断到立即行动，每一步都有具体可执行的方法。</p>
+        <div v-if="documentFormat === 'card'" class="card-format">
+          <!-- 章节卡片网格 -->
+          <div class="cards-grid" :class="{ 'has-paywall': shouldShowPaywall }">
+            <div 
+              v-for="section in limitedGuideContent.sections" 
+              :key="section.id"
+              class="chapter-card"
+              :class="{ 'expanded': expandedCard === section.id }"
+              @click="toggleCard(section.id)"
+            >
+              <!-- 卡片头部 -->
+              <div class="card-header">
+                <div class="card-number">{{ String(section.id).padStart(2, '0') }}</div>
+                <div class="card-title-wrap">
+                  <h3 class="card-title">{{ section.title }}</h3>
+                  <span class="card-meta">{{ getContentLength(section.content) }} 字</span>
+                </div>
+                <div class="card-arrow" :class="{ 'rotated': expandedCard === section.id }">
+                  <el-icon><ArrowDown /></el-icon>
+                </div>
             </div>
             
-            <div class="intro-card">
-              <div class="intro-icon">🎯</div>
-              <h3>如何使用</h3>
-              <p>建议按顺序阅读每个章节，重点关注"立刻行动清单"。每个模块都可以独立展开查看，点击标题即可折叠或展开内容。</p>
+              <!-- 卡片预览 -->
+              <div v-if="expandedCard !== section.id" class="card-preview">
+                {{ getPreviewText(section.content) }}
             </div>
             
-            <div class="intro-card">
-              <div class="intro-icon">💡</div>
-              <h3>实操建议</h3>
-              <p>不要试图一次性完成所有内容。先从"起号三天计划"开始，每天完成一个小目标。记住：持续行动比完美计划更重要。</p>
+              <!-- 展开的内容 -->
+              <transition name="expand">
+                <div v-if="expandedCard === section.id" class="card-content" @click.stop>
+                  <div v-html="formatContent(section.content)" class="content-body"></div>
             </div>
-          </div>
-          
-          <!-- 内容 - 使用折叠面板 -->
-          <div class="sections-container" :class="{ 'has-paywall': shouldShowPaywall }">
-            <div class="sections">
-              <el-collapse v-model="activeNames" accordion>
-                <el-collapse-item
-                  v-for="section in limitedGuideContent.sections"
-                  :key="section.id"
-                  :name="section.id"
-                >
-                  <template #title>
-                    <div class="collapse-title">
-                      <span class="section-number">{{ section.id }}</span>
-                      <span class="section-name">{{ section.title }}</span>
-                      <span class="section-badge">{{ getContentLength(section.content) }}字</span>
+              </transition>
+              
+              <!-- 卡片装饰 -->
+              <div class="card-decoration"></div>
                     </div>
-                  </template>
-                  <div 
-                    class="section-content" 
-                    v-html="formatContent(section.content)" 
-                  />
-                </el-collapse-item>
-              </el-collapse>
             </div>
             
             <!-- 付费墙遮罩 -->
@@ -164,13 +157,12 @@
                 <el-button type="primary" size="large" @click="handleUpgrade">
                   立即升级 ¥29.9
                 </el-button>
-              </div>
             </div>
           </div>
         </div>
         
         <!-- 专业文档格式 -->
-        <div v-else class="professional-container" :class="{ 'has-paywall': shouldShowPaywall }">
+        <div v-else-if="documentFormat === 'professional'" class="professional-container" :class="{ 'has-paywall': shouldShowPaywall }">
           <ProfessionalDocument
             :account-data="professionalAccountData"
             :content="allSectionsContent"
@@ -191,6 +183,32 @@
               </ul>
               <el-button type="primary" size="large" @click="handleUpgrade">
                 立即升级 ¥29.9
+              </el-button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 新版报告格式 -->
+        <div v-else class="report-container" :class="{ 'has-paywall': shouldShowPaywall }">
+          <ReportLayout
+            :account-name="guideContent.metadata.accountName"
+            :generated-date="formatDate(guideContent.metadata.generatedAt)"
+            :target-followers="guideContent.metadata.targetFollowers"
+            :current-followers="String(accountData.followers || 0)"
+            :total-notes="String(accountData.notes || 0)"
+            :category="accountData.category || '未分类'"
+            :sections="limitedGuideContent.sections"
+            @section-change="handleSectionChange"
+          />
+          
+          <!-- 付费墙遮罩 -->
+          <div v-if="shouldShowPaywall" class="paywall-overlay report-paywall">
+            <div class="paywall-content">
+              <div class="paywall-icon">🔒</div>
+              <h3>解锁完整涨粉秘籍</h3>
+              <p class="paywall-desc">升级会员查看完整的12章节涨粉指南</p>
+              <el-button type="primary" size="large" @click="handleUpgrade">
+                立即升级
               </el-button>
             </div>
           </div>
@@ -235,7 +253,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled, Share, Back } from '@element-plus/icons-vue'
+import { Download, Refresh, Loading, Document, CircleCheck, Clock, SuccessFilled, Share, Back, ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { SECTION_TITLES } from '@/types'
 import type { GuideContent } from '@/types'
@@ -243,6 +261,7 @@ import Breadcrumb from '@/components/Breadcrumb.vue'
 import TipsCarousel from '@/components/TipsCarousel.vue'
 import FormatSelector from '@/components/guide/FormatSelector.vue'
 import ProfessionalDocument from '@/components/guide/ProfessionalDocument.vue'
+import ReportLayout from '@/components/ReportLayout.vue'
 import '@/styles/guide-content.css'
 import '@/styles/professional-document.css'
 import { formatContent, stripHtmlTags } from '@/utils/contentFormatter'
@@ -263,10 +282,11 @@ const currentSection = ref(0)
 const generationProgress = ref(0)
 const guideContent = ref<GuideContent | null>(null)
 const activeNames = ref<number[]>([1]) // 默认展开第一个章节
+const expandedCard = ref<number | null>(null) // 卡片展开状态
 const startTime = ref<number>(0)
 const saving = ref(false)
 const shareId = ref('')
-const documentFormat = ref<DocumentFormat>('card')
+const documentFormat = ref<DocumentFormat>('report')
 const accountData = ref({
   username: '',
   followers: 0,
@@ -1268,6 +1288,21 @@ const goBack = () => {
 const handleUpgrade = () => {
   router.push('/pricing')
 }
+
+const handleSectionChange = (sectionId: number) => {
+  console.log('Section changed:', sectionId)
+}
+
+// 切换卡片展开状态
+const toggleCard = (id: number) => {
+  expandedCard.value = expandedCard.value === id ? null : id
+}
+
+// 获取预览文本
+const getPreviewText = (content: string) => {
+  const text = stripHtmlTags(content)
+  return text.slice(0, 80) + (text.length > 80 ? '...' : '')
+}
 </script>
 
 <style scoped>
@@ -1371,12 +1406,391 @@ const handleUpgrade = () => {
 }
 
 .action-bar {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.action-bar .el-button {
+  width: 100%;
 }
 
 /* 导言说明 */
+/* ========== 新版卡片格式 ========== */
+.card-format {
+  padding: 0;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  position: relative;
+}
+
+@media (max-width: 900px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chapter-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 0;
+  border: none;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+/* 每张卡片不同的顶部渐变色 */
+.chapter-card:nth-child(1)::before { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.chapter-card:nth-child(2)::before { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.chapter-card:nth-child(3)::before { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.chapter-card:nth-child(4)::before { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.chapter-card:nth-child(5)::before { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.chapter-card:nth-child(6)::before { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+.chapter-card:nth-child(7)::before { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.chapter-card:nth-child(8)::before { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+.chapter-card:nth-child(9)::before { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+.chapter-card:nth-child(10)::before { background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); }
+.chapter-card:nth-child(11)::before { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); }
+.chapter-card:nth-child(12)::before { background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%); }
+
+.chapter-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  opacity: 1;
+}
+
+.chapter-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 
+    0 20px 40px -10px rgba(102, 126, 234, 0.3),
+    0 10px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
+.chapter-card.expanded {
+  grid-column: 1 / -1;
+  transform: none;
+}
+
+.chapter-card.expanded:hover {
+  transform: none;
+}
+
+/* 卡片头部 */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 24px 20px;
+  background: transparent;
+}
+
+.card-number {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+  box-shadow: 
+    0 4px 12px rgba(102, 126, 234, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  letter-spacing: -0.5px;
+}
+
+/* 每张卡片不同的编号颜色 */
+.chapter-card:nth-child(1) .card-number { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.chapter-card:nth-child(2) .card-number { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.chapter-card:nth-child(3) .card-number { background: linear-gradient(135deg, #4facfe 0%, #00c9ff 100%); }
+.chapter-card:nth-child(4) .card-number { background: linear-gradient(135deg, #43e97b 0%, #38d9a9 100%); }
+.chapter-card:nth-child(5) .card-number { background: linear-gradient(135deg, #fa709a 0%, #ff6b6b 100%); }
+.chapter-card:nth-child(6) .card-number { background: linear-gradient(135deg, #a18cd1 0%, #9775fa 100%); }
+.chapter-card:nth-child(7) .card-number { background: linear-gradient(135deg, #667eea 0%, #5c7cfa 100%); }
+.chapter-card:nth-child(8) .card-number { background: linear-gradient(135deg, #ff9a9e 0%, #ff8787 100%); }
+.chapter-card:nth-child(9) .card-number { background: linear-gradient(135deg, #74b9ff 0%, #339af0 100%); }
+.chapter-card:nth-child(10) .card-number { background: linear-gradient(135deg, #d299c2 0%, #cc5de8 100%); }
+.chapter-card:nth-child(11) .card-number { background: linear-gradient(135deg, #74c0fc 0%, #4dabf7 100%); }
+.chapter-card:nth-child(12) .card-number { background: linear-gradient(135deg, #ffd43b 0%, #fab005 100%); }
+
+.card-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+  letter-spacing: -0.3px;
+}
+
+.card-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  font-weight: 500;
+  background: #f8f9fa;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.card-meta::before {
+  content: '📝';
+  font-size: 0.7rem;
+}
+
+.card-arrow {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 10px;
+  color: #6b7280;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.card-arrow.rotated {
+  transform: rotate(180deg);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+}
+
+/* 卡片预览 */
+.card-preview {
+  padding: 0 24px 24px;
+  color: #6b7280;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-preview::after {
+  content: '点击展开详情 →';
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  font-size: 0.75rem;
+  color: #667eea;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.chapter-card:hover .card-preview::after {
+  opacity: 1;
+}
+
+/* 展开的内容 */
+.card-content {
+  padding: 0 24px 28px;
+  border-top: 1px dashed #e5e7eb;
+  margin-top: 0;
+  cursor: default;
+  background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
+}
+
+.content-body {
+  padding-top: 24px;
+  color: #374151;
+  font-size: 0.95rem;
+  line-height: 1.85;
+}
+
+.content-body :deep(h3),
+.content-body :deep(.content-heading) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 28px 0 16px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.content-body :deep(ul) {
+  margin: 16px 0;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.content-body :deep(li) {
+  position: relative;
+  padding: 14px 18px 14px 44px;
+  margin: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  color: #4b5563;
+  border: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+}
+
+.content-body :deep(li):hover {
+  background: #f8fafc;
+  border-color: #e0e7ff;
+  transform: translateX(4px);
+}
+
+.content-body :deep(li)::before {
+  content: '✓';
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-body :deep(strong) {
+  color: #667eea;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.content-body :deep(p) {
+  margin: 12px 0;
+  padding: 0 4px;
+}
+
+/* 卡片装饰 */
+.card-decoration {
+  position: absolute;
+  bottom: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.06) 0%, rgba(118, 75, 162, 0.04) 100%);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: all 0.4s ease;
+}
+
+.chapter-card:hover .card-decoration {
+  transform: scale(1.2);
+  opacity: 0.8;
+}
+
+/* 展开动画 */
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* 付费墙样式 */
+.cards-grid.has-paywall {
+  position: relative;
+}
+
+.cards-grid.has-paywall::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(to bottom, transparent 0%, white 80%);
+  pointer-events: none;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .chapter-card {
+    border-radius: 16px;
+  }
+  
+  .card-header {
+    padding: 20px;
+    gap: 12px;
+  }
+  
+  .card-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+  
+  .card-title {
+    font-size: 1rem;
+  }
+  
+  .card-preview {
+    padding: 0 20px 20px;
+    font-size: 0.85rem;
+  }
+  
+  .card-content {
+    padding: 0 20px 20px;
+  }
+}
+
+/* ========== 旧样式保留（兼容） ========== */
 .introduction {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1841,7 +2255,13 @@ const handleUpgrade = () => {
   }
   
   .action-bar {
-    flex-direction: column;
+    max-width: 100%;
+    gap: 8px;
+  }
+  
+  .action-bar .el-button {
+    padding: 10px 8px;
+    font-size: 13px;
   }
   
   .section-content :deep(.card-grid) {
@@ -1854,10 +2274,6 @@ const handleUpgrade = () => {
     min-height: 80px;
   }
   
-  .action-bar .el-button {
-    width: 100%;
-  }
-  
   .section-title {
     font-size: 1.4rem;
   }
@@ -1867,12 +2283,14 @@ const handleUpgrade = () => {
 
 /* 付费墙样式 */
 .sections-container,
-.professional-container {
+.professional-container,
+.report-container {
   position: relative;
 }
 
 .sections-container.has-paywall .sections,
-.professional-container.has-paywall {
+.professional-container.has-paywall,
+.report-container.has-paywall {
   position: relative;
 }
 

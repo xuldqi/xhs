@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Analytics 验证工具</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+
+    .section h2 {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .status.success {
+      border-left: 4px solid #10b981;
+    }
+
+    .status.error {
+      border-left: 4px solid #ef4444;
+    }
+
+    .status.warning {
+      border-left: 4px solid #f59e0b;
+    }
+
+    .icon {
+      font-size: 24px;
+    }
+
+    .info {
+      flex: 1;
+    }
+
+    .label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .value {
+      color: #666;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .code-block {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+
+    .instructions {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .instructions h3 {
+      color: #92400e;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .instructions ol {
+      margin-left: 20px;
+      color: #78350f;
+    }
+
+    .instructions li {
+      margin: 5px 0;
+    }
+
+    .event-log {
+      max-height: 300px;
+      overflow-y: auto;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .event-item {
+      padding: 8px;
+      margin: 5px 0;
+      background: #f1f5f9;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .timestamp {
+      color: #64748b;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Google Analytics 验证工具</h1>
+    <p class="subtitle">检查 GA4 配置和事件追踪</p>
+
+    <!-- GA 配置状态 -->
+    <div class="section">
+      <h2>📊 GA4 配置状态</h2>
+      <div id="ga-status"></div>
+    </div>
+
+    <!-- 测试按钮 -->
+    <div class="section">
+      <h2>🧪 测试事件追踪</h2>
+      <button onclick="testPageView()">测试页面浏览</button>
+      <button onclick="testCustomEvent()">测试自定义事件</button>
+      <button onclick="testConversion()">测试转化事件</button>
+      
+      <div class="event-log" id="event-log">
+        <div style="color: #64748b; text-align: center;">等待事件...</div>
+      </div>
+    </div>
+
+    <!-- 使用说明 -->
+    <div class="instructions">
+      <h3>📝 使用说明</h3>
+      <ol>
+        <li>打开浏览器开发者工具（F12）</li>
+        <li>切换到 "Network" 标签</li>
+        <li>筛选 "google-analytics" 或 "collect"</li>
+        <li>点击上方的测试按钮</li>
+        <li>查看是否有请求发送到 GA</li>
+        <li>在 GA4 实时报告中验证事件</li>
+      </ol>
+    </div>
+
+    <!-- 验证步骤 -->
+    <div class="section">
+      <h2>✅ 验证步骤</h2>
+      <div class="instructions">
+        <h3>在 Google Analytics 中验证</h3>
+        <ol>
+          <li>访问 <a href="https://analytics.google.com/" target="_blank">Google Analytics</a></li>
+          <li>选择你的属性</li>
+          <li>点击左侧菜单的 "实时" → "概览"</li>
+          <li>在此页面点击测试按钮</li>
+          <li>在 GA 实时报告中应该能看到事件</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 检查 GA 配置
+    function checkGAStatus() {
+      const statusDiv = document.getElementById('ga-status');
+      let html = '';
+
+      // 检查 gtag 是否加载
+      if (typeof gtag !== 'undefined') {
+        html += `
+          <div class="status success">
+            <span class="icon">✅</span>
+            <div class="info">
+              <div class="label">gtag 函数</div>
+              <div class="value">已加载</div>
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="status error">
+            <span class="icon">❌</span>
+            <div class="info">
+              <div class="label">gtag 函数</div>
+              <div class="value">未加载 - 请检查 GA 脚本</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 检查 dataLayer
+      if (typeof window.dataLayer !== 'undefined') {
+        html += `
+          <div class="status success">
+            <span class="icon">✅</span>
+            <div class="info">
+              <div class="label">dataLayer</div>
+              <div class="value">已初始化 (${window.dataLayer.length} 项)</div>
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="status error">
+            <span class="icon">❌</span>
+            <div class="info">
+              <div class="label">dataLayer</div>
+              <div class="value">未初始化</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 检查 Measurement ID
+      const measurementId = getMeasurementId();
+      if (measurementId) {
+        html += `
+          <div class="status success">
+            <span class="icon">✅</span>
+            <div class="info">
+              <div class="label">Measurement ID</div>
+              <div class="value">${measurementId}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="status warning">
+            <span class="icon">⚠️</span>
+            <div class="info">
+              <div class="label">Measurement ID</div>
+              <div class="value">未找到 - 请检查环境变量</div>
+            </div>
+          </div>
+        `;
+      }
+
+      statusDiv.innerHTML = html;
+    }
+
+    // 获取 Measurement ID
+    function getMeasurementId() {
+      // 尝试从 dataLayer 获取
+      if (window.dataLayer) {
+        for (let item of window.dataLayer) {
+          if (item[0] === 'config' && item[1]) {
+            return item[1];
+          }
+        }
+      }
+      return null;
+    }
+
+    // 添加事件到日志
+    function logEvent(eventName, params = {}) {
+      const logDiv = document.getElementById('event-log');
+      const timestamp = new Date().toLocaleTimeString();
+      
+      const eventHtml = `
+        <div class="event-item">
+          <div class="timestamp">${timestamp}</div>
+          <div><strong>${eventName}</strong></div>
+          <div style="color: #64748b; font-size: 12px;">${JSON.stringify(params)}</div>
+        </div>
+      `;
+      
+      if (logDiv.innerHTML.includes('等待事件')) {
+        logDiv.innerHTML = eventHtml;
+      } else {
+        logDiv.innerHTML = eventHtml + logDiv.innerHTML;
+      }
+    }
+
+    // 测试页面浏览
+    function testPageView() {
+      if (typeof gtag === 'undefined') {
+        alert('GA 未加载！请检查配置。');
+        return;
+      }
+
+      const params = {
+        page_title: 'Test Page View',
+        page_location: window.location.href,
+        page_path: '/test-page-view'
+      };
+
+      gtag('event', 'page_view', params);
+      logEvent('page_view', params);
+      
+      console.log('✅ 页面浏览事件已发送', params);
+      alert('页面浏览事件已发送！\n请在 GA4 实时报告中查看。');
+    }
+
+    // 测试自定义事件
+    function testCustomEvent() {
+      if (typeof gtag === 'undefined') {
+        alert('GA 未加载！请检查配置。');
+        return;
+      }
+
+      const params = {
+        event_category: 'Test',
+        event_label: 'Custom Event Test',
+        value: 1
+      };
+
+      gtag('event', 'test_custom_event', params);
+      logEvent('test_custom_event', params);
+      
+      console.log('✅ 自定义事件已发送', params);
+      alert('自定义事件已发送！\n请在 GA4 实时报告中查看。');
+    }
+
+    // 测试转化事件
+    function testConversion() {
+      if (typeof gtag === 'undefined') {
+        alert('GA 未加载！请检查配置。');
+        return;
+      }
+
+      const params = {
+        currency: 'CNY',
+        value: 99.00,
+        transaction_id: 'TEST_' + Date.now()
+      };
+
+      gtag('event', 'purchase', params);
+      logEvent('purchase', params);
+      
+      console.log('✅ 转化事件已发送', params);
+      alert('转化事件已发送！\n请在 GA4 实时报告中查看。');
+    }
+
+    // 页面加载时检查状态
+    window.addEventListener('load', () => {
+      setTimeout(checkGAStatus, 1000);
+    });
+  </script>
+
+  <!-- Google Analytics 脚本 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-K0X9LM3VPZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-K0X9LM3VPZ');
+  </script>
+</body>
+</html>

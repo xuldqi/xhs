@@ -6,16 +6,31 @@
         <p class="subtitle">专业的小红书涨粉解决方案</p>
       </div>
 
+      <!-- 平台定位声明 -->
+      <div class="platform-notice">
+        <div class="notice-icon">
+          <el-icon><InfoFilled /></el-icon>
+        </div>
+        <div class="notice-content">
+          <h3>平台定位</h3>
+          <p>
+            <strong>小红书流量学院</strong>是一个独立开发的第三方学习平台，<strong>非小红书官方平台</strong>。
+            我们致力于为小红书运营者、内容创作者和爱好者提供一个专业的学习交流社区，
+            帮助大家更好地理解平台规则、提升运营技能、实现内容增长。
+          </p>
+        </div>
+      </div>
+
       <div class="content-section">
-        <h2>关于小红书涨粉助手</h2>
+        <h2>关于小红书流量学院</h2>
         <p>
-          小红书涨粉助手是一款基于人工智能技术的免费小红书运营工具，专为小红书博主和内容创作者设计。
-          通过上传小红书主页截图，AI 会自动分析您的账号数据，包括粉丝数、笔记数、内容类别等关键指标，
-          并生成一份完整的 12 章节涨粉实操指南。
+          小红书流量学院是一款基于人工智能技术的小红书运营学习平台，专为小红书博主和内容创作者设计。
+          我们提供涨粉指南生成器、知识库、案例库、情报局等多种工具和内容，
+          帮助运营者系统地学习小红书运营知识，制定科学的涨粉策略。
         </p>
         <p>
-          我们的工具特别适合 0-1000 粉丝阶段的新手博主，帮助您快速度过冷启动期，实现粉丝增长。
-          无论您是美妆博主、穿搭达人、美食分享者、旅行记录者还是知识分享者，都能获得针对性的运营建议。
+          我们的平台特别适合 0-1000 粉丝阶段的新手博主，帮助您快速度过冷启动期，实现粉丝增长。
+          无论您是美妆博主、穿搭达人、美食分享者、旅行记录者还是知识分享者，都能在这里找到适合自己的学习路径。
         </p>
       </div>
 
@@ -29,14 +44,15 @@
       </div>
 
       <div class="content-section">
-        <h2>为什么选择我们的小红书涨粉工具</h2>
+        <h2>为什么选择小红书流量学院</h2>
         <ul class="advantage-list">
-          <li><strong>完全免费：</strong>无需付费，无需注册，上传即用</li>
-          <li><strong>AI 驱动：</strong>使用最新的人工智能技术进行分析</li>
-          <li><strong>内容全面：</strong>12 个章节覆盖涨粉全流程</li>
-          <li><strong>实操性强：</strong>提供具体可执行的行动清单</li>
+          <li><strong>系统化学习：</strong>从新手入门到高级运营，完整的知识体系</li>
+          <li><strong>AI 驱动：</strong>使用最新的人工智能技术进行分析和指导</li>
+          <li><strong>真实案例：</strong>中腰部账号的真实涨粉案例拆解</li>
+          <li><strong>实操性强：</strong>提供可下载的 SOP、模板和工具</li>
           <li><strong>数据安全：</strong>不存储任何用户数据，保护隐私</li>
-          <li><strong>持续更新：</strong>根据小红书平台规则及时更新策略</li>
+          <li><strong>持续更新：</strong>情报局实时追踪平台最新动态</li>
+          <li><strong>社区驱动：</strong>爱好者和从业者的交流社区</li>
         </ul>
       </div>
 
@@ -91,11 +107,16 @@
       <div class="content-section">
         <h2>🎖️ 版权声明</h2>
         <p>
-          本工具由 [您的公司/个人名称] 开发和运营。所有内容、设计、代码均受版权保护。
+          本平台由独立开发者开发和运营。所有内容、设计、代码均受版权保护。
           未经授权，不得复制、修改、传播或用于商业用途。
         </p>
+        <p class="disclaimer-note">
+          <strong>免责声明：</strong>本平台为第三方学习工具，与小红书官方无任何关联。
+          平台提供的所有内容仅供学习参考，不构成任何运营建议。
+          用户应遵守小红书平台规则，自行承担运营风险。
+        </p>
         <p class="copyright-text">
-          © {{ currentYear }} 小红书涨粉助手. All rights reserved.
+          © {{ currentYear }} 小红书流量学院. All rights reserved.
         </p>
       </div>
     </div>
@@ -106,6 +127,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { InfoFilled } from '@element-plus/icons-vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 const currentYear = computed(() => new Date().getFullYear())
@@ -136,6 +158,42 @@ const currentYear = computed(() => new Date().getFullYear())
   font-weight: 700;
   color: #1f2937;
   margin: 0 0 16px 0;
+}
+
+.platform-notice {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 48px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+}
+
+.notice-icon {
+  font-size: 32px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.notice-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 12px 0;
+}
+
+.notice-content p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+}
+
+.notice-content strong {
+  color: white;
+  font-weight: 600;
 }
 
 .subtitle {
@@ -224,6 +282,21 @@ const currentYear = computed(() => new Date().getFullYear())
   font-size: 0.9375rem;
 }
 
+.disclaimer-note {
+  background: #FEF3C7;
+  border-left: 4px solid #F59E0B;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin: 24px 0;
+  color: #92400E;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.disclaimer-note strong {
+  color: #78350F;
+}
+
 .copyright-text {
   text-align: center;
   color: #9ca3af;
@@ -252,6 +325,20 @@ const currentYear = computed(() => new Date().getFullYear())
 
   .audience-grid {
     grid-template-columns: 1fr;
+  }
+
+  .platform-notice {
+    padding: 24px;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .notice-icon {
+    font-size: 28px;
+  }
+
+  .notice-content h3 {
+    font-size: 1.25rem;
   }
 }
 </style>

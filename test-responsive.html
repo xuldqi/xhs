@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>响应式设计测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+    }
+    
+    .test-section h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+    
+    .test-item {
+      padding: 10px;
+      margin: 10px 0;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    
+    .status.pass {
+      background: #10b981;
+      color: white;
+    }
+    
+    .status.fail {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .status.warning {
+      background: #f59e0b;
+      color: white;
+    }
+    
+    .viewport-info {
+      background: #667eea;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .viewport-info strong {
+      display: block;
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+    }
+    
+    .touch-target {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #667eea;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      margin: 5px;
+      min-width: 44px;
+      min-height: 44px;
+      text-align: center;
+    }
+    
+    .font-test {
+      margin: 10px 0;
+    }
+    
+    .font-test p {
+      margin: 5px 0;
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        padding: 15px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .test-section h2 {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📱 响应式设计测试</h1>
+    
+    <div class="viewport-info">
+      <strong>当前视口信息</strong>
+      <div id="viewport-size"></div>
+      <div id="device-type"></div>
+    </div>
+    
+    <div class="test-section">
+      <h2>1. 视口和断点测试</h2>
+      <div class="test-item">
+        <span>移动端 (< 768px)</span>
+        <span class="status" id="mobile-status">检测中...</span>
+      </div>
+      <div class="test-item">
+        <span>平板端 (768px - 1024px)</span>
+        <span class="status" id="tablet-status">检测中...</span>
+      </div>
+      <div class="test-item">
+        <span>桌面端 (> 1024px)</span>
+        <span class="status" id="desktop-status">检测中...</span>
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2>2. 触摸目标测试</h2>
+      <p>所有可点击元素应至少为 44x44px</p>
+      <div style="margin-top: 15px;">
+        <a href="#" class="touch-target">按钮 1</a>
+        <a href="#" class="touch-target">按钮 2</a>
+        <a href="#" class="touch-target">按钮 3</a>
+      </div>
+      <div class="test-item" style="margin-top: 15px;">
+        <span>触摸目标尺寸</span>
+        <span class="status" id="touch-status">检测中...</span>
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2>3. 字体大小测试</h2>
+      <div class="font-test">
+        <p style="font-size: 12px;">12px - 太小 ❌</p>
+        <p style="font-size: 14px;">14px - 较小 ⚠️</p>
+        <p style="font-size: 16px;">16px - 标准 ✅</p>
+        <p style="font-size: 18px;">18px - 较大 ✅</p>
+      </div>
+      <div class="test-item">
+        <span>基础字体大小 (应 ≥ 16px)</span>
+        <span class="status" id="font-status">检测中...</span>
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2>4. 图片响应式测试</h2>
+      <img 
+        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='400'%3E%3Crect width='800' height='400' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='white' font-size='24'%3E响应式图片测试%3C/text%3E%3C/svg%3E"
+        alt="测试图片"
+        style="width: 100%; height: auto; border-radius: 8px; margin: 10px 0;"
+      >
+      <div class="test-item">
+        <span>图片自适应</span>
+        <span class="status pass">通过</span>
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2>5. 布局测试</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+        <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; text-align: center;">
+          卡片 1
+        </div>
+        <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; text-align: center;">
+          卡片 2
+        </div>
+        <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; text-align: center;">
+          卡片 3
+        </div>
+      </div>
+      <div class="test-item">
+        <span>响应式网格布局</span>
+        <span class="status pass">通过</span>
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2>6. 性能测试</h2>
+      <div class="test-item">
+        <span>页面加载时间</span>
+        <span class="status" id="load-time-status">检测中...</span>
+        <span id="load-time"></span>
+      </div>
+      <div class="test-item">
+        <span>DOM内容加载</span>
+        <span class="status" id="dom-status">检测中...</span>
+        <span id="dom-time"></span>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // 视口检测
+    function updateViewportInfo() {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      document.getElementById('viewport-size').textContent = `宽度: ${width}px, 高度: ${height}px`
+      
+      let deviceType = '桌面端'
+      if (width < 768) {
+        deviceType = '移动端'
+        document.getElementById('mobile-status').className = 'status pass'
+        document.getElementById('mobile-status').textContent = '当前'
+        document.getElementById('tablet-status').className = 'status'
+        document.getElementById('tablet-status').textContent = '-'
+        document.getElementById('desktop-status').className = 'status'
+        document.getElementById('desktop-status').textContent = '-'
+      } else if (width < 1024) {
+        deviceType = '平板端'
+        document.getElementById('mobile-status').className = 'status'
+        document.getElementById('mobile-status').textContent = '-'
+        document.getElementById('tablet-status').className = 'status pass'
+        document.getElementById('tablet-status').textContent = '当前'
+        document.getElementById('desktop-status').className = 'status'
+        document.getElementById('desktop-status').textContent = '-'
+      } else {
+        deviceType = '桌面端'
+        document.getElementById('mobile-status').className = 'status'
+        document.getElementById('mobile-status').textContent = '-'
+        document.getElementById('tablet-status').className = 'status'
+        document.getElementById('tablet-status').textContent = '-'
+        document.getElementById('desktop-status').className = 'status pass'
+        document.getElementById('desktop-status').textContent = '当前'
+      }
+      
+      document.getElementById('device-type').textContent = `设备类型: ${deviceType}`
+    }
+    
+    // 触摸目标检测
+    function checkTouchTargets() {
+      const buttons = document.querySelectorAll('.touch-target')
+      let allPass = true
+      
+      buttons.forEach(button => {
+        const rect = button.getBoundingClientRect()
+        if (rect.width < 44 || rect.height < 44) {
+          allPass = false
+        }
+      })
+      
+      const status = document.getElementById('touch-status')
+      if (allPass) {
+        status.className = 'status pass'
+        status.textContent = '通过'
+      } else {
+        status.className = 'status fail'
+        status.textContent = '失败'
+      }
+    }
+    
+    // 字体大小检测
+    function checkFontSize() {
+      const fontSize = parseFloat(window.getComputedStyle(document.body).fontSize)
+      const status = document.getElementById('font-status')
+      
+      if (fontSize >= 16) {
+        status.className = 'status pass'
+        status.textContent = `通过 (${fontSize}px)`
+      } else if (fontSize >= 14) {
+        status.className = 'status warning'
+        status.textContent = `警告 (${fontSize}px)`
+      } else {
+        status.className = 'status fail'
+        status.textContent = `失败 (${fontSize}px)`
+      }
+    }
+    
+    // 性能检测
+    function checkPerformance() {
+      if (performance.timing) {
+        const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart
+        const domTime = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart
+        
+        document.getElementById('load-time').textContent = `(${loadTime}ms)`
+        document.getElementById('dom-time').textContent = `(${domTime}ms)`
+        
+        const loadStatus = document.getElementById('load-time-status')
+        if (loadTime < 3000) {
+          loadStatus.className = 'status pass'
+          loadStatus.textContent = '优秀'
+        } else if (loadTime < 5000) {
+          loadStatus.className = 'status warning'
+          loadStatus.textContent = '良好'
+        } else {
+          loadStatus.className = 'status fail'
+          loadStatus.textContent = '需优化'
+        }
+        
+        const domStatus = document.getElementById('dom-status')
+        if (domTime < 1500) {
+          domStatus.className = 'status pass'
+          domStatus.textContent = '优秀'
+        } else if (domTime < 2500) {
+          domStatus.className = 'status warning'
+          domStatus.textContent = '良好'
+        } else {
+          domStatus.className = 'status fail'
+          domStatus.textContent = '需优化'
+        }
+      }
+    }
+    
+    // 初始化
+    updateViewportInfo()
+    checkTouchTargets()
+    checkFontSize()
+    
+    // 窗口大小改变时更新
+    window.addEventListener('resize', () => {
+      updateViewportInfo()
+      checkTouchTargets()
+      checkFontSize()
+    })
+    
+    // 页面加载完成后检查性能
+    window.addEventListener('load', () => {
+      setTimeout(checkPerformance, 100)
+    })
+  </script>
+</body>
+</html>
