@@ -210,7 +210,7 @@ const goToHome = () => {
 }
 
 .breadcrumb a {
-  color: #409EFF;
+  color: #FF2442;
   text-decoration: none;
 }
 
@@ -316,7 +316,7 @@ const goToHome = () => {
 }
 
 .post-content :deep(blockquote) {
-  border-left: 4px solid #409EFF;
+  border-left: 4px solid #FF2442;
   padding-left: 20px;
   margin: 24px 0;
   color: #6b7280;
@@ -371,7 +371,7 @@ const goToHome = () => {
 }
 
 .related-card:hover {
-  border-color: #409EFF;
+  border-color: #FF2442;
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
@@ -437,7 +437,7 @@ const goToHome = () => {
 }
 
 .toc-list a:hover {
-  color: #409EFF;
+  color: #FF2442;
 }
 
 .cta-card {

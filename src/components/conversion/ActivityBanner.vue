@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Gift, TrendCharts, Star, Close } from '@element-plus/icons-vue'
+import { Present, TrendCharts, Star, Close } from '@element-plus/icons-vue'
 import { analytics } from '@/utils/analytics'
 
 interface Activity {
@@ -79,11 +79,11 @@ const currentActivity = computed(() => {
 // 方法
 const getIcon = (type: string) => {
   const map: Record<string, any> = {
-    promotion: Gift,
+    promotion: Present,
     feature: Star,
     announcement: TrendCharts
   }
-  return map[type] || Gift
+  return map[type] || Present
 }
 
 const handleCTAClick = () => {

@@ -3,9 +3,6 @@
  * 使用 jspdf 和 html2canvas 将指南内容导出为 PDF
  */
 
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
-
 export interface ExportOptions {
   filename?: string
   quality?: number
@@ -26,6 +23,8 @@ export async function exportToPDF(
   } = options
 
   try {
+    const { default: jsPDF } = await import('jspdf');
+    const { default: html2canvas } = await import('html2canvas');
     // 1. 将 HTML 转换为 Canvas
     const canvas = await html2canvas(element, {
       scale,

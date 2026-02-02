@@ -133,7 +133,31 @@ const currentYear = computed(() => new Date().getFullYear())
 }
 
 .footer-links a:hover {
-  color: #409EFF;
+  color: #FF2442;
+}
+
+.footer-disclaimer {
+  background: #374151;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.disclaimer-icon {
+  color: #60A5FA;
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.disclaimer-text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #D1D5DB;
+  margin: 0;
 }
 
 .footer-disclaimer {

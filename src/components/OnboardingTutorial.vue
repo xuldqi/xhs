@@ -172,7 +172,7 @@ defineExpose({
 }
 
 .step-dot.active {
-  background: #409EFF;
+  background: #FF2442;
   width: 32px;
   border-radius: 6px;
 }

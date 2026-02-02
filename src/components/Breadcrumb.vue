@@ -44,13 +44,8 @@ const routeBreadcrumbMap: Record<string, BreadcrumbItem[]> = {
   '/': [
     { name: '首页', path: '/', icon: 'el-icon-house' }
   ],
-  '/upload': [
-    { name: '首页', path: '/', icon: 'el-icon-house' },
-    { name: '上传分析', icon: 'el-icon-upload' }
-  ],
   '/analysis': [
     { name: '首页', path: '/', icon: 'el-icon-house' },
-    { name: '上传分析', path: '/upload', icon: 'el-icon-upload' },
     { name: '智能分析', icon: 'el-icon-data-analysis' }
   ],
   '/guide': [
@@ -64,6 +59,10 @@ const routeBreadcrumbMap: Record<string, BreadcrumbItem[]> = {
   '/pricing': [
     { name: '首页', path: '/', icon: 'el-icon-house' },
     { name: '会员套餐', icon: 'el-icon-medal' }
+  ],
+  '/calendar': [
+    { name: '首页', path: '/', icon: 'el-icon-house' },
+    { name: '内容日历', icon: 'el-icon-calendar' }
   ],
   '/blog': [
     { name: '首页', path: '/', icon: 'el-icon-house' },

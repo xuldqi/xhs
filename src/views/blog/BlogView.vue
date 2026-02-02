@@ -47,8 +47,13 @@
         <div class="sidebar-card">
           <h3>文章分类</h3>
           <ul class="category-list">
-            <li v-for="cat in categories" :key="cat.name" @click="filterByCategory(cat.name)">
-              {{ cat.name }} ({{ cat.count }})
+            <li
+              v-for="cat in categories"
+              :key="cat.name || 'all'"
+              :class="{ active: selectedCategory === cat.name }"
+              @click="filterByCategory(cat.name)"
+            >
+              {{ cat.label }} ({{ cat.count }})
             </li>
           </ul>
         </div>
@@ -64,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import { InfoFilled } from '@element-plus/icons-vue'
@@ -83,7 +88,7 @@ interface BlogPost {
   tags: string[]
 }
 
-const blogPosts = ref<BlogPost[]>([
+const allPosts = ref<BlogPost[]>([
   {
     slug: 'xiaohongshu-account-cold-start-guide',
     title: '小红书账号冷启动完全指南 - 3天激活账号进入推荐池',
@@ -149,28 +154,40 @@ const blogPosts = ref<BlogPost[]>([
   }
 ])
 
-const popularPosts = ref([
-  { slug: '0-to-1000-fans-complete-guide', title: '0到1000粉丝完整路径' },
-  { slug: '100-viral-title-templates', title: '100个爆款标题模板' },
-  { slug: 'xiaohongshu-algorithm-2024', title: '小红书算法解析2024' }
-])
+// 当前选中的分类（空字符串表示「全部」）
+const selectedCategory = ref('')
 
-const categories = ref([
-  { name: '新手入门', count: 8 },
-  { name: '算法解析', count: 5 },
-  { name: '内容创作', count: 12 },
-  { name: '涨粉策略', count: 10 },
-  { name: '数据分析', count: 6 },
-  { name: '变现指南', count: 7 }
-])
+// 按分类筛选后的文章列表
+const blogPosts = computed(() => {
+  const list = allPosts.value
+  if (!selectedCategory.value) return list
+  return list.filter((p) => p.category === selectedCategory.value)
+})
+
+// 从文章列表统计各分类数量
+const categories = computed(() => {
+  const list = allPosts.value
+  const countMap: Record<string, number> = {}
+  list.forEach((p) => {
+    countMap[p.category] = (countMap[p.category] || 0) + 1
+  })
+  return [
+    { name: '', count: list.length, label: '全部' },
+    ...Object.entries(countMap).map(([name, count]) => ({ name, count, label: name }))
+  ]
+})
+
+const popularPosts = computed(() => {
+  const list = blogPosts.value.slice(0, 3)
+  return list.map((p) => ({ slug: p.slug, title: p.title.length > 16 ? p.title.slice(0, 16) + '…' : p.title }))
+})
 
 const goToPost = (slug: string) => {
   router.push(`/secrets/${slug}`)
 }
 
 const filterByCategory = (category: string) => {
-  // TODO: 实现分类筛选
-  console.log('Filter by:', category)
+  selectedCategory.value = category
 }
 
 const goToHome = () => {
@@ -246,7 +263,7 @@ const goToHome = () => {
 .blog-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
-  border-color: #409EFF;
+  border-color: #FF2442;
 }
 
 .blog-category {
@@ -334,7 +351,12 @@ const goToHome = () => {
 
 .popular-list li:hover,
 .category-list li:hover {
-  color: #409EFF;
+  color: #FF2442;
+}
+
+.category-list li.active {
+  color: #FF2442;
+  font-weight: 600;
 }
 
 .popular-list li:last-child,

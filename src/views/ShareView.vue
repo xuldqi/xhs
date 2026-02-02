@@ -261,7 +261,7 @@ function goHome() {
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: #409EFF;
+  background: #FF2442;
   color: white;
   border-radius: 50%;
   font-weight: bold;

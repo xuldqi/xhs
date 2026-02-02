@@ -1,186 +1,52 @@
 /**
- * 导航结构数据
- * 根据设计文档定义的导航结构
+ * 导航结构 - 精简版（SaaS 工具定位）
+ * 目标：让用户进来只有一条路——点击「免费诊断」
  */
 
 import type { NavigationItem } from '@/types/navigation'
 
+// 桌面端：3-4 个核心入口
 export const navigationStructure: NavigationItem[] = [
   {
-    id: 'home',
-    label: '首页',
-    path: '/'
-  },
-  {
-    id: 'knowledge',
-    label: '知识库',
-    path: '/knowledge',
-    badge: 'new',
+    id: 'products',
+    label: '产品功能',
+    path: '/',
     children: [
-      {
-        id: 'beginner',
-        label: '新手入门',
-        path: '/knowledge/beginner',
-        description: '从零开始学习小红书运营'
-      },
-      {
-        id: 'content',
-        label: '内容创作',
-        path: '/knowledge/content',
-        description: '打造爆款内容的技巧'
-      },
-      {
-        id: 'traffic',
-        label: '流量获取',
-        path: '/knowledge/traffic',
-        description: '提升曝光和涨粉策略'
-      },
-      {
-        id: 'data',
-        label: '数据分析',
-        path: '/knowledge/data',
-        description: '用数据驱动运营决策'
-      },
-      {
-        id: 'monetization',
-        label: '变现指南',
-        path: '/knowledge/monetization',
-        description: '将流量转化为收入'
-      }
+      { id: 'diagnosis', label: '账号诊断', path: '/analysis' },
+      { id: 'calendar', label: 'AI 内容日历', path: '/calendar', badge: 'new' },
+      { id: 'title-generator', label: '标题生成器', path: '/tools/title-generator' },
+      { id: 'topic-analyzer', label: '话题分析工具', path: '/tools/topic-analyzer' },
+      { id: 'competitor-analyzer', label: '竞品分析工具', path: '/tools/competitor-analyzer' },
+      { id: 'keyword-tool', label: 'SEO 关键词工具', path: '/tools/keyword-tool' },
+      { id: 'scheduler', label: '定时发布工具', path: '/tools/scheduler' },
+      { id: 'tools', label: '工具箱（全部）', path: '/tools' }
     ]
-  },
-  {
-    id: 'cases',
-    label: '案例库',
-    path: '/cases',
-    description: '真实账号涨粉案例拆解'
-  },
-  {
-    id: 'intelligence',
-    label: '情报局',
-    path: '/intelligence',
-    badge: 'hot',
-    description: '平台最新动态和规则变化'
-  },
-  {
-    id: 'tools',
-    label: '工具箱',
-    path: '/tools',
-    children: [
-      {
-        id: 'guide-generator',
-        label: '涨粉指南生成器',
-        path: '/',
-        description: 'AI 生成个性化涨粉方案'
-      },
-      {
-        id: 'viral-generator',
-        label: '爆款生成器',
-        path: '/tools/viral-generator',
-        description: '一站式生成爆款内容',
-        badge: 'hot'
-      },
-      {
-        id: 'title-generator',
-        label: '标题生成器',
-        path: '/tools/title-generator',
-        description: '生成吸引眼球的标题',
-        badge: 'new'
-      },
-      {
-        id: 'topic-analyzer',
-        label: '话题分析',
-        path: '/tools/topic-analyzer',
-        description: '分析热门话题趋势',
-        badge: 'new'
-      },
-      {
-        id: 'competitor-analyzer',
-        label: '竞品分析',
-        path: '/tools/competitor-analyzer',
-        description: '分析竞争对手策略',
-        badge: 'new'
-      }
-    ]
-  },
-  {
-    id: 'secrets',
-    label: '涨粉秘籍',
-    path: '/secrets',
-    badge: 'vip',
-    description: '实战经验和独家技巧'
-  },
-  {
-    id: 'resources',
-    label: '资源库',
-    path: '/resources',
-    description: '模板、SOP 和工具下载'
-  },
-  {
-    id: 'community',
-    label: '社区',
-    path: '/community',
-    badge: 'new',
-    description: '与运营者交流经验'
   },
   {
     id: 'pricing',
-    label: '会员套餐',
-    path: '/pricing',
-    badge: 'vip'
+    label: '价格',
+    path: '/pricing'
+  },
+  {
+    id: 'resources',
+    label: '资源中心',
+    path: '/knowledge',
+    children: [
+      { id: 'knowledge', label: '知识库', path: '/knowledge' },
+      { id: 'cases', label: '案例库', path: '/cases' },
+      { id: 'intelligence', label: '情报局', path: '/intelligence' },
+      { id: 'community', label: '社区', path: '/community' }
+    ]
   }
 ]
 
-// 移动端简化导航（可选）
+// 移动端：简化版
 export const mobileNavigationStructure: NavigationItem[] = [
-  {
-    id: 'home',
-    label: '首页',
-    path: '/'
-  },
-  {
-    id: 'knowledge',
-    label: '知识库',
-    path: '/knowledge',
-    badge: 'new'
-  },
-  {
-    id: 'cases',
-    label: '案例库',
-    path: '/cases'
-  },
-  {
-    id: 'intelligence',
-    label: '情报局',
-    path: '/intelligence',
-    badge: 'hot'
-  },
-  {
-    id: 'tools',
-    label: '工具箱',
-    path: '/tools'
-  },
-  {
-    id: 'secrets',
-    label: '涨粉秘籍',
-    path: '/secrets',
-    badge: 'vip'
-  },
-  {
-    id: 'resources',
-    label: '资源库',
-    path: '/resources'
-  },
-  {
-    id: 'community',
-    label: '社区',
-    path: '/community',
-    badge: 'new'
-  },
-  {
-    id: 'pricing',
-    label: '会员',
-    path: '/pricing',
-    badge: 'vip'
-  }
+  { id: 'home', label: '首页', path: '/' },
+  { id: 'diagnosis', label: '账号诊断', path: '/analysis' },
+  { id: 'calendar', label: '内容日历', path: '/calendar' },
+  { id: 'tools', label: '工具箱', path: '/tools' },
+  { id: 'pricing', label: '价格', path: '/pricing' },
+  { id: 'resources', label: '资源中心', path: '/knowledge' },
+  { id: 'community', label: '社区', path: '/community' }
 ]

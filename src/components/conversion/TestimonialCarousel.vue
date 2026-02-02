@@ -79,7 +79,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  height: '400px'
+  height: '320px'
 })
 
 // 响应式数据
@@ -90,7 +90,7 @@ const testimonials = ref<Testimonial[]>([
     author: {
       name: '小美',
       role: '美妆博主',
-      avatar: 'https://via.placeholder.com/48'
+      avatar: ''
     },
     rating: 5,
     results: [
@@ -105,7 +105,7 @@ const testimonials = ref<Testimonial[]>([
     author: {
       name: '张三',
       role: '生活方式博主',
-      avatar: 'https://via.placeholder.com/48'
+      avatar: ''
     },
     rating: 5,
     results: [
@@ -120,7 +120,7 @@ const testimonials = ref<Testimonial[]>([
     author: {
       name: '李四',
       role: '美食博主',
-      avatar: 'https://via.placeholder.com/48'
+      avatar: ''
     },
     rating: 5,
     results: [
@@ -136,7 +136,7 @@ const carouselHeight = computed(() => props.height)
 
 <style scoped>
 .testimonial-carousel {
-  padding: 80px 0;
+  padding: 40px 0;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
@@ -156,9 +156,9 @@ const carouselHeight = computed(() => props.height)
 
 .testimonial-card {
   background: white;
-  border-radius: var(--radius-xl);
-  padding: 48px;
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  box-shadow: var(--shadow-md);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -168,11 +168,11 @@ const carouselHeight = computed(() => props.height)
 
 .quote-icon {
   position: absolute;
-  top: 24px;
-  right: 24px;
-  font-size: 3rem;
+  top: 16px;
+  right: 16px;
+  font-size: 2rem;
   color: var(--primary-color);
-  opacity: 0.1;
+  opacity: 0.08;
 }
 
 .testimonial-content {
@@ -181,18 +181,18 @@ const carouselHeight = computed(() => props.height)
 }
 
 .testimonial-text {
-  font-size: 1.25rem;
-  line-height: 1.8;
+  font-size: 1.05rem;
+  line-height: 1.7;
   color: var(--text-primary);
-  margin: 0 0 32px 0;
+  margin: 0 0 20px 0;
   font-style: italic;
 }
 
 .testimonial-author {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .author-info {
@@ -200,23 +200,23 @@ const carouselHeight = computed(() => props.height)
 }
 
 .author-name {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .author-role {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .testimonial-results {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  padding-top: 24px;
+  gap: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--border-color);
 }
 
@@ -225,14 +225,14 @@ const carouselHeight = computed(() => props.height)
 }
 
 .result-value {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--primary-color);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .result-label {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--text-secondary);
 }
 

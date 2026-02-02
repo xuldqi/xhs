@@ -171,3 +171,70 @@ export interface ChartConfig {
   data: ChartData
   options?: any
 }
+
+// 知识库文章
+export interface Article {
+  id: string
+  title: string
+  summary: string
+  content: string // Markdown 格式
+  author: string
+  createdAt: Date
+  tags: string[]
+  coverImageUrl: string
+}
+
+// 内容日历 - 单日
+export interface CalendarDay {
+  date: string // YYYY-MM-DD
+  items: CalendarItem[]
+}
+
+// 内容日历 - 单条
+export interface CalendarItem {
+  id: string
+  title: string
+  outline: string
+  tags: string[]
+  type: 'image' | 'video' | 'carousel' | 'live_preview'
+  suggestedTime?: string
+  /** 状态：草稿 / 待发 / 已发 */
+  status?: 'draft' | 'pending' | 'published'
+  /** 已发笔记数据（status=published 时） */
+  publishedNote?: {
+    url?: string
+    likes?: number
+    favorites?: number
+    comments?: number
+  }
+}
+
+// 内容日历数据
+export interface CalendarData {
+  days: CalendarDay[]
+}
+
+// 品牌声配置
+export interface BrandVoice {
+  id?: string
+  name?: string
+  style?: string
+  keywords?: string[]
+  forbiddenWords?: string[]
+  emojiList?: string[]
+}
+
+// 社区问答
+export interface QAPair {
+  id: string
+  question: string
+  answer: string // Markdown 格式
+  author: {
+    name: string
+    avatarUrl: string
+  }
+  createdAt: Date
+  viewCount: number
+  likeCount: number
+  tags: string[]
+}

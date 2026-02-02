@@ -184,7 +184,7 @@
       <h3>常见问题</h3>
       <el-collapse>
         <el-collapse-item title="如何支付？" name="1">
-          <p>我们支持支付宝支付，点击购买后会跳转到支付宝支付页面。</p>
+          <p>本平台使用<strong>支付宝</strong>支付。点击「立即购买」后会跳转到支付宝收银台，完成支付后会员立即生效。</p>
         </el-collapse-item>
         <el-collapse-item title="购买后多久生效？" name="2">
           <p>支付成功后立即生效，您可以在个人中心查看会员状态。</p>
@@ -200,6 +200,20 @@
           <p>会员到期后会自动降级为免费版，您可以随时续费。</p>
         </el-collapse-item>
       </el-collapse>
+    </div>
+
+    <!-- 开发环境：支付宝接入测试（无需登录、不写数据库） -->
+    <div v-if="isDev" class="pricing-test-alipay">
+      <h3>🧪 测试支付宝接入</h3>
+      <p class="test-desc">仅开发环境显示。点击后创建 0.01 元测试订单并跳转支付宝（沙箱），用于验证密钥与网关配置。</p>
+      <el-button
+        type="warning"
+        plain
+        :loading="testPayLoading"
+        @click="handleTestAlipay"
+      >
+        {{ testPayLoading ? '创建中…' : '创建 0.01 元测试订单' }}
+      </el-button>
     </div>
   </div>
 </template>
@@ -221,6 +235,8 @@ const userStore = useUserStore()
 const plans = ref<PlanConfig[]>([])
 const loading = ref(false)
 const payingPlan = ref<string | null>(null)
+const testPayLoading = ref(false)
+const isDev = import.meta.env.DEV
 
 const currentPlan = computed(() => userStore.planType)
 
@@ -283,6 +299,35 @@ const handlePurchase = async (plan: PlanConfig) => {
     ElMessage.error(error.message || '购买失败，请稍后重试')
   } finally {
     payingPlan.value = null
+  }
+}
+
+// 开发环境：测试支付宝（不依赖登录与数据库）
+async function handleTestAlipay() {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+  testPayLoading.value = true
+  try {
+    const { data } = await axios.post<{ success: boolean; data?: { paymentForm: string; orderNo: string }; error?: string }>(
+      `${backendUrl}/api/payment-test/test-create-order`,
+      { amount: '0.01', subject: '测试订单' }
+    )
+    if (data.success && data.data?.paymentForm) {
+      const div = document.createElement('div')
+      div.innerHTML = data.data.paymentForm
+      document.body.appendChild(div)
+      const form = div.querySelector('form')
+      if (form) {
+        form.submit()
+      } else {
+        ElMessage.warning('未获取到支付表单，请检查后端返回')
+      }
+    } else {
+      ElMessage.error(data.error || '创建测试订单失败')
+    }
+  } catch (err: any) {
+    ElMessage.error(err.response?.data?.error || err.message || '请求失败')
+  } finally {
+    testPayLoading.value = false
   }
 }
 </script>
@@ -442,6 +487,28 @@ const handlePurchase = async (plan: PlanConfig) => {
   color: #333;
   margin: 0 0 24px 0;
   text-align: center;
+}
+
+.pricing-test-alipay {
+  max-width: 800px;
+  margin: 48px auto 0;
+  padding: 24px;
+  background: #fffbe6;
+  border: 1px solid #ffe58f;
+  border-radius: 12px;
+}
+
+.pricing-test-alipay h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: #ad6800;
+}
+
+.pricing-test-alipay .test-desc {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #876800;
+  line-height: 1.5;
 }
 
 @media (max-width: 768px) {

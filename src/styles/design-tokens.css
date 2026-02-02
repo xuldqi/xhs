@@ -6,16 +6,16 @@
 
 :root {
   /* ========== 主色系统（限制为 2 种主色）========== */
-  --color-primary-50: #F0F4FF;
-  --color-primary-100: #E0EAFF;
-  --color-primary-200: #C7D7FE;
-  --color-primary-300: #A5B8FC;
-  --color-primary-400: #8B9FF8;
-  --color-primary-500: #667EEA;    /* 主色基准 */
-  --color-primary-600: #5568D3;
-  --color-primary-700: #4453B8;
-  --color-primary-800: #3A4694;
-  --color-primary-900: #2E3A75;
+  --color-primary-50: #fff7f8;
+  --color-primary-100: #ffebee;
+  --color-primary-200: #ffdde1;
+  --color-primary-300: #ffb3bd;
+  --color-primary-400: #ff8a9a;
+  --color-primary-500: #FF2442;    /* 小红书品牌红 */
+  --color-primary-600: #e01f3c;
+  --color-primary-700: #cc1d35;
+  --color-primary-800: #99162a;
+  --color-primary-900: #66101d;
   
   --color-secondary-50: #F5F3FF;
   --color-secondary-100: #EDE9FE;

@@ -120,6 +120,7 @@ const totalCount = ref(0)
 
 // 计算属性
 const breadcrumbItems = computed(() => [
+  { label: '首页', path: '/' },
   { label: '情报局', path: '/intelligence' }
 ])
 
@@ -244,10 +245,9 @@ onMounted(() => {
 }
 
 .intelligence-header {
-  background: #ffffff;
-  color: #1a1a1a;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
   padding: 32px 0 48px;
-  border-bottom: 1px solid #e5e7eb;
 }
 
 .container {
@@ -265,12 +265,11 @@ onMounted(() => {
   font-size: 3rem;
   font-weight: 700;
   margin: 0 0 16px 0;
-  color: #1a1a1a;
 }
 
 .page-description {
   font-size: 1.125rem;
-  color: #6b7280;
+  opacity: 0.9;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;

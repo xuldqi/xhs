@@ -20,13 +20,13 @@ const props = withDefaults(defineProps<Props>(), {
   size: 'medium',
   showText: true,
   clickable: true,
-  text: '小红书流量学院'
+  text: 'AI 小红书运营管家'
 })
 
 const router = useRouter()
 
 const logoSrc = '/favicon.svg'
-const altText = '小红书流量学院'
+const altText = 'AI 小红书运营管家'
 
 const iconStyle = computed(() => {
   const sizes = {

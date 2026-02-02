@@ -6,26 +6,17 @@ import { preloadRouteComponents } from '@/utils/lazyLoader'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import('@/views/HomeView.vue'),
+    name: 'Platform',
+    component: () => import('@/views/NewHomeView.vue'),
     meta: {
-      title: '小红书增长攻略生成器 - 专业的小红书运营工具',
-      description: '一键生成专业的小红书账号增长攻略，提供数据分析、内容策略、运营建议等全方位服务',
-      keywords: '小红书,增长攻略,运营工具,内容策略,数据分析'
+      title: '小红书增长专家 - 一站式运营平台',
+      description: '从数据分析到内容策略，从工具矩阵到社区交流，助力你的小红书账号快速增长',
+      keywords: '小红书,运营,增长,工具,平台,知识库,案例'
     }
   },
   {
     path: '/platform',
-    name: 'Platform',
-    component: () => import('@/views/NewHomeView.vue'),
-    meta: {
-      title: '知识平台 - 小红书增长攻略',
-      description: '小红书运营知识平台'
-    }
-  },
-  {
-    path: '/upload',
-    redirect: '/'  // 老版本上传页面已废弃，重定向到首页
+    redirect: '/'
   },
   {
     path: '/analysis',
@@ -46,15 +37,6 @@ const routes: RouteRecordRaw[] = [
     path: '/privacy',
     name: 'Privacy',
     component: () => import('@/views/PrivacyView.vue')
-  },
-  {
-    path: '/terms',
-    name: 'Terms',
-    component: () => import('@/views/TermsView.vue'),
-    meta: {
-      title: '服务条款 - 小红书流量学院',
-      description: '小红书流量学院服务条款和使用协议'
-    }
   },
   {
     path: '/login',
@@ -122,19 +104,25 @@ const routes: RouteRecordRaw[] = [
     name: 'IntelligenceDetail',
     component: () => import('@/views/intelligence/IntelligenceDetailView.vue')
   },
+  // Resources feature - to be implemented
+  // {
+  //   path: '/resources',
+  //   name: 'Resources',
+  //   component: () => import('@/views/ResourcesView.vue')
+  // },
+  // {
+  //   path: '/resources/:id',
+  //   name: 'ResourceDetail',
+  //   component: () => import('@/views/resources/ResourceDetailView.vue')
+  // },
   {
-    path: '/resources',
-    name: 'Resources',
-    component: () => import('@/views/ResourcesView.vue'),
+    path: '/calendar',
+    name: 'Calendar',
+    component: () => import('@/views/CalendarView.vue'),
     meta: {
-      title: '资源库 - 模板、SOP和工具下载',
-      description: '精选的小红书运营模板、SOP文档和工具资源'
+      title: 'AI 内容日历 - 小红书运营',
+      description: 'AI 生成 30 天内容日历，规划你的小红书发帖'
     }
-  },
-  {
-    path: '/resources/:id',
-    name: 'ResourceDetail',
-    component: () => import('@/views/resources/ResourceDetailView.vue')
   },
   {
     path: '/tools',
@@ -147,69 +135,32 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/tools/TitleGeneratorView.vue')
   },
   {
-    path: '/tools/viral-generator',
-    name: 'ViralGenerator',
-    component: () => import('@/views/tools/ViralGeneratorView.vue'),
-    meta: {
-      title: '爆款生成器 - 一站式生成爆款内容',
-      description: '整合标题生成、封面文字建议和完整文案生成，一站式生成小红书爆款内容'
-    }
-  },
-  {
     path: '/tools/topic-analyzer',
     name: 'TopicAnalyzer',
-    component: () => import('@/views/tools/HotWordsInsightView.vue'),
-    meta: {
-      title: '热词洞察工具 - 发现热门概念和趋势词',
-      description: '整合概念词典数据，发现热门概念和趋势词，为小红书内容提供选题灵感和关键词'
-    }
-  },
-  {
-    path: '/tools/topic-inspiration',
-    name: 'TopicInspiration',
-    component: () => import('@/views/tools/TopicInspirationView.vue'),
-    meta: {
-      title: '灵感话题库 - 发现第一次XX类选题灵感',
-      description: '整合"人生第一次"数据，发现"第一次XX"类选题灵感，为小红书内容提供源源不断的创作素材'
-    }
+    component: () => import('@/views/tools/TopicAnalyzerView.vue'),
+    meta: { title: '话题分析工具 - AI 分析热门趋势' }
   },
   {
     path: '/tools/competitor-analyzer',
     name: 'CompetitorAnalyzer',
-    component: () => import('@/views/tools/ToolPlaceholderView.vue')
+    component: () => import('@/views/tools/CompetitorAnalyzerView.vue'),
+    meta: { title: '竞品分析工具 - AI 深度分析竞品' }
   },
   {
     path: '/tools/image-editor',
-    name: 'ImageEditor',
-    component: () => import('@/views/tools/ToolPlaceholderView.vue')
-  },
-  {
-    path: '/tools/background-remover',
-    name: 'BackgroundRemover',
-    component: () => import('@/views/tools/BackgroundRemoverView.vue'),
-    meta: {
-      title: '图片背景移除工具 - 一键抠图',
-      description: '适用于纯色/近似纯色背景的图片，自动采样背景色，支持阈值微调，浏览器本地处理，保护隐私'
-    }
-  },
-  {
-    path: '/tools/manga-generator',
-    name: 'MangaGenerator',
-    component: () => import('@/views/tools/MangaGeneratorView.vue'),
-    meta: {
-      title: '漫画风生成器 - 一键生成漫画效果',
-      description: '上传图片，一键生成漫画风效果：边缘描线、阈值、色调分级、网点（Halftone），并导出成图'
-    }
+    redirect: '/tools'
   },
   {
     path: '/tools/keyword-tool',
     name: 'KeywordTool',
-    component: () => import('@/views/tools/ToolPlaceholderView.vue')
+    component: () => import('@/views/tools/KeywordToolView.vue'),
+    meta: { title: 'SEO 关键词工具 - AI 挖掘热门关键词' }
   },
   {
     path: '/tools/scheduler',
     name: 'Scheduler',
-    component: () => import('@/views/tools/ToolPlaceholderView.vue')
+    component: () => import('@/views/tools/SchedulerView.vue'),
+    meta: { title: '定时发布计划 - 规划发帖时间' }
   },
   {
     path: '/community',
@@ -218,6 +169,15 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: '社区问答 - 小红书运营交流',
       description: '与其他小红书运营者交流经验，分享心得，解决问题'
+    }
+  },
+  {
+    path: '/community/questions/:id',
+    name: 'CommunityQuestionDetail',
+    component: () => import('@/views/community/CommunityQuestionDetailView.vue'),
+    meta: {
+      title: '问题详情 - 社区问答',
+      description: '查看问题与回答'
     }
   },
   {

@@ -3,6 +3,18 @@
 @import './styles/components.css';
 @import './styles/responsive.css';
 
+/* Element Plus 主题覆盖 - 统一为小红书品牌红 #FF2442 */
+:root {
+  --el-color-primary: #FF2442;
+  --el-color-primary-light-3: #ff8a9a;
+  --el-color-primary-light-5: #ffb3bd;
+  --el-color-primary-light-7: #ffdde1;
+  --el-color-primary-light-8: #fff0f1;
+  --el-color-primary-light-9: #fff7f8;
+  --el-color-primary-dark-2: #cc1d35;
+  --brand-primary: #FF2442;
+}
+
 :root {
   font-family: var(--font-sans-zh), var(--font-sans);
   line-height: var(--leading-normal);

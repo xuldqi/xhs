@@ -28,9 +28,6 @@
                       {{ getBadgeText(child.badge) }}
                     </el-tag>
                   </div>
-                  <div v-if="child.description" class="dropdown-item-desc">
-                    {{ child.description }}
-                  </div>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -75,9 +72,20 @@
         </template>
         
         <template v-else>
-          <el-button type="primary" size="small" @click="$router.push('/login')">
-            登录 / 注册
-          </el-button>
+          <el-dropdown @command="(c) => c === 'login' && router.push('/login')">
+            <div class="guest-avatar" @click="router.push('/login')">
+              <el-avatar :size="32" :icon="UserFilled" />
+              <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="login">
+                  <el-icon><User /></el-icon>
+                  登录 / 注册
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </template>
       </nav>
 
@@ -100,7 +108,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ArrowDown, User, Star, SwitchButton, Menu } from '@element-plus/icons-vue'
+import { ArrowDown, User, Star, SwitchButton, Menu, UserFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
 import BrandLogo from './BrandLogo.vue'
 import MobileMenu from './MobileMenu.vue'
@@ -110,10 +118,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const isMobileMenuOpen = ref(false)
 
-// 过滤掉会员套餐，放到用户菜单中
-const navigationItems = computed(() => {
-  return navigationStructure.filter(item => item.id !== 'pricing')
-})
+const navigationItems = computed(() => navigationStructure)
 
 const mobileNavigationItems = computed(() => {
   return mobileNavigationStructure
@@ -288,6 +293,25 @@ const getBadgeText = (badge: string) => {
 
 .user-dropdown:hover {
   background-color: #f5f7fa;
+}
+
+.guest-avatar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.guest-avatar:hover {
+  background-color: #f5f7fa;
+}
+
+.guest-avatar :deep(.el-avatar) {
+  background-color: var(--brand-primary, #ff2442);
+  color: white;
 }
 
 .user-name {

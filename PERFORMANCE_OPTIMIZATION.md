@@ -25,6 +25,18 @@
 const VideoEmbed = defineAsyncComponent(() => import('@/components/content/VideoEmbed.vue'))
 ```
 
+**已实施：**
+- `ProfessionalDocument`（含 chart.js）按需加载，仅在用户选择「专业文档」格式时加载
+- PDF 导出使用动态 `import('jspdf')`、`import('html2canvas')`，仅在导出时加载
+
+#### manualChunks 拆分
+大型第三方库拆分为独立 chunk，便于缓存与并行加载：
+- `chart`：chart.js（约 206KB）
+- `pdf-libs`：jspdf + html2canvas（约 557KB）
+- `element-plus`：Element Plus 组件
+- `supabase`：Supabase 客户端
+- `vue-vendor`：Vue、Vue Router、Pinia
+
 #### 智能预加载
 - 关键路由在空闲时间预加载
 - 基于用户导航模式预测性预加载

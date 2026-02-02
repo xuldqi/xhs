@@ -58,7 +58,7 @@ export class UserService {
   // 记录使用日志
   static async logUsage(
     userId: string,
-    actionType: 'generate_guide' | 'export_html' | 'view_history',
+    actionType: 'generate_guide' | 'export_html' | 'view_history' | 'generate_calendar',
     metadata?: any
   ): Promise<void> {
     const { error } = await supabase
@@ -75,7 +75,7 @@ export class UserService {
   // 获取今日使用次数
   static async getTodayUsageCount(
     userId: string,
-    actionType: 'generate_guide' | 'export_html' | 'view_history'
+    actionType: 'generate_guide' | 'export_html' | 'view_history' | 'generate_calendar'
   ): Promise<number> {
     const { data, error } = await supabase
       .rpc('get_today_usage_count', {
@@ -90,7 +90,7 @@ export class UserService {
   // 检查是否可以执行操作
   static async canPerformAction(
     userId: string,
-    actionType: 'generate_guide' | 'export_html'
+    actionType: 'generate_guide' | 'export_html' | 'generate_calendar'
   ): Promise<{ allowed: boolean; reason?: string; remaining?: number }> {
     // 获取 VIP 状态
     const vipStatus = await this.getVIPStatus(userId)
@@ -116,14 +116,14 @@ export class UserService {
     // 获取今日使用次数
     const todayCount = await this.getTodayUsageCount(userId, actionType)
     
-    const limit = actionType === 'generate_guide' 
-      ? planConfig.daily_generate_limit 
+    const limit = actionType === 'generate_guide' || actionType === 'generate_calendar'
+      ? planConfig.daily_generate_limit
       : planConfig.daily_export_limit
 
     if (todayCount >= limit) {
-      return { 
-        allowed: false, 
-        reason: `今日${actionType === 'generate_guide' ? '生成' : '导出'}次数已用完`,
+      return {
+        allowed: false,
+        reason: `今日${actionType === 'generate_calendar' ? '日历生成' : actionType === 'generate_guide' ? '生成' : '导出'}次数已用完`,
         remaining: 0
       }
     }

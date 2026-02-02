@@ -1,9 +1,5 @@
 <template>
-  <article 
-    class="tool-card" 
-    :class="{ 'recommended': tool.isRecommended }"
-    @click="handleClick"
-  >
+  <article class="tool-card" @click="handleClick">
     <!-- 工具图标 -->
     <div class="tool-icon">
       <div class="icon-wrapper" :class="`category-${tool.category}`">
@@ -126,39 +122,21 @@ const handleClick = () => {
 <style scoped>
 .tool-card {
   background: white;
-  border-radius: 20px;
-  padding: 28px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 1px solid #e5e7eb;
-  position: relative;
-  overflow: hidden;
-}
-
-.tool-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  opacity: 0;
-  transition: opacity 0.3s;
+  border: 2px solid transparent;
 }
 
 .tool-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-  border-color: #667eea;
-}
-
-.tool-card:hover::before {
-  opacity: 1;
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
 }
 
 .tool-icon {
@@ -168,18 +146,12 @@ const handleClick = () => {
 }
 
 .icon-wrapper {
-  width: 72px;
-  height: 72px;
-  border-radius: 18px;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s;
-}
-
-.tool-card:hover .icon-wrapper {
-  transform: scale(1.1) rotate(5deg);
 }
 
 .category-content-creation {
@@ -206,16 +178,6 @@ const handleClick = () => {
   background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
 }
 
-/* 为推荐工具添加特殊样式 */
-.tool-card.recommended {
-  border: 2px solid #667eea;
-}
-
-.tool-card.recommended::before {
-  opacity: 1;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-}
-
 .icon {
   font-size: 2rem;
   color: white;
@@ -235,30 +197,18 @@ const handleClick = () => {
 }
 
 .tool-name {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: #1a1a1a;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.4;
   flex: 1;
-  transition: color 0.3s;
-}
-
-.tool-card:hover .tool-name {
-  color: #667eea;
 }
 
 .tool-badges {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-.tool-badges .el-tag {
-  font-weight: 500;
-  border-radius: 12px;
-  padding: 4px 10px;
 }
 
 .tool-description {
@@ -274,32 +224,21 @@ const handleClick = () => {
 
 .tool-features {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
-  margin-top: 4px;
 }
 
 .feature-item {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.8125rem;
-  color: #4b5563;
-  background: #f3f4f6;
-  padding: 6px 12px;
-  border-radius: 12px;
-  transition: all 0.2s;
-}
-
-.tool-card:hover .feature-item {
-  background: #e0e7ff;
-  color: #4338ca;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
 }
 
 .feature-item .el-icon {
   color: #10b981;
   font-size: 0.875rem;
-  flex-shrink: 0;
 }
 
 .more-features {
@@ -313,9 +252,8 @@ const handleClick = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
-  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
 }
 
 .tool-stats {
@@ -337,18 +275,6 @@ const handleClick = () => {
 
 .rating .el-icon {
   color: #f59e0b;
-}
-
-.tool-footer .el-button {
-  font-weight: 500;
-  border-radius: 10px;
-  padding: 8px 20px;
-  transition: all 0.3s;
-}
-
-.tool-card:hover .tool-footer .el-button {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* 响应式设计 */

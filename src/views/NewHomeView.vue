@@ -5,241 +5,98 @@
       <div class="container">
         <div class="hero-content">
           <h1 class="hero-title">
-            小红书增长专家
-            <span class="highlight">一站式运营平台</span>
+            你的 AI 小红书运营管家：
+            <span class="highlight">免费诊断 + 智能内容日历</span>，帮你系统涨粉
           </h1>
           <p class="hero-subtitle">
-            从数据分析到内容策略，从工具矩阵到社区交流<br>
-            助力你的小红书账号快速增长
+            上传主页截图 → 秒出12章涨粉指南 + 你的专属30天内容日历（免费预览前几天）
           </p>
           
           <div class="hero-actions">
             <CTAButton
-              text="立即开始"
+              text="立即免费诊断我的账号"
               size="large"
               @click="scrollToUpload"
             />
-            <button class="btn-secondary" @click="goToKnowledge">
-              了解更多
+            <button class="btn-secondary" @click="goToCalendar">
+              先生成我的内容日历试试
             </button>
           </div>
+
+          <p class="hero-trust">
+            完全免费起步 · 隐私不留存 · 基于顶级AI实时适配2026小红书算法
+          </p>
           
-          <StatsCounter class="hero-stats" />
         </div>
         
         <div class="hero-visual">
-          <div class="visual-card">
-            <div class="visual-placeholder">
-              <div class="visual-icon">📱</div>
-              <div class="visual-text">小红书增长专家</div>
-            </div>
-          </div>
+          <HeroCalendarMockup />
         </div>
       </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- 工具矩阵（用核心功能同款卡片形式展示） -->
     <section class="features-section">
-      <div class="container">
-        <h2 class="section-title">核心功能</h2>
-        <p class="section-subtitle">全方位助力你的小红书运营</p>
-        
-        <div class="features-grid">
-          <div
-            v-for="feature in features"
-            :key="feature.id"
-            class="feature-card"
-            @click="navigateTo(feature.link)"
-          >
-            <div class="feature-icon">{{ feature.icon }}</div>
-            <div class="feature-header">
-              <h3>{{ feature.title }}</h3>
-              <span v-if="feature.badge" class="feature-badge">{{ feature.badge }}</span>
-            </div>
-            <p>{{ feature.description }}</p>
-            <span class="feature-link">了解更多 →</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Cases Section -->
-    <section class="cases-section">
-      <div class="container">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">真实用户成功案例</h2>
-            <p class="section-subtitle">他们都通过我们的指南实现了涨粉目标</p>
-          </div>
-        </div>
-        
-        <div class="cases-list">
-          <div
-            v-for="(caseItem, index) in simpleCases"
-            :key="index"
-            class="case-item"
-          >
-            <div class="case-icon">{{ caseItem.icon }}</div>
-            <div class="case-content">
-              <div class="case-header">
-                <h3 class="case-title">{{ caseItem.title }}</h3>
-                <span class="case-category">{{ caseItem.category }}</span>
-              </div>
-              <div class="case-stats">
-                <span class="stat">使用前{{ caseItem.before }}粉丝</span>
-                <span class="stat-arrow">→</span>
-                <span class="stat highlight">{{ caseItem.after }}</span>
-              </div>
-              <p class="case-period">{{ caseItem.period }}</p>
-              <p class="case-quote">"{{ caseItem.quote }}"</p>
-              <div class="case-tags">
-                <span
-                  v-for="(tag, tagIndex) in caseItem.tags"
-                  :key="tagIndex"
-                  class="case-tag"
-                >
-                  ✓ {{ tag }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="cases-footer">
-          <div class="stats-summary">
-            <div class="summary-item">
-              <div class="summary-value">10,000+</div>
-              <div class="summary-label">累计使用次数</div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-value">85%</div>
-              <div class="summary-label">用户达成涨粉目标</div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-value">4.8/5.0</div>
-              <div class="summary-label">用户满意度评分</div>
-            </div>
-          </div>
-          
-          <div class="cta-box">
-            <h3>看完案例，是不是也想试试？</h3>
-            <p>上传截图，5分钟获取你的专属涨粉方案</p>
-            <CTAButton
-              text="开始生成我的指南"
-              size="large"
-              @click="scrollToUpload"
-            />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Tools Section -->
-    <section class="tools-section">
       <div class="container">
         <h2 class="section-title">工具矩阵</h2>
         <p class="section-subtitle">提升效率的实用工具</p>
         
-        <div class="tools-grid">
-          <ToolCard
-            v-for="tool in tools"
-            :key="tool.id"
-            :tool="tool"
-          />
+        <div class="features-grid features-highlight">
+          <div
+            v-for="item in homeTools"
+            :key="item.id"
+            class="feature-card"
+            :class="{ 'feature-emphasized': item.emphasized }"
+            @click="navigateTo(item.link)"
+          >
+            <div class="feature-icon" v-html="item.svg"></div>
+            <div class="feature-header">
+              <h3>{{ item.title }}</h3>
+              <span v-if="item.badge" class="feature-badge">{{ item.badge }}</span>
+            </div>
+            <p>{{ item.description }}</p>
+            <span class="feature-link">了解更多 →</span>
+          </div>
         </div>
-        
-        <div class="tools-cta">
-          <CTAButton
-            text="探索更多工具"
-            @click="goToTools"
-          />
-        </div>
-      </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="testimonials-section">
-      <div class="container">
-        <h2 class="section-title">用户评价</h2>
-        <p class="section-subtitle">来自真实用户的反馈</p>
-        
-        <TestimonialCarousel />
-      </div>
-    </section>
-
-    <!-- Trust Section -->
-    <section class="trust-section">
-      <div class="container">
-        <h2 class="section-title">为什么选择我们？</h2>
-        <div class="trust-grid">
-          <div class="trust-item">
-            <div class="trust-icon">🔒</div>
-            <h3>数据安全</h3>
-            <p>HTTPS加密传输，本地处理，不存储用户数据，100%保护隐私</p>
-          </div>
-          <div class="trust-item">
-            <div class="trust-icon">✅</div>
-            <h3>真实案例</h3>
-            <p>所有案例和数据均来自真实来源，标注清晰，可信可靠</p>
-          </div>
-          <div class="trust-item">
-            <div class="trust-icon">⚡</div>
-            <h3>即时生效</h3>
-            <p>支付成功后立即生效，无需等待，随时可用</p>
-          </div>
-          <div class="trust-item">
-            <div class="trust-icon">💬</div>
-            <h3>专业支持</h3>
-            <p>24小时内响应，工作日在线客服，专业解答疑问</p>
-          </div>
+        <div class="features-cta">
+          <CTAButton text="探索更多工具" @click="goToTools" />
         </div>
       </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta-section">
-      <div class="container">
-        <div class="cta-content">
-          <h2>准备好开始了吗？</h2>
-          <p>立即生成你的专属增长攻略</p>
-          <CTAButton
-            text="免费开始"
-            size="large"
-            @click="scrollToUpload"
-          />
-          <div class="cta-trust">
-            <span>🔒 数据安全</span>
-            <span>•</span>
-            <span>✅ 真实案例</span>
-            <span>•</span>
-            <span>⚡ 即时生效</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Upload Section -->
+    <!-- Upload Section（唯一上传入口，合并原底部 CTA 的转化意图） -->
     <section id="upload-section" class="upload-section">
       <div class="container">
-        <h2 class="section-title">上传截图，生成攻略</h2>
-        <p class="section-subtitle">3步即可获得专业的增长建议</p>
+        <h2 class="section-title">现在开始：上传截图，生成你的专属指南</h2>
+        <p class="section-subtitle">3 步即可获得 12 章涨粉指南 + 30 天内容日历</p>
         
         <div class="upload-card">
-          <!-- 这里可以嵌入原有的上传组件 -->
-          <router-link to="/upload" class="upload-link">
-            <div class="upload-placeholder">
-              <div class="upload-icon">📸</div>
-              <h3>点击上传小红书主页截图</h3>
-              <p>支持 PNG、JPG 格式，最多3张</p>
-            </div>
-          </router-link>
+          <UploadZone />
+        </div>
+
+        <div class="upload-subscribe">
+          <p class="subscribe-label">订阅每日涨粉 Tips + 日历提醒（免费）</p>
+          <div class="subscribe-form">
+            <input
+              v-model="subscribeEmail"
+              type="email"
+              placeholder="输入邮箱"
+              class="subscribe-input"
+            />
+            <input
+              v-model="subscribeWechat"
+              type="text"
+              placeholder="或微信号"
+              class="subscribe-input"
+            />
+            <button class="subscribe-btn" @click="handleSubscribe">
+              订阅
+            </button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Trust Signals -->
-    <TrustSignals />
-    
     <!-- Activity Banner -->
     <ActivityBanner />
   </div>
@@ -248,99 +105,100 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import axios from 'axios'
 import CTAButton from '@/components/conversion/CTAButton.vue'
-import StatsCounter from '@/components/StatsCounter.vue'
-import CaseCard from '@/components/cases/CaseCard.vue'
-import ToolCard from '@/components/tools/ToolCard.vue'
-import TestimonialCarousel from '@/components/conversion/TestimonialCarousel.vue'
-import TrustSignals from '@/components/conversion/TrustSignals.vue'
 import ActivityBanner from '@/components/conversion/ActivityBanner.vue'
+import UploadZone from '@/components/UploadZone.vue'
+import HeroCalendarMockup from '@/components/HeroCalendarMockup.vue'
 import { analyticsService } from '@/services/analyticsService'
 
 const router = useRouter()
 
+// 首页工具矩阵（与核心功能同款卡片形式：图标 + 标题 + 描述 + 了解更多）
+const homeTools = ref([
+  {
+    id: 'calendar',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
+    title: 'AI 内容日历',
+    description: '30 天内容规划，标题/大纲/标签/发布时间',
+    link: '/calendar',
+    badge: '新',
+    emphasized: true
+  },
+  {
+    id: '1',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`,
+    title: '标题生成器',
+    description: 'AI 智能生成吸引眼球的标题，多种风格实时预览',
+    link: '/tools/title-generator',
+    emphasized: false
+  },
+  {
+    id: '2',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
+    title: '话题分析工具',
+    description: '分析热门话题趋势，找到最适合的内容方向',
+    link: '/tools/topic-analyzer',
+    emphasized: false
+  },
+  {
+    id: '3',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`,
+    title: '竞品分析工具',
+    description: '深度分析竞品账号，学习优秀案例成功经验',
+    link: '/tools/competitor-analyzer',
+    emphasized: false
+  },
+  {
+    id: '4',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path></svg>`,
+    title: 'SEO 关键词工具',
+    description: '挖掘高价值关键词，优化内容搜索排名',
+    link: '/tools/keyword-tool',
+    emphasized: false
+  }
+])
+
+// 保留原 features 供其他区块使用
 const features = ref([
-  {
-    id: 1,
-    icon: '💎',
-    title: '涨粉秘籍',
-    description: '实战经验、独家技巧、深度解析（VIP专享）',
-    link: '/secrets',
-    badge: 'VIP'
-  },
-  {
-    id: 2,
-    icon: '📚',
-    title: '知识库',
-    description: '系统化的小红书运营知识，从入门到精通',
-    link: '/knowledge'
-  },
-  {
-    id: 3,
-    icon: '📈',
-    title: '案例库',
-    description: '真实账号增长案例，数据可视化展示',
-    link: '/cases'
-  },
-  {
-    id: 4,
-    icon: '📡',
-    title: '情报局',
-    description: '最新平台动态、政策变化、趋势分析',
-    link: '/intelligence'
-  },
-  {
-    id: 5,
-    icon: '🛠️',
-    title: '工具箱',
-    description: '标题生成、话题分析等实用工具',
-    link: '/tools'
-  },
-  {
-    id: 6,
-    icon: '💬',
-    title: '社区',
-    description: '与其他运营者交流经验，解决问题',
-    link: '/community'
-  }
+  { id: 1, svg: '', title: '涨粉秘籍', description: '实战经验、独家技巧', link: '/secrets', badge: 'VIP' },
+  { id: 2, svg: '', title: '知识库', description: '系统化运营知识', link: '/knowledge' },
+  { id: 3, svg: '', title: '案例库', description: '真实涨粉案例', link: '/cases' },
+  { id: 4, svg: '', title: '情报局', description: '平台动态与趋势', link: '/intelligence' },
+  { id: 5, svg: '', title: '工具箱', description: '标题生成等工具', link: '/tools' },
+  { id: 6, svg: '', title: '社区', description: '交流经验', link: '/community' }
 ])
 
-const featuredCases = ref([])
-const tools = ref([])
+const subscribeEmail = ref('')
+const subscribeWechat = ref('')
 
-// 简化的案例数据
-const simpleCases = ref([
-  {
-    icon: '💄',
-    title: '美妆博主 @小美',
-    category: '美妆护肤',
-    before: '50',
-    after: '→+2300%',
-    period: '30天后1,200粉丝',
-    quote: '按照指南的爆款公式，第一篇笔记就了热门！对标账号拆解框架特别实用，让我找到了清晰的方向。',
-    tags: ['自媒爆款✓', '30天破千粉✓', '接到品牌合作']
-  },
-  {
-    icon: '😊',
-    title: '穿搭博主 @时尚达人',
-    category: '穿搭时尚',
-    before: '120',
-    after: '→+650%',
-    period: '45天后900粉丝',
-    quote: '3天起号计划非常详细，每一步都有具体的操作指南。数据盘板帮我找到了内容优化方向。',
-    tags: ['笔记互动率提升3倍✓', '45天近千粉✓', '开始接广']
-  },
-  {
-    icon: '🍔',
-    title: '美食博主 @吃货小王',
-    category: '美食探店',
-    before: '0',
-    after: '→从0到1',
-    period: '60天后1,500粉丝',
-    quote: '完全零基础开始，指南给了我系统的方法论。冷启动技巧和每日固定动作让我养成了良好的运营习惯。',
-    tags: ['零基础起号✓', '60天破1500粉✓', '开始接广告']
+async function handleSubscribe() {
+  const email = subscribeEmail.value.trim()
+  const wechat = subscribeWechat.value.trim()
+  if (!email && !wechat) {
+    ElMessage.warning('请输入邮箱或微信号')
+    return
   }
-])
+  const base = import.meta.env.VITE_BACKEND_URL || ''
+  const apiUrl = base ? `${base.replace(/\/$/, '')}/api/subscribe` : '/api/subscribe'
+  try {
+    const { data } = await axios.post<{ success: boolean; message?: string }>(
+      apiUrl,
+      { email: email || undefined, wechat: wechat || undefined }
+    )
+    if (data.success) {
+      analyticsService.trackEvent?.('subscribe', { type: email ? 'email' : 'wechat' })
+      ElMessage.success('订阅成功！我们会尽快为您推送每日涨粉 Tips')
+      subscribeEmail.value = ''
+      subscribeWechat.value = ''
+    } else {
+      ElMessage.warning(data.message || '订阅失败')
+    }
+  } catch (err: any) {
+    ElMessage.error(err.response?.data?.message || '订阅失败，请稍后重试')
+  }
+}
 
 function scrollToUpload() {
   const element = document.getElementById('upload-section')
@@ -358,13 +216,17 @@ function goToKnowledge() {
   router.push('/knowledge')
 }
 
+function goToCalendar() {
+  router.push('/calendar')
+  analyticsService.trackCTAClick('hero-secondary', '先生成我的内容日历试试', 'hero-section')
+}
+
 function goToTools() {
   router.push('/tools')
 }
 
 onMounted(() => {
-  // 加载特色案例和工具
-  // TODO: 从API获取数据
+  // 首页数据为静态/本地，如需从 API 拉取可在此调用
 })
 </script>
 
@@ -375,188 +237,160 @@ onMounted(() => {
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 6rem 0 4rem;
+  background: #f8f9fa; /* Light gray background */
+  color: #333; /* Dark text color */
+  padding: 4rem 0;
+  text-align: center;
   position: relative;
   overflow: hidden;
 }
 
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-  opacity: 0.3;
+.hero-section .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
 }
 
-.hero-section .container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
-  position: relative;
-  z-index: 1;
+.hero-content {
+  max-width: 800px;
 }
 
 .hero-title {
-  font-size: 3.5rem;
-  font-weight: 700;
+  font-size: 3.2rem;
+  font-weight: 800;
   line-height: 1.2;
   margin-bottom: 1.5rem;
+  color: #111;
 }
 
 .hero-title .highlight {
-  display: block;
-  background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+  display: inline;
+  background: linear-gradient(120deg, #FF2442 0%, #FF5C77 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   line-height: 1.8;
   margin-bottom: 2.5rem;
-  opacity: 0.95;
+  color: #555;
 }
 
 .hero-actions {
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 1rem;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
-.btn-secondary {
+/* 主按钮与次按钮统一尺寸、圆角 */
+.hero-actions :deep(.el-button) {
+  min-height: 3.5rem;
   padding: 1rem 2rem;
-  border: 2px solid white;
-  background: transparent;
-  color: white;
-  border-radius: 8px;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-base, 8px);
+}
+
+.hero-trust {
+  font-size: 0.875rem;
+  color: #888;
+  margin: 0;
+}
+
+.hero-actions .btn-secondary {
+  min-height: 3.5rem;
+  padding: 1rem 2rem;
+  border: 2px solid #FF2442;
+  background: white;
+  color: #FF2442;
+  border-radius: var(--radius-base, 8px);
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 36, 66, 0.15);
 }
 
-.btn-secondary:hover {
-  background: white;
-  color: #667eea;
+.hero-actions .btn-secondary:hover {
+  background: #fff0f2;
+  color: #e61e3c;
+  border-color: #e61e3c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 36, 66, 0.25);
 }
 
 .hero-visual {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.visual-card {
   width: 100%;
-  max-width: 500px;
-  aspect-ratio: 1;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.visual-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.visual-icon {
-  font-size: 6rem;
-  animation: float 3s ease-in-out infinite;
-}
-
-.visual-text {
-  font-size: 1.5rem;
-  font-weight: 600;
-  opacity: 0.9;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
+  max-width: 400px;
+  margin-top: 2rem;
 }
 
 /* Features Section */
 .features-section {
-  padding: 6rem 0;
-  background: #f8f9fa;
+  padding: 3rem 0;
 }
 
-.section-title {
-  font-size: 2.5rem;
-  font-weight: 700;
+.features-section .section-title,
+.features-section .section-subtitle {
   text-align: center;
-  margin-bottom: 1rem;
-  color: #333;
 }
 
-.section-subtitle {
-  font-size: 1.1rem;
-  text-align: center;
-  color: #666;
-  margin-bottom: 3rem;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+.features-section .features-grid {
+  gap: 1rem;
 }
 
 .feature-card {
   background: white;
-  padding: 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  transition: all 0.2s ease;
   cursor: pointer;
+  border: 1px solid #eee;
 }
 
 .feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  border-color: #FF2442;
+}
+
+.feature-card.feature-emphasized {
+  border: 2px solid #FF2442;
+  background: linear-gradient(135deg, #fff9f9 0%, #fff 100%);
+}
+
+.features-highlight {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
 .feature-icon {
-  font-size: 3rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #FF2442;
+}
+.feature-icon :deep(svg) {
+  width: 28px;
+  height: 28px;
+  stroke: #FF2442;
 }
 
 .feature-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .feature-card h3 {
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 600;
   margin: 0;
   color: #333;
@@ -564,10 +398,10 @@ onMounted(() => {
 
 .feature-badge {
   display: inline-block;
-  padding: 0.25rem 0.5rem;
+  padding: 0.2rem 0.4rem;
   background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
   color: #333;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
   border-radius: 4px;
   text-transform: uppercase;
@@ -575,176 +409,26 @@ onMounted(() => {
 
 .feature-card p {
   color: #666;
-  line-height: 1.6;
-  margin-bottom: 1rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
 }
 
 .feature-link {
-  color: #667eea;
+  color: #FF2442;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
 }
 
-/* Cases Section */
-.cases-section {
-  padding: 6rem 0;
-  background: #f8f9fa;
-}
-
-.section-header {
+.features-cta {
   text-align: center;
-  margin-bottom: 4rem;
-}
-
-.cases-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin-bottom: 4rem;
-}
-
-.case-item {
-  display: flex;
-  gap: 2rem;
-  background: white;
-  padding: 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-}
-
-.case-item:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-}
-
-.case-icon {
-  font-size: 3rem;
-  flex-shrink: 0;
-  width: 80px;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-  border-radius: 12px;
-}
-
-.case-content {
-  flex: 1;
-}
-
-.case-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.case-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.case-category {
-  padding: 0.25rem 0.75rem;
-  background: #667eea;
-  color: white;
-  font-size: 0.875rem;
-  border-radius: 20px;
-}
-
-.case-stats {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-}
-
-.stat {
-  color: #666;
-}
-
-.stat-arrow {
-  color: #667eea;
-  font-weight: bold;
-}
-
-.stat.highlight {
-  color: #667eea;
-  font-weight: 700;
-  font-size: 1.25rem;
-}
-
-.case-period {
-  color: #888;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
-}
-
-.case-quote {
-  color: #555;
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-  font-style: italic;
-  padding-left: 1rem;
-  border-left: 3px solid #667eea;
-}
-
-.case-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.case-tag {
-  padding: 0.4rem 0.75rem;
-  background: #f0f4ff;
-  color: #667eea;
-  font-size: 0.875rem;
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-.cases-footer {
-  margin-top: 4rem;
-}
-
-.stats-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin-bottom: 3rem;
-  padding: 2.5rem;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.summary-item {
-  text-align: center;
-}
-
-.summary-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #667eea;
-  margin-bottom: 0.5rem;
-}
-
-.summary-label {
-  font-size: 0.95rem;
-  color: #666;
+  margin-top: 1.5rem;
 }
 
 .cta-box {
   text-align: center;
   padding: 3rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FF2442 0%, #FF5C77 100%);
   border-radius: 16px;
   color: white;
 }
@@ -761,46 +445,55 @@ onMounted(() => {
   opacity: 0.95;
 }
 
-/* Tools Section */
-.tools-section {
-  padding: 6rem 0;
-  background: #f8f9fa;
-}
-
-.tools-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-.tools-cta {
+/* 上传区下方订阅（原 CTA Section 订阅合并至此） */
+.upload-subscribe {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e8e8e8;
   text-align: center;
 }
 
-/* Testimonials Section */
-.testimonials-section {
-  padding: 6rem 0;
+.subscribe-label {
+  font-size: 0.95rem;
+  margin-bottom: 1rem !important;
+  color: #666;
 }
 
-/* CTA Section */
-.cta-section {
-  padding: 6rem 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.subscribe-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.subscribe-input {
+  padding: 0.6rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  font-size: 0.95rem;
+  width: 160px;
+}
+
+.subscribe-input::placeholder {
+  color: #999;
+}
+
+.subscribe-btn {
+  padding: 0.6rem 1.5rem;
+  background: #FF2442;
   color: white;
-  text-align: center;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.cta-content h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.cta-content p {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  opacity: 0.95;
+.subscribe-btn:hover {
+  background: #e01f3c;
+  transform: scale(1.02);
 }
 
 /* Upload Section */
@@ -808,108 +501,18 @@ onMounted(() => {
   padding: 6rem 0;
 }
 
+.upload-section .container {
+  text-align: center;
+}
+
+.upload-section .section-title,
+.upload-section .section-subtitle {
+  text-align: center;
+}
+
 .upload-card {
   max-width: 800px;
   margin: 0 auto;
-}
-
-.upload-link {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-}
-
-.upload-placeholder {
-  background: white;
-  border: 3px dashed #667eea;
-  border-radius: 16px;
-  padding: 4rem 2rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.upload-placeholder:hover {
-  border-color: #764ba2;
-  background: #f8f9fa;
-}
-
-.upload-icon {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-}
-
-.upload-placeholder h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #333;
-}
-
-  .upload-placeholder p {
-    color: #666;
-  }
-}
-
-/* Trust Section */
-.trust-section {
-  padding: 6rem 0;
-  background: #f9fafb;
-}
-
-.trust-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 32px;
-  margin-top: 3rem;
-}
-
-.trust-item {
-  background: white;
-  padding: 2rem;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.trust-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.trust-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.trust-item h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.75rem 0;
-}
-
-.trust-item p {
-  font-size: 0.9375rem;
-  color: #6b7280;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.cta-trust {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.cta-trust span {
-  display: flex;
-  align-items: center;
 }
 
 /* Container */
@@ -938,47 +541,19 @@ onMounted(() => {
     display: none;
   }
 
-  .features-grid {
-    grid-template-columns: 1fr;
+  .features-grid,
+  .features-highlight {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .tools-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .feature-card {
+    padding: 1rem;
   }
 
   .section-title {
     font-size: 1.75rem;
   }
 
-  .section-header {
-    margin-bottom: 2rem;
-  }
-
-  .case-item {
-    flex-direction: column;
-    padding: 1.5rem;
-    gap: 1rem;
-  }
-
-  .case-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 2rem;
-  }
-
-  .case-title {
-    font-size: 1.1rem;
-  }
-
-  .case-stats {
-    flex-wrap: wrap;
-  }
-
-  .stats-summary {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
-  }
 
   .summary-value {
     font-size: 2rem;

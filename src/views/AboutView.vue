@@ -120,16 +120,12 @@
         </p>
       </div>
     </div>
-    
-    <AppFooter />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
-import AppFooter from '@/components/AppFooter.vue'
-
 const currentYear = computed(() => new Date().getFullYear())
 </script>
 
@@ -235,7 +231,7 @@ const currentYear = computed(() => new Date().getFullYear())
 }
 
 .advantage-list li strong {
-  color: #409EFF;
+  color: #FF2442;
 }
 
 .audience-grid {

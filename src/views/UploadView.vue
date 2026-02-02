@@ -34,7 +34,7 @@
         
         <!-- 上传提示 -->
         <div v-else class="upload-prompt">
-          <el-icon :size="60" color="#409EFF">
+          <el-icon :size="60" color="#FF2442">
             <Upload />
           </el-icon>
           <p class="prompt-text">拖拽图片到此处，或点击选择文件</p>
@@ -243,12 +243,12 @@ h2 {
 }
 
 .upload-area:hover {
-  border-color: #409EFF;
+  border-color: #FF2442;
   background: #f0f9ff;
 }
 
 .upload-area.is-dragging {
-  border-color: #409EFF;
+  border-color: #FF2442;
   background: #e6f7ff;
   transform: scale(1.02);
 }
@@ -332,7 +332,7 @@ h2 {
   padding: 12px;
   background: #f0f9ff;
   border-radius: 8px;
-  color: #409EFF;
+  color: #FF2442;
   font-size: 0.9rem;
 }
 

@@ -79,17 +79,64 @@ export async function generateSection(
 // Mock data generation function removed - we now only use real AI-generated content
 
 /**
- * 从内容中提取表格
+ * 从内容中提取 Markdown 表格
+ * 支持 | col1 | col2 | 与 |---|---| 分隔行
  */
-function extractTables(content: string): any[] {
-  // TODO: 实现表格提取逻辑
-  return []
+function extractTables(content: string): { headers: string[]; rows: string[][] }[] {
+  const tables: { headers: string[]; rows: string[][] }[] = []
+  const lines = content.split(/\r?\n/)
+  let i = 0
+  while (i < lines.length) {
+    const headerLine = lines[i]
+    const pipeCount = (headerLine.match(/\|/g) || []).length
+    if (pipeCount >= 2 && headerLine.trim().startsWith('|')) {
+      const headers = headerLine
+        .split('|')
+        .map((c) => c.trim())
+        .filter(Boolean)
+      i++
+      if (i < lines.length && /^\s*\|[\s\-:]+\|/.test(lines[i])) {
+        i++ // 跳过分隔行 |---|---|
+      }
+      const rows: string[][] = []
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        const cells = lines[i]
+          .split('|')
+          .map((c) => c.trim())
+          .filter((_, idx) => idx > 0 && idx < lines[i].split('|').length - 1)
+        if (cells.length >= 1) rows.push(cells)
+        i++
+      }
+      if (headers.length > 0) tables.push({ headers, rows })
+      continue
+    }
+    i++
+  }
+  return tables
 }
 
 /**
- * 从内容中提取清单
+ * 从内容中提取清单（Markdown 任务列表）
+ * 支持 - [ ] / - [x] 或 * [ ] / * [x]
  */
-function extractChecklists(content: string): any[] {
-  // TODO: 实现清单提取逻辑
-  return []
+function extractChecklists(content: string): { text: string; checked: boolean }[][] {
+  const checklists: { text: string; checked: boolean }[][] = []
+  const lines = content.split(/\r?\n/)
+  let current: { text: string; checked: boolean }[] = []
+  const checkboxRe = /^(\s*[-*])\s*\[([ xX])\]\s*(.*)$/
+  for (const line of lines) {
+    const m = line.match(checkboxRe)
+    if (m) {
+      const checked = m[2].toLowerCase() === 'x'
+      const text = m[3].trim()
+      current.push({ text, checked })
+    } else {
+      if (current.length > 0) {
+        checklists.push(current)
+        current = []
+      }
+    }
+  }
+  if (current.length > 0) checklists.push(current)
+  return checklists
 }

@@ -1,131 +1,70 @@
 <template>
   <div class="analysis-view">
     <div class="analysis-container">
-      <h2>账号信息确认</h2>
+      <h2>账号数据分析</h2>
       
       <!-- 分析进度 -->
       <div v-if="isAnalyzing" class="analyzing-section">
-        <el-icon class="rotating" :size="48" color="#667eea">
-          <Loading />
-        </el-icon>
-        <p class="analyzing-text">AI 正在分析您的账号数据...</p>
-        <el-progress :percentage="analysisProgress" :stroke-width="6" color="#667eea" />
+        <AnalysisStatus :progress="analysisProgress" />
       </div>
       
       <!-- 分析结果 -->
       <div v-else-if="accountData" class="result-section">
-        <el-alert
-          title="✅ 分析完成！请确认以下信息"
-          type="success"
-          :closable="false"
-          class="success-alert"
-        />
+        <div class="result-header">
+          <img :src="uploadedImageUrl" alt="用户头像" class="user-avatar" />
+          <h3>请核对 AI 分析结果</h3>
+          <p>确认信息无误后，即可生成专属您的增长指南</p>
+        </div>
+
+        <div class="data-cards">
+          <div class="data-card">
+            <div class="card-label">账号名称</div>
+            <div class="card-value">
+              <el-input v-if="isEditing" v-model="formData.username" size="large" />
+              <span v-else>{{ formData.username }}</span>
+            </div>
+          </div>
+          <div class="data-card">
+            <div class="card-label">当前粉丝数</div>
+            <div class="card-value">
+              <el-input-number v-if="isEditing" v-model="formData.followerCount" size="large" :min="0" />
+              <span v-else>{{ formData.followerCount }}</span>
+            </div>
+          </div>
+          <div class="data-card">
+            <div class="card-label">发布笔记数</div>
+            <div class="card-value">
+              <el-input-number v-if="isEditing" v-model="formData.postCount" size="large" :min="0" />
+              <span v-else>{{ formData.postCount }}</span>
+            </div>
+          </div>
+          <div class="data-card">
+            <div class="card-label">内容类别</div>
+            <div class="card-value">
+              <el-select v-if="isEditing" v-model="formData.contentCategory" placeholder="请选择" size="large">
+                <el-option label="美妆" value="美妆" />
+                <el-option label="穿搭" value="穿搭" />
+                <el-option label="美食" value="美食" />
+                <el-option label="旅行" value="旅行" />
+                <el-option label="知识分享" value="知识分享" />
+                <el-option label="生活方式" value="生活方式" />
+                <el-option label="健身" value="健身" />
+                <el-option label="摄影" value="摄影" />
+                <el-option label="其他" value="其他" />
+              </el-select>
+              <span v-else>{{ formData.contentCategory }}</span>
+            </div>
+          </div>
+        </div>
         
-        <el-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          label-width="100px"
-          label-position="left"
-          class="data-form"
-        >
-          <el-form-item label="账号名称" prop="username">
-            <el-input
-              v-model="formData.username"
-              placeholder="请输入账号名称"
-            />
-          </el-form-item>
-          
-          <el-form-item label="当前粉丝数" prop="followerCount">
-            <el-input-number
-              v-model="formData.followerCount"
-              :min="0"
-              :max="10000000"
-              :controls="true"
-              style="width: 100%"
-            />
-          </el-form-item>
-          
-          <el-form-item label="笔记数" prop="postCount">
-            <el-input-number
-              v-model="formData.postCount"
-              :min="0"
-              :max="10000"
-              :controls="true"
-              style="width: 100%"
-            />
-          </el-form-item>
-          
-          <el-form-item label="内容类别" prop="contentCategory">
-            <el-select
-              v-model="formData.contentCategory"
-              placeholder="选择内容类别"
-              style="width: 100%"
-            >
-              <el-option label="美妆护肤" value="美妆" />
-              <el-option label="穿搭时尚" value="穿搭" />
-              <el-option label="美食探店" value="美食" />
-              <el-option label="旅行攻略" value="旅行" />
-              <el-option label="知识分享" value="知识分享" />
-              <el-option label="生活方式" value="生活方式" />
-              <el-option label="健身运动" value="健身" />
-              <el-option label="摄影" value="摄影" />
-              <el-option label="母婴育儿" value="母婴" />
-              <el-option label="家居装修" value="家居" />
-              <el-option label="数码科技" value="数码" />
-              <el-option label="职场成长" value="职场" />
-              <el-option label="其他" value="其他" />
-            </el-select>
-          </el-form-item>
-          
-          <!-- 补充信息（可选） -->
-          <el-divider>
-            <span class="divider-text">📝 补充信息（可选）</span>
-          </el-divider>
-          
-          <el-form-item label="内容描述">
-            <el-input
-              v-model="formData.contentDirection"
-              type="textarea"
-              :rows="2"
-              placeholder="例如：专注职场穿搭，面向25-35岁职场女性"
-            />
-          </el-form-item>
-          
-          <el-form-item label="热门标题">
-            <el-input
-              v-model="formData.exampleTitles"
-              type="textarea"
-              :rows="3"
-              placeholder="粘贴您的热门笔记标题（每行一个），帮助AI分析内容风格"
-            />
-          </el-form-item>
-        </el-form>
-        
-        <!-- 验证错误 -->
-        <el-alert
-          v-if="validationErrors.length > 0"
-          title="请修正以下错误"
-          type="error"
-          :closable="false"
-          class="error-alert"
-        >
-          <ul>
-            <li v-for="(error, index) in validationErrors" :key="index">{{ error }}</li>
-          </ul>
-        </el-alert>
-        
-        <!-- 操作按钮 - 简化布局 -->
         <div class="action-buttons">
-          <el-button
-            type="primary"
-            size="large"
-            :loading="isValidating"
-            @click="handleConfirm"
-          >
-            确认并生成指南
-          </el-button>
-          <el-button size="large" @click="goBack">返回修改</el-button>
+          <button class="btn-secondary" @click="goBack">返回</button>
+          <button v-if="!isEditing" class="btn-secondary" @click="isEditing = true">修改信息</button>
+          <button v-if="isEditing" class="btn-secondary" @click="cancelEdit">取消修改</button>
+          <button class="btn-primary" :disabled="isValidating" @click="handleConfirm">
+            <span v-if="isValidating">正在生成...</span>
+            <span v-else>确认并生成指南</span>
+          </button>
         </div>
       </div>
       
@@ -263,7 +202,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Loading, Edit, Refresh, Back } from '@element-plus/icons-vue'
+import { Loading, Edit, Refresh, Back } from '@element-plus/icons-vue';
+import AnalysisStatus from '@/components/AnalysisStatus.vue';
 import type { FormInstance, FormRules } from 'element-plus'
 import type { AccountData } from '@/types'
 
@@ -288,9 +228,7 @@ const formData = reactive({
   username: '',
   followerCount: 0,
   postCount: 0,
-  contentCategory: '',
-  contentDirection: '',
-  exampleTitles: ''
+  contentCategory: ''
 })
 
 const manualFormData = reactive({
@@ -330,7 +268,7 @@ onMounted(async () => {
     
     const hasPermission = await checkGeneratePermission()
     if (!hasPermission) {
-      await router.push('/login?redirect=/upload')
+      await router.push('/login?redirect=/')
       return
     }
     
@@ -473,7 +411,7 @@ const analyzeImage = async (imageDataUrl: string) => {
   }
 }
 
-// 返回首页
+// 返回
 const goBack = () => {
   router.push('/')
 }
@@ -561,195 +499,207 @@ const handleRetry = async () => {
 <style scoped>
 .analysis-view {
   min-height: 100vh;
-  padding: 80px 20px 40px;
-  background: var(--bg-secondary, #f8fafc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 .analysis-container {
-  max-width: 640px;
+  max-width: 800px;
   width: 100%;
-  margin: 0 auto;
-  background: var(--bg-primary, white);
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid var(--border-light, #e5e7eb);
-}
-
-h2 {
-  font-size: 1.5rem;
-  color: var(--text-primary, #1f2937);
-  margin: 0 0 24px 0;
-  text-align: center;
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .analyzing-section {
-  text-align: center;
-  padding: 48px 20px;
+  padding: 40px 0;
 }
 
-.rotating {
-  animation: rotate 2s linear infinite;
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.analyzing-text {
-  font-size: 1rem;
-  color: var(--text-secondary, #6b7280);
-  margin: 20px 0;
-}
-
+/* Result Section */
 .result-section {
-  margin-top: 20px;
+  text-align: center;
 }
 
-.success-alert {
-  margin-bottom: 20px;
-  border-radius: 8px;
+.result-header {
+  margin-bottom: 30px;
 }
 
-.data-form {
-  margin: 20px 0;
+.user-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  border: 3px solid white;
 }
 
-.data-form :deep(.el-form-item__label) {
-  font-weight: 500;
-  color: var(--text-primary, #374151);
+.result-header h3 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
 }
 
-.data-form :deep(.el-input__wrapper),
-.data-form :deep(.el-select .el-input__wrapper) {
-  border-radius: 8px;
+.result-header p {
+  font-size: 1rem;
+  color: #666;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
-.divider-text {
-  font-size: 0.8rem;
-  color: var(--text-tertiary, #9ca3af);
+.data-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
-.data-form :deep(.el-divider) {
-  margin: 20px 0;
+.data-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.data-form :deep(.el-textarea__inner) {
-  border-radius: 8px;
+.card-label {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 10px;
 }
 
-.error-alert {
-  margin: 16px 0;
-  border-radius: 8px;
+.card-value span {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
 }
 
-.error-alert ul {
-  margin: 8px 0 0 16px;
-  padding: 0;
+.card-value .el-input,
+.card-value .el-input-number,
+.card-value .el-select {
+  width: 100%;
 }
 
-.error-alert li {
-  margin: 4px 0;
-}
-
-/* 按钮区域 - 统一布局 */
+/* Action Buttons */
 .action-buttons {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 24px;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
-.action-buttons .el-button {
-  width: 100%;
-  height: 44px;
+.btn-primary, .btn-secondary {
+  padding: 12px 28px;
   border-radius: 8px;
-  font-weight: 500;
-}
-
-.action-buttons .el-button--primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
   border: none;
 }
 
-.action-buttons .el-button--primary:hover {
-  opacity: 0.9;
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
 }
 
-.action-buttons .el-button--default {
-  background: var(--bg-secondary, #f3f4f6);
-  border: 1px solid var(--border-light, #e5e7eb);
-  color: var(--text-secondary, #6b7280);
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
 }
 
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn-secondary {
+  background: #f1f1f1;
+  color: #555;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+  background: #e9e9e9;
+  border-color: #ccc;
+}
+
+
+/* Error Section */
 .error-section {
-  padding: 32px 16px;
+  padding: 40px 0;
 }
 
 .error-actions {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   gap: 12px;
-  margin-bottom: 24px;
-}
-
-.error-actions .el-button {
-  width: 100%;
-  height: 44px;
-  border-radius: 8px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 
 .error-tips {
-  max-width: 100%;
-  margin: 0;
+  max-width: 600px;
+  margin: 0 auto;
   text-align: left;
-  background: var(--bg-secondary, #f9fafb);
-  padding: 20px;
+  background: #f9fafb;
+  padding: 24px;
   border-radius: 12px;
-  border-left: 3px solid #667eea;
+  border-left: 4px solid #667eea;
 }
 
 .error-tips h4 {
   margin: 0 0 12px 0;
-  color: var(--text-primary, #1f2937);
-  font-size: 0.9rem;
+  color: #1f2937;
+  font-size: 1rem;
 }
 
 .error-tips ul {
   margin: 0;
-  padding-left: 16px;
+  padding-left: 20px;
 }
 
 .error-tips li {
-  margin: 6px 0;
-  color: var(--text-secondary, #6b7280);
-  line-height: 1.5;
-  font-size: 0.875rem;
+  margin: 8px 0;
+  color: #6b7280;
+  line-height: 1.6;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
-  .analysis-view {
-    padding: 70px 16px 24px;
-  }
-  
   .analysis-container {
     padding: 20px;
-    border-radius: 12px;
+    margin: 20px;
   }
   
-  h2 {
-    font-size: 1.25rem;
-    margin-bottom: 16px;
+  .data-cards {
+    grid-template-columns: 1fr;
   }
   
-  .analyzing-section {
-    padding: 32px 16px;
+  .action-buttons {
+    flex-direction: column;
   }
   
-  .data-form :deep(.el-form-item__label) {
-    font-size: 0.875rem;
+  .action-buttons button {
+    width: 100%;
+  }
+
+  .result-header h3 {
+    font-size: 1.5rem;
+  }
+
+  .result-header p {
+    font-size: 0.9rem;
   }
 }
 </style>

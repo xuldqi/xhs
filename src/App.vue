@@ -8,6 +8,7 @@
           <component :is="Component" :key="route.path" />
         </PageTransition>
       </router-view>
+      <AppFooter />
     </div>
   </ErrorBoundary>
 </template>
@@ -16,6 +17,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
+import AppFooter from '@/components/AppFooter.vue'
 import ErrorBoundary from '@/components/ErrorBoundary.vue'
 import PageTransition from '@/components/PageTransition.vue'
 import PageLoader from '@/components/PageLoader.vue'

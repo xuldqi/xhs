@@ -86,6 +86,7 @@ const loadUsageLogs = async () => {
 const getActionTypeName = (type: string) => {
   const names: Record<string, string> = {
     generate_guide: '生成指南',
+    generate_calendar: '生成日历',
     export_html: '导出HTML',
     view_history: '查看历史',
     title_generator: '标题生成器',
@@ -101,6 +102,7 @@ const getActionTypeName = (type: string) => {
 const getActionTypeTag = (type: string) => {
   const tags: Record<string, string> = {
     generate_guide: 'success',
+    generate_calendar: 'success',
     export_html: 'warning',
     view_history: 'info',
     title_generator: 'primary',
@@ -116,6 +118,7 @@ const getActionTypeTag = (type: string) => {
 const formatMetadata = (metadata: any) => {
   if (!metadata) return '-'
   if (metadata.account_name) return `账号: ${metadata.account_name}`
+  if (metadata.days_count) return `${metadata.days_count} 天日历`
   return JSON.stringify(metadata)
 }
 

@@ -27,10 +27,12 @@ if (!envLoaded) {
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 import { aiRouter } from './routes/ai'
+import { calendarRouter } from './routes/calendar'
 import paymentRouter from './routes/payment'
 import paymentTestRouter from './routes/payment-test'
 import paymentSimpleRouter from './routes/payment-simple'
 import healthRouter from './routes/health'
+import subscribeRouter from './routes/subscribe'
 import { errorHandler } from './middleware/errorHandler'
 import { requestLogger } from './middleware/logger'
 import { ConfigurationValidator } from './services/configValidator'
@@ -43,7 +45,7 @@ app.use(express.json({ limit: process.env.MAX_REQUEST_SIZE || '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: process.env.MAX_REQUEST_SIZE || '10mb' }))
 
 // CORS 配置
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173']
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5178', 'http://localhost:5179']
 app.use(cors({
   origin: (origin, callback) => {
     // 允许没有 origin 的请求（如 Postman）
@@ -68,8 +70,10 @@ app.use(requestLogger)
 // API 路由
 app.use('/api/health', healthRouter) // 健康检查路由
 app.use('/api/ai', aiRouter)
+app.use('/api/calendar', calendarRouter)
 app.use('/api/payment', paymentRouter)
 app.use('/api/payment-test', paymentTestRouter) // 测试接口，不依赖数据库
+app.use('/api/subscribe', subscribeRouter)
 
 // 404 处理
 app.use((req: Request, res: Response) => {

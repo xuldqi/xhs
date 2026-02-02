@@ -181,7 +181,7 @@ const generateHTMLContent = (): string => {
     /* 卡片样式 */
     .content-block {
       background: #f8f9fa;
-      border-left: 4px solid #409EFF;
+      border-left: 4px solid #FF2442;
       border-radius: 8px;
       padding: 20px 24px;
       margin: 16px 0;

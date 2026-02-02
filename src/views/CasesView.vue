@@ -107,6 +107,7 @@ const totalCount = ref(0)
 
 // 计算属性
 const breadcrumbItems = computed(() => [
+  { label: '首页', path: '/' },
   { label: '案例库', path: '/cases' }
 ])
 
@@ -130,10 +131,12 @@ const loadCases = async () => {
     }
     
     if (followersFilter.value) {
-      const [min, max] = followersFilter.value.split('-')
-      filter.followersMin = parseInt(min)
-      if (max !== '+') {
-        filter.followersMax = parseInt(max)
+      const parts = followersFilter.value.split('-')
+      const minVal = parseInt(parts[0], 10)
+      if (!Number.isNaN(minVal)) filter.followersMin = minVal
+      if (parts[1] && parts[1] !== '+') {
+        const maxVal = parseInt(parts[1], 10)
+        if (!Number.isNaN(maxVal)) filter.followersMax = maxVal
       }
     }
     
@@ -183,7 +186,7 @@ const handlePageChange = () => {
 
 const handleCaseClick = (caseStudy: CaseStudy) => {
   // 增加浏览量
-  contentService.incrementViewCount('case-studies', caseStudy.id)
+  contentService.incrementViewCount('case_studies', caseStudy.id)
   
   // 追踪点击
   analytics.track('case_click', {
@@ -215,10 +218,9 @@ onMounted(() => {
 }
 
 .cases-header {
-  background: #ffffff;
-  color: #1a1a1a;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
   padding: 32px 0 48px;
-  border-bottom: 1px solid #e5e7eb;
 }
 
 .container {
@@ -236,12 +238,11 @@ onMounted(() => {
   font-size: 3rem;
   font-weight: 700;
   margin: 0 0 16px 0;
-  color: #1a1a1a;
 }
 
 .page-description {
   font-size: 1.125rem;
-  color: #6b7280;
+  opacity: 0.9;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;

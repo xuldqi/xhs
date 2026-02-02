@@ -1,652 +1,383 @@
-import type { 
-  AIAnalysisRequest, 
-  AIGenerationRequest, 
-  AIResponse, 
-  AccountData 
-} from '@/types'
-import { API_CONFIG, PERFORMANCE_CONFIG, ERROR_MESSAGES } from '@/types'
-import { ApiRetryHandler, ApiResult } from '@/utils/apiRetryHandler'
-import { GEMINI_MODELS, DEEPSEEK_MODELS } from '@/types/modelConstants'
+/**
+ * AI Service - 统一的 AI API 调用服务
+ * Supports OpenAI and Gemini
+ */
 
-class AIService {
-  private useProxy: boolean
-  private proxyUrl: string
-  private apiKey: string
-  private baseUrl: string
-  private provider: 'openai' | 'deepseek' | 'gemini'
-  private healthCheckCache: { configured: boolean; timestamp: number } | null = null
-  private readonly HEALTH_CHECK_CACHE_TTL = 60000 // 1分钟缓存
-  
-  constructor() {
-    // 优先使用代理模式（生产环境）
-    this.useProxy = import.meta.env.VITE_USE_PROXY !== 'false'
-    this.proxyUrl = import.meta.env.VITE_PROXY_URL || '/api/ai'
-    
-    // 开发模式可以直接使用 API Key
-    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || ''
-    this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.openai.com'
-    
-    // 根据 baseUrl 判断使用哪个提供商
-    if (this.baseUrl.includes('deepseek')) {
-      this.provider = 'deepseek'
-    } else if (this.baseUrl.includes('generativelanguage.googleapis.com')) {
-      this.provider = 'gemini'
-    } else {
-      this.provider = 'openai'
-    }
-  }
-
-  /**
-   * 检查后端健康状态
-   */
-  async checkHealth(): Promise<{ configured: boolean; services: any; message?: string }> {
-    // 如果不使用代理，直接返回前端配置状态
-    if (!this.useProxy) {
-      return {
-        configured: !!this.apiKey,
-        services: {},
-        message: this.apiKey ? 'Using direct API mode' : 'API key not configured'
-      }
-    }
-
-    try {
-      const response = await fetch(`${this.proxyUrl}/health`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (!response.ok) {
-        console.error('❌ Health check failed:', response.statusText)
-        return {
-          configured: false,
-          services: {},
-          message: 'Backend health check failed'
-        }
-      }
-
-      const data = await response.json()
-      console.log('✅ Health check:', data)
-      return data
-    } catch (error) {
-      console.error('❌ Health check error:', error)
-      return {
-        configured: false,
-        services: {},
-        message: 'Cannot connect to backend'
-      }
-    }
-  }
-  
-  /**
-   * 分析图片，提取账号信息
-   */
-  async analyzeImage(request: AIAnalysisRequest): Promise<AIResponse<AccountData>> {
-    // 使用代理模式
-    if (this.useProxy) {
-      // 通过后端代理调用，使用现有的重试机制
-      return this.retryRequest(async () => {
-        try {
-          const response = await fetch(this.proxyUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              type: 'analyze',
-              data: {
-                prompt: request.prompt,
-                image: request.image
-              }
-            })
-          })
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}))
-            throw new Error(errorData.message || `代理请求失败: ${response.statusText}`)
-          }
-          
-          const data = await response.json()
-          let content = data.choices[0]?.message?.content
-          
-          if (!content) {
-            throw new Error('AI 返回内容为空')
-          }
-          
-          // 清理 Markdown 代码块标记
-          content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-          
-          const accountData = JSON.parse(content) as AccountData
-          
-          return {
-            success: true,
-            data: accountData,
-            tokensUsed: data.usage?.total_tokens || 0
-          }
-        } catch (error) {
-          return {
-            success: false,
-            data: {} as AccountData,
-            error: error instanceof Error ? error.message : ERROR_MESSAGES.ANALYSIS_FAILED,
-            tokensUsed: 0
-          }
-        }
-      })
-    }
-    
-    // 直接调用模式（开发环境）
-    // 使用新的API重试处理器处理原生API和代理API之间的切换
-    if (this.provider === 'gemini') {
-      // 对于Gemini，我们需要实现原生API和代理API的切换
-      const nativeCall = async (): Promise<ApiResult<AccountData>> => {
-        try {
-          const result = await this.analyzeImageGemini(request);
-          if (result.success) {
-            return { success: true, data: result.data };
-          } else {
-            return { success: false, error: result.error };
-          }
-        } catch (error) {
-          return { success: false, error: error instanceof Error ? error.message : '未知错误' };
-        }
-      };
-      
-      // 创建代理API调用函数（如果需要的话）
-      const proxyCall = async (): Promise<ApiResult<AccountData>> => {
-        // 这里可以实现通过代理API调用的逻辑
-        // 暂时返回失败，因为直接调用模式下没有代理API
-        return { success: false, error: '直接调用模式下不支持代理API' };
-      };
-      
-      const apiResult = await ApiRetryHandler.executeWithFallback(nativeCall, proxyCall);
-      
-      return {
-        success: apiResult.success,
-        data: apiResult.data || {} as AccountData,
-        error: apiResult.error,
-        tokensUsed: 0
-      };
-    }
-    
-    // 对于其他提供商，使用现有的重试机制
-    return this.retryRequest(async () => {
-      try {
-        const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.apiKey}`
-          },
-          body: JSON.stringify({
-            model: this.getVisionModel(),
-            messages: [
-              {
-                role: 'user',
-                content: [
-                  {
-                    type: 'text',
-                    text: request.prompt
-                  },
-                  {
-                    type: 'image_url',
-                    image_url: {
-                      url: `data:image/jpeg;base64,${request.image}`
-                    }
-                  }
-                ]
-              }
-            ],
-            max_tokens: API_CONFIG.MAX_TOKENS,
-            temperature: API_CONFIG.TEMPERATURE
-          })
-        })
-        
-        if (!response.ok) {
-          throw new Error(`API 请求失败: ${response.statusText}`)
-        }
-        
-        const data = await response.json()
-        const content = data.choices[0]?.message?.content
-        
-        if (!content) {
-          throw new Error('AI 返回内容为空')
-        }
-        
-        // 解析 JSON 响应
-        const accountData = JSON.parse(content) as AccountData
-        
-        return {
-          success: true,
-          data: accountData,
-          tokensUsed: data.usage?.total_tokens || 0
-        }
-      } catch (error) {
-        return {
-          success: false,
-          data: {} as AccountData,
-          error: error instanceof Error ? error.message : ERROR_MESSAGES.ANALYSIS_FAILED,
-          tokensUsed: 0
-        }
-      }
-    });
-  }
-  
-  /**
-   * 生成指南内容
-   */
-  async generateContent(request: AIGenerationRequest): Promise<AIResponse<string>> {
-    return this.retryRequest(async () => {
-      try {
-        console.log(`🤖 [章节 ${request.sectionId}] 开始生成...`)
-        console.log(`📡 使用模式: ${this.useProxy ? '代理模式' : '直连模式'}`)
-        
-        const systemPrompt = '你是一位小红书运营专家，精通平台算法和用户心理。'
-        const userPrompt = this.buildPrompt(request)
-        
-        // 使用代理模式
-        if (this.useProxy) {
-          const response = await fetch(this.proxyUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              type: 'generate',
-              data: {
-                systemPrompt,
-                userPrompt
-              }
-            })
-          })
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}))
-            throw new Error(errorData.message || `代理请求失败: ${response.statusText}`)
-          }
-          
-          const data = await response.json()
-          const content = data.choices[0]?.message?.content
-          
-          if (!content) {
-            throw new Error('AI 返回内容为空')
-          }
-          
-          console.log(`✅ [章节 ${request.sectionId}] 生成成功，长度: ${content.length}`)
-          
-          return {
-            success: true,
-            data: content,
-            tokensUsed: data.usage?.total_tokens || 0
-          }
-        }
-        
-        // 直接调用模式（开发环境）
-        console.log(`🔗 API 地址: ${this.baseUrl}`)
-        
-        if (this.provider === 'gemini') {
-          return await this.generateContentGemini(request)
-        }
-        
-        // 构建请求体 - DeepSeek 兼容格式
-        const messages: any[] = []
-        
-        // DeepSeek 支持 system role
-        if (this.provider === 'deepseek') {
-          messages.push({
-            role: 'system',
-            content: systemPrompt
-          })
-          messages.push({
-            role: 'user',
-            content: userPrompt
-          })
-        } else {
-          messages.push({
-            role: 'user',
-            content: `${systemPrompt}\n\n${userPrompt}`
-          })
-        }
-        
-        const requestBody: any = {
-          model: this.getTextModel(),
-          messages: messages,
-          temperature: API_CONFIG.TEMPERATURE,
-          max_tokens: 2000
-        }
-        
-        console.log(`📤 请求体:`, JSON.stringify(requestBody).substring(0, 200) + '...')
-        
-        const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.apiKey}`
-          },
-          body: JSON.stringify(requestBody)
-        })
-        
-        console.log(`📥 响应状态: ${response.status} ${response.statusText}`)
-        
-        if (!response.ok) {
-          let errorText = ''
-          let errorJson: any = null
-          
-          try {
-            errorText = await response.text()
-            errorJson = JSON.parse(errorText)
-            console.error(`❌ API 错误响应 (JSON):`, errorJson)
-          } catch {
-            console.error(`❌ API 错误响应 (Text):`, errorText)
-          }
-          
-          const errorMessage = errorJson?.error?.message || errorJson?.message || errorText || response.statusText
-          throw new Error(`API 请求失败 (${response.status}): ${errorMessage}`)
-        }
-        
-        const data = await response.json()
-        const content = data.choices[0]?.message?.content
-        
-        if (!content) {
-          console.error(`❌ AI 返回内容为空`, data)
-          throw new Error('AI 返回内容为空')
-        }
-        
-        console.log(`✅ [章节 ${request.sectionId}] 生成成功，长度: ${content.length}`)
-        
-        return {
-          success: true,
-          data: content,
-          tokensUsed: data.usage?.total_tokens || 0
-        }
-      } catch (error) {
-        console.error(`❌ [章节 ${request.sectionId}] 生成失败:`, error)
-        return {
-          success: false,
-          data: '',
-          error: error instanceof Error ? error.message : ERROR_MESSAGES.GENERATION_FAILED,
-          tokensUsed: 0
-        }
-      }
-    })
-  }
-  
-  /**
-   * 构建生成提示词
-   */
-  private buildPrompt(request: AIGenerationRequest): string {
-    const { accountData, template, context } = request
-    
-    let prompt = template
-    
-    // 基础数据替换
-    prompt = prompt.replace(/\{username\}/g, accountData.username || '未知账号')
-    prompt = prompt.replace(/\{followerCount\}/g, (accountData.followerCount || 0).toString())
-    prompt = prompt.replace(/\{followingCount\}/g, (accountData.followingCount || 0).toString())
-    prompt = prompt.replace(/\{likesCount\}/g, (accountData.likesCount || 0).toString())
-    prompt = prompt.replace(/\{postCount\}/g, (accountData.postCount || 0).toString())
-    prompt = prompt.replace(/\{contentCategory\}/g, accountData.contentCategory || '综合')
-    prompt = prompt.replace(/\{contentStyle\}/g, accountData.contentStyle || '日常分享型')
-    prompt = prompt.replace(/\{bio\}/g, accountData.bio || '暂无简介')
-    prompt = prompt.replace(/\{accountLevel\}/g, accountData.accountLevel || '新手')
-    prompt = prompt.replace(/\{updateFrequency\}/g, accountData.updateFrequency || '不固定')
-    
-    // 计算派生指标
-    const avgLikes = accountData.avgLikes || 
-      (accountData.likesCount && accountData.postCount 
-        ? Math.round(accountData.likesCount / accountData.postCount) 
-        : 0)
-    const postsPerFollower = accountData.postsPerFollower ||
-      (accountData.postCount && accountData.followerCount
-        ? (accountData.postCount / accountData.followerCount).toFixed(2)
-        : '0')
-    
-    prompt = prompt.replace(/\{avgLikes\}/g, avgLikes.toString())
-    prompt = prompt.replace(/\{postsPerFollower\}/g, postsPerFollower.toString())
-    
-    // 补充信息替换
-    if (accountData.contentDirection) {
-      prompt = prompt.replace(/\{contentDirection\}/g, accountData.contentDirection)
-    }
-    if (accountData.exampleTitles) {
-      prompt = prompt.replace(/\{exampleTitles\}/g, accountData.exampleTitles)
-    }
-    
-    if (context) {
-      prompt += `\n\n额外上下文：${context}`
-    }
-    
-    return prompt
-  }
-  
-  /**
-   * 重试机制
-   */
-  private async retryRequest<T>(
-    fn: () => Promise<AIResponse<T>>,
-    maxAttempts = PERFORMANCE_CONFIG.RETRY_MAX_ATTEMPTS
-  ): Promise<AIResponse<T>> {
-    let lastError: AIResponse<T> | null = null
-    
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const result = await fn()
-      
-      if (result.success) {
-        return result
-      }
-      
-      lastError = result
-      
-      // 如果不是最后一次尝试，等待后重试
-      if (attempt < maxAttempts) {
-        await this.delay(PERFORMANCE_CONFIG.RETRY_DELAY * attempt)
-      }
-    }
-    
-    return lastError || {
-      success: false,
-      data: {} as T,
-      error: ERROR_MESSAGES.AI_SERVICE_ERROR,
-      tokensUsed: 0
-    }
-  }
-  
-  /**
-   * 延迟函数
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }
-  
-  /**
-   * Gemini 图像分析
-   */
-  private async analyzeImageGemini(request: AIAnalysisRequest): Promise<AIResponse<AccountData>> {
-    // 如果是直接调用Gemini API，使用URL参数传递API Key
-    // 如果是通过代理调用，使用Authorization头部
-    const isDirectGeminiCall = this.baseUrl.includes('generativelanguage.googleapis.com');
-    const url = isDirectGeminiCall 
-      ? `${this.baseUrl}/v1beta/models/${GEMINI_MODELS.FLASH_VISION}:generateContent?key=${this.apiKey}`
-      : `${this.baseUrl}/v1beta/models/${GEMINI_MODELS.FLASH_VISION}:generateContent`;
-    
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    };
-    
-    // 只有在通过代理调用时才使用Authorization头部
-    if (!isDirectGeminiCall) {
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
-    }
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: request.prompt },
-            {
-              inline_data: {
-                mime_type: 'image/jpeg',
-                data: request.image
-              }
-            }
-          ]
-        }]
-      })
-    })
-    
-    if (!response.ok) {
-      throw new Error(`Gemini API 请求失败: ${response.statusText}`)
-    }
-    
-    const data = await response.json()
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text
-    
-    if (!content) {
-      throw new Error('Gemini 返回内容为空')
-    }
-    
-    const accountData = JSON.parse(content) as AccountData
-    
-    return {
-      success: true,
-      data: accountData,
-      tokensUsed: data.usageMetadata?.totalTokenCount || 0
-    }
-  }
-  
-  /**
-   * Gemini 内容生成
-   */
-  private async generateContentGemini(request: AIGenerationRequest): Promise<AIResponse<string>> {
-    const prompt = '你是一位小红书运营专家，精通平台算法和用户心理。\n\n' + this.buildPrompt(request)
-    
-    // 如果是直接调用Gemini API，使用URL参数传递API Key
-    // 如果是通过代理调用，使用Authorization头部
-    const isDirectGeminiCall = this.baseUrl.includes('generativelanguage.googleapis.com');
-    const url = isDirectGeminiCall 
-      ? `${this.baseUrl}/v1beta/models/${GEMINI_MODELS.FLASH_TEXT}:generateContent?key=${this.apiKey}`
-      : `${this.baseUrl}/v1beta/models/${GEMINI_MODELS.FLASH_TEXT}:generateContent`;
-    
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    };
-    
-    // 只有在通过代理调用时才使用Authorization头部
-    if (!isDirectGeminiCall) {
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
-    }
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: prompt }]
-        }],
-        generationConfig: {
-          temperature: API_CONFIG.TEMPERATURE,
-          maxOutputTokens: API_CONFIG.MAX_TOKENS
-        }
-      })
-    })
-    
-    if (!response.ok) {
-      throw new Error(`Gemini API 请求失败: ${response.statusText}`)
-    }
-    
-    const data = await response.json()
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text
-    
-    if (!content) {
-      throw new Error('Gemini 返回内容为空')
-    }
-    
-    return {
-      success: true,
-      data: content,
-      tokensUsed: data.usageMetadata?.totalTokenCount || 0
-    }
-  }
-  
-  /**
-   * 获取视觉模型名称
-   */
-  private getVisionModel(): string {
-    if (this.provider === 'deepseek') {
-      return DEEPSEEK_MODELS.VISION
-    } else if (this.provider === 'gemini') {
-      return GEMINI_MODELS.FLASH_VISION
-    }
-    return API_CONFIG.OPENAI_MODEL
-  }
-  
-  /**
-   * 获取文本模型名称
-   */
-  private getTextModel(): string {
-    if (this.provider === 'deepseek') {
-      return DEEPSEEK_MODELS.CHAT
-    } else if (this.provider === 'gemini') {
-      return GEMINI_MODELS.FLASH_TEXT
-    }
-    return API_CONFIG.OPENAI_TEXT_MODEL
-  }
-  
-  /**
-   * 检查 API 是否可用（同步方法，用于快速检查）
-   * 代理模式下使用缓存的健康检查结果
-   * 直接调用模式下检查前端API Key
-   */
-  isConfigured(): boolean {
-    // 直接调用模式下，检查前端 API Key
-    if (!this.useProxy) {
-      return !!this.apiKey && this.apiKey !== ''
-    }
-    
-    // 代理模式下，使用缓存的健康检查结果
-    if (this.healthCheckCache) {
-      const now = Date.now()
-      if (now - this.healthCheckCache.timestamp < this.HEALTH_CHECK_CACHE_TTL) {
-        return this.healthCheckCache.configured
-      }
-    }
-    
-    // 如果没有缓存，异步执行健康检查并返回 true（乐观假设）
-    this.checkHealth().then(result => {
-      this.healthCheckCache = {
-        configured: result.configured,
-        timestamp: Date.now()
-      }
-    })
-    
-    return true // 代理模式下默认返回 true
-  }
-
-  /**
-   * 异步检查 API 是否可用（推荐使用）
-   */
-  async isConfiguredAsync(): Promise<boolean> {
-    if (!this.useProxy) {
-      return !!this.apiKey && this.apiKey !== ''
-    }
-    
-    const health = await this.checkHealth()
-    this.healthCheckCache = {
-      configured: health.configured,
-      timestamp: Date.now()
-    }
-    return health.configured
-  }
-  
-  /**
-   * 获取当前使用的提供商
-   */
-  getProvider(): string {
-    return this.provider
-  }
+export interface AIServiceConfig {
+    apiKey: string;
+    baseURL?: string;
+    model?: string;
+    provider?: 'openai' | 'gemini';
 }
 
-// 导出单例
-export const aiService = new AIService()
+export interface AICompletionOptions {
+    temperature?: number;
+    maxTokens?: number;
+    responseFormat?: 'text' | 'json';
+}
+
+export class AIService {
+    private config: Required<AIServiceConfig>;
+    private cache: Map<string, { data: string; timestamp: number }>;
+    private readonly CACHE_TTL = 3600000; // 1小时缓存
+
+    constructor(config: AIServiceConfig) {
+        this.config = {
+            apiKey: config.apiKey,
+            baseURL: config.baseURL || 'https://api.openai.com/v1',
+            model: config.model || 'gpt-4o-mini',
+            provider: config.provider || 'openai',
+        };
+        this.cache = new Map();
+    }
+
+    /**
+     * 生成文本补全
+     */
+    async generateCompletion(
+        prompt: string,
+        options: AICompletionOptions = {}
+    ): Promise<string> {
+        const cacheKey = this.getCacheKey(prompt, options);
+
+        // 检查缓存
+        const cached = this.getFromCache(cacheKey);
+        if (cached) {
+            console.log('🎯 Cache hit for prompt');
+            return cached;
+        }
+
+        try {
+            const response = await this.callAPI(prompt, options);
+
+            // 存入缓存
+            this.cache.set(cacheKey, {
+                data: response,
+                timestamp: Date.now(),
+            });
+
+            return response;
+        } catch (error) {
+            console.error('AI Service Error:', error);
+            throw new Error(`AI 生成失败: ${error instanceof Error ? error.message : '未知错误'}`);
+        }
+    }
+
+    /**
+     * 生成 JSON 格式响应
+     */
+    async generateJSON<T = any>(
+        prompt: string,
+        options: AICompletionOptions = {}
+    ): Promise<T> {
+        const response = await this.generateCompletion(prompt, {
+            ...options,
+            responseFormat: 'json',
+        });
+
+        try {
+            // 尝试提取 JSON（有时 AI 会返回额外说明）
+            const jsonMatch = response.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+                return JSON.parse(jsonMatch[0]);
+            }
+            return JSON.parse(response);
+        } catch (error) {
+            console.error('JSON Parse Error:', error);
+            console.error('Raw response:', response);
+            throw new Error('AI 返回的不是有效的 JSON 格式');
+        }
+    }
+
+    /**
+     * 调用 OpenAI API
+     */
+    private async callOpenAI(
+        prompt: string,
+        options: AICompletionOptions
+    ): Promise<string> {
+        const response = await fetch(`${this.config.baseURL}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${this.config.apiKey}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: this.config.model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt,
+                    },
+                ],
+                temperature: options.temperature ?? 0.9,
+                max_tokens: options.maxTokens ?? 2000,
+                ...(options.responseFormat === 'json' && {
+                    response_format: { type: 'json_object' },
+                }),
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(
+                `OpenAI API 错误 (${response.status}): ${error.error?.message || response.statusText}`
+            );
+        }
+
+        const data = await response.json();
+        return data.choices[0]?.message?.content || '';
+    }
+
+    /**
+     * 调用 Gemini API
+     */
+    private async callGemini(
+        prompt: string,
+        options: AICompletionOptions
+    ): Promise<string> {
+        const endpoint = `${this.config.baseURL}/v1beta/models/${this.config.model}:generateContent`;
+
+        const response = await fetch(`${endpoint}?key=${this.config.apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        parts: [{ text: prompt }],
+                    },
+                ],
+                generationConfig: {
+                    temperature: options.temperature ?? 0.9,
+                    maxOutputTokens: options.maxTokens ?? 2000,
+                    ...(options.responseFormat === 'json' && {
+                        responseMimeType: 'application/json',
+                    }),
+                },
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(
+                `Gemini API 错误 (${response.status}): ${error.error?.message || response.statusText}`
+            );
+        }
+
+        const data = await response.json();
+        return data.candidates[0]?.content?.parts[0]?.text || '';
+    }
+
+    /**
+     * 统一 API 调用入口
+     */
+    private async callAPI(
+        prompt: string,
+        options: AICompletionOptions
+    ): Promise<string> {
+        if (this.config.provider === 'gemini') {
+            return this.callGemini(prompt, options);
+        }
+        return this.callOpenAI(prompt, options);
+    }
+
+    /**
+     * 获取缓存键
+     */
+    private getCacheKey(prompt: string, options: AICompletionOptions): string {
+        return `${prompt}_${JSON.stringify(options)}`;
+    }
+
+    /**
+     * 从缓存获取
+     */
+    private getFromCache(key: string): string | null {
+        const cached = this.cache.get(key);
+        if (!cached) return null;
+
+        // 检查是否过期
+        if (Date.now() - cached.timestamp > this.CACHE_TTL) {
+            this.cache.delete(key);
+            return null;
+        }
+
+        return cached.data;
+    }
+
+    /**
+     * 清除缓存
+     */
+    clearCache(): void {
+        this.cache.clear();
+    }
+
+    /**
+     * 清除过期缓存
+     */
+    clearExpiredCache(): void {
+        const now = Date.now();
+        for (const [key, value] of this.cache.entries()) {
+            if (now - value.timestamp > this.CACHE_TTL) {
+                this.cache.delete(key);
+            }
+        }
+    }
+}
+
+/**
+ * 创建 AI Service 实例的工厂函数
+ */
+export function createAIService(config: AIServiceConfig): AIService {
+    return new AIService(config);
+}
+
+/**
+ * 默认配置 - OpenAI
+ */
+export function createOpenAIService(apiKey: string): AIService {
+    return new AIService({
+        apiKey,
+        provider: 'openai',
+        model: 'gpt-4o-mini',
+        baseURL: 'https://api.openai.com/v1',
+    });
+}
+
+/**
+ * 默认配置 - Gemini
+ */
+export function createGeminiService(apiKey: string): AIService {
+    return new AIService({
+        apiKey,
+        provider: 'gemini',
+        model: 'gemini-1.5-flash',
+        baseURL: 'https://generativelanguage.googleapis.com',
+    });
+}
+
+// ============ 后端 API 客户端（供 AnalysisView、guideGenerator 使用） ============
+const API_BASE = import.meta.env.VITE_BACKEND_URL || ''
+
+async function apiPost(path: string, body: any) {
+    const res = await fetch(`${API_BASE}/api/ai${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    })
+    return res.json()
+}
+
+async function apiGet(path: string) {
+    const res = await fetch(`${API_BASE}/api/ai${path}`)
+    return res.json()
+}
+
+export const aiService = {
+    isConfigured(): boolean {
+        return !!API_BASE
+    },
+    async isConfiguredAsync(): Promise<boolean> {
+        try {
+            const data = await apiGet('/health')
+            return data?.configured === true
+        } catch {
+            return false
+        }
+    },
+    async analyzeImage(params: { image: string; prompt: string }) {
+        return apiPost('/analyze', { image: params.image, prompt: params.prompt })
+    },
+    async generateContent(params: { accountData: any; sectionId: number; template: string; context: string }) {
+        const { accountData, sectionId, template, context } = params
+        const systemPrompt = `你是小红书运营专家。根据账号数据生成涨粉指南章节。
+账号：${accountData?.username || '未知'}，粉丝：${accountData?.followers ?? 0}，笔记数：${accountData?.notes ?? 0}，类别：${accountData?.category || '未分类'}
+严格遵守格式规范，使用 emoji + 列表格式，不要用 Markdown 标题或加粗。`
+        const userPrompt = `章节 ${sectionId}：\n${template}\n\n上下文：${context || '无'}`
+        return apiPost('/generate', { systemPrompt, userPrompt })
+    },
+    async generateKeywords(topic: string, subNiche?: string) {
+        const systemPrompt = `你是小红书 SEO 专家。根据用户提供的内容领域，输出适合小红书搜索优化的关键词。
+必须严格返回 JSON 格式，不要包含任何其他文字：
+{
+  "coreKeywords": ["核心词1", "核心词2", "核心词3", "核心词4", "核心词5"],
+  "longTailKeywords": ["长尾词1", "长尾词2", "长尾词3", "长尾词4", "长尾词5"],
+  "relatedKeywords": ["相关词1", "相关词2", "相关词3"],
+  "usageTips": "50-100字的使用建议，说明如何在标题、正文、话题标签中布局这些关键词"
+}
+coreKeywords: 用户最可能搜索的主关键词，3-5个。
+longTailKeywords: 更具体的长尾词，竞争小、转化高，如「平价学生党护肤推荐」。
+relatedKeywords: 拓展相关词，可用于话题标签。
+usageTips: 简短实用的布局建议。`
+        const userPrompt = subNiche
+            ? `领域：${topic}，细分方向：${subNiche}\n请输出适合该细分领域的关键词 JSON。`
+            : `领域：${topic}\n请输出适合该领域的关键词 JSON。`
+        return apiPost('/generate', { systemPrompt, userPrompt })
+    },
+    async generateTitles(params: { topic: string; keywords?: string; style: string; count: number }) {
+        const styleNames: Record<string, string> = {
+            catchy: '吸睛型（夸张、惊叹、吸引点击）',
+            professional: '专业型（术语、权威感）',
+            emotional: '情感型（共鸣、走心）',
+            question: '疑问型（引发好奇）',
+            numeric: '数字型（具体数字、可信）'
+        }
+        const styleDesc = styleNames[params.style] || '吸睛型'
+        const systemPrompt = `你是小红书标题专家。根据用户的内容主题和风格，生成指定数量的小红书笔记标题。
+必须严格返回 JSON 数组，不要包含任何其他文字，格式如下：
+[
+  { "text": "标题文案1", "score": 85 },
+  { "text": "标题文案2", "score": 90 }
+]
+要求：每个标题 15-25 字，包含 emoji，符合小红书风格；score 为 70-95 的吸引力评分。`
+        const userPrompt = `主题：${params.topic}
+${params.keywords ? `关键词（可融入标题）：${params.keywords}` : ''}
+风格：${styleDesc}
+生成数量：${params.count} 个标题。请直接输出 JSON 数组。`
+        return apiPost('/generate', { systemPrompt, userPrompt })
+    },
+    async analyzeTopics(domain: string, timeRange?: string) {
+        const systemPrompt = `你是小红书运营专家。根据用户提供的内容领域，输出近期热门话题趋势分析。
+必须严格返回 JSON 格式，不要包含任何其他文字：
+{
+  "hotTopics": [
+    { "topic": "话题名称", "trend": "上升/稳定", "reason": "20字内说明" },
+    ...
+  ],
+  "contentSuggestions": ["内容建议1", "内容建议2", "内容建议3"],
+  "avoidTopics": ["避免的话题1", "避免的话题2"],
+  "summary": "50-80字总结，给用户明确的方向建议"
+}
+hotTopics: 3-5个近期热门话题，trend为上升/稳定。
+contentSuggestions: 3-4个可执行的内容选题建议。
+avoidTopics: 1-2个应避免的话题或方向。
+summary: 简明扼要的总结建议。`
+        const userPrompt = timeRange
+            ? `领域：${domain}，关注时段：${timeRange}\n请输出话题趋势分析 JSON。`
+            : `领域：${domain}\n请输出近期热门话题趋势分析 JSON。`
+        return apiPost('/generate', { systemPrompt, userPrompt })
+    },
+    async analyzeCompetitor(competitorDesc: string, yourPositioning?: string) {
+        const systemPrompt = `你是小红书运营专家。根据用户提供的竞品账号描述，输出竞品分析报告。
+必须严格返回 JSON 格式，不要包含任何其他文字：
+{
+  "strengths": ["优势1", "优势2", "优势3"],
+  "weaknesses": ["劣势1", "劣势2"],
+  "contentStrategy": "50-80字描述其内容策略",
+  "differentiation": ["差异化机会1", "差异化机会2", "差异化机会3"],
+  "actionItems": ["建议行动1", "建议行动2", "建议行动3"],
+  "summary": "50-80字总结，给用户明确的竞品学习与差异化建议"
+}
+strengths: 竞品的3-4个优势。
+weaknesses: 竞品的2-3个可借鉴的短板。
+contentStrategy: 其内容策略简述。
+differentiation: 用户可采取的3个差异化方向。
+actionItems: 3-4个可执行的行动建议。
+summary: 简明扼要的总结。`
+        const userPrompt = yourPositioning
+            ? `竞品描述：${competitorDesc}\n我的账号定位：${yourPositioning}\n请输出竞品分析 JSON。`
+            : `竞品描述：${competitorDesc}\n请输出竞品分析 JSON。`
+        return apiPost('/generate', { systemPrompt, userPrompt })
+    },
+}

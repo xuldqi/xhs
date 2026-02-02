@@ -247,7 +247,7 @@ const loadCase = async () => {
   
   try {
     const caseId = route.params.id as string
-    caseStudy.value = await contentService.getContentById<CaseStudy>('case-studies', caseId)
+    caseStudy.value = await contentService.getContentById<CaseStudy>('case_studies', caseId)
     likeCount.value = caseStudy.value.likeCount
     
     // 追踪案例浏览
@@ -268,7 +268,7 @@ const handleLike = async () => {
   if (!caseStudy.value) return
   
   try {
-    const result = await contentService.toggleLike('case-studies', caseStudy.value.id)
+    const result = await contentService.toggleLike('case_studies', caseStudy.value.id)
     isLiked.value = result.liked
     likeCount.value = result.count
     

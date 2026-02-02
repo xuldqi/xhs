@@ -322,7 +322,7 @@ defineExpose({
 }
 
 .history-card:hover {
-  border-color: #409EFF;
+  border-color: #FF2442;
   box-shadow: 0 4px 16px rgba(64, 158, 255, 0.15);
   transform: translateY(-4px);
 }

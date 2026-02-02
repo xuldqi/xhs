@@ -47,7 +47,7 @@ export interface Subscription {
 export interface UsageLog {
   id: string
   user_id: string
-  action_type: 'generate_guide' | 'export_html' | 'view_history'
+  action_type: 'generate_guide' | 'export_html' | 'view_history' | 'generate_calendar'
   metadata: any
   created_at: string
 }

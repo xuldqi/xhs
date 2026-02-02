@@ -37,14 +37,14 @@
 
 /* 主按钮 */
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+  background: linear-gradient(135deg, #FF2442 0%, #FF5C77 100%);
   color: var(--text-inverse);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 36, 66, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 16px rgba(255, 36, 66, 0.4);
 }
 
 .btn-primary:active:not(:disabled) {

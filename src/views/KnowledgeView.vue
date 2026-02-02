@@ -163,6 +163,7 @@ const recommendedArticles = ref<Article[]>([])
 
 // 计算属性
 const breadcrumbItems = computed(() => [
+  { label: '首页', path: '/' },
   { label: '知识库', path: '/knowledge' }
 ])
 
@@ -185,7 +186,7 @@ const loadArticles = async () => {
       category: activeCategory.value === 'all' ? undefined : activeCategory.value,
       difficulty: difficultyFilter.value || undefined,
       tags: selectedTags.value.length > 0 ? selectedTags.value : undefined,
-      search: searchQuery.value || undefined,
+      query: searchQuery.value || undefined,
       sortBy: sortBy.value,
       sortOrder: 'desc' as const,
       page: currentPage.value,
@@ -298,14 +299,14 @@ onMounted(() => {
 <style scoped>
 .knowledge-view {
   min-height: 100vh;
-  background: var(--bg-primary);
+  background: #f8f9fa;
 }
 
 .knowledge-header {
-  background: #ffffff;
-  color: #1a1a1a;
-  padding: 32px 0 48px;
-  border-bottom: 1px solid #e5e7eb;
+  background: white;
+  color: #333;
+  padding: 32px 0 24px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .container {
@@ -316,19 +317,19 @@ onMounted(() => {
 
 .header-content {
   text-align: center;
-  margin: 32px 0;
+  margin: 24px 0;
 }
 
 .page-title {
-  font-size: 3rem;
-  font-weight: 700;
+  font-size: 2.8rem;
+  font-weight: 800;
   margin: 0 0 16px 0;
-  color: #1a1a1a;
+  color: #111;
 }
 
 .page-description {
-  font-size: 1.125rem;
-  color: #6b7280;
+  font-size: 1.1rem;
+  color: #555;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -337,6 +338,10 @@ onMounted(() => {
 .search-filter-section {
   max-width: 800px;
   margin: 0 auto;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
 }
 
 .search-box {
@@ -352,17 +357,20 @@ onMounted(() => {
 }
 
 .filter-tabs :deep(.el-tabs__nav-wrap::after) {
-  display: none;
+  background-color: #f0f0f0;
 }
 
 .filter-tabs :deep(.el-tabs__item) {
-  color: #6b7280;
-  border-bottom: 2px solid transparent;
+  color: #555;
+  font-weight: 500;
 }
 
 .filter-tabs :deep(.el-tabs__item.is-active) {
-  color: #1a1a1a;
-  border-bottom-color: #667eea;
+  color: #FF2442;
+}
+
+.filter-tabs :deep(.el-tabs__active-bar) {
+  background-color: #FF2442;
 }
 
 .filter-controls {
@@ -392,7 +400,7 @@ onMounted(() => {
   border-radius: var(--radius-lg);
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .sidebar-section h3 {
@@ -400,21 +408,35 @@ onMounted(() => {
   font-weight: 600;
   margin: 0 0 16px 0;
   color: var(--text-primary);
+  border-left: 3px solid #FF2442;
+  padding-left: 12px;
 }
 
 .tag-cloud {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .tag-item {
   cursor: pointer;
   transition: all var(--transition-fast);
+  background-color: #fff;
+  border-color: #e0e0e0;
+  color: #555;
 }
 
 .tag-item:hover {
   transform: translateY(-1px);
+  border-color: #FF2442;
+  color: #FF2442;
+  background-color: #ffebee;
+}
+
+.tag-item.el-tag--primary {
+  background-color: #FF2442;
+  border-color: #FF2442;
+  color: white;
 }
 
 .recommended-list {
@@ -431,7 +453,7 @@ onMounted(() => {
 }
 
 .recommended-item:hover {
-  background: var(--bg-secondary);
+  background: #f5f5f5;
 }
 
 .recommended-item h4 {
@@ -460,7 +482,7 @@ onMounted(() => {
 
 .articles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 24px;
   margin-bottom: 48px;
 }
@@ -475,12 +497,13 @@ onMounted(() => {
 @media (max-width: 1024px) {
   .content-grid {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 0;
   }
   
   .sidebar {
     position: static;
     order: 2;
+    margin-top: 32px;
   }
   
   .main-content {

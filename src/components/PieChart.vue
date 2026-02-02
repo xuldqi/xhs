@@ -47,7 +47,7 @@ const props = withDefaults(defineProps<Props>(), {
   size: 200
 })
 
-const colors = ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399']
+const colors = ['#FF2442', '#67C23A', '#E6A23C', '#F56C6C', '#909399']
 
 const segments = computed(() => {
   let offset = 0

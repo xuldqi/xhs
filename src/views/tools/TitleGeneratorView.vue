@@ -4,28 +4,10 @@
       <Breadcrumb :items="breadcrumbItems" />
       
       <div class="tool-header">
-        <div class="header-content">
-          <div>
-            <h1 class="tool-title">标题生成器</h1>
-            <p class="tool-description">
-              基于 AI 的智能标题生成工具，帮助你创作吸引眼球的小红书标题
-            </p>
-          </div>
-          <div class="usage-info" v-if="userStore.isLoggedIn">
-            <el-tag :type="userStore.isVIP ? 'success' : 'info'" effect="plain">
-              {{ getRemainingUsageTip('title-generator') }}
-            </el-tag>
-            <el-button 
-              v-if="!userStore.isVIP" 
-              type="primary" 
-              size="small" 
-              link
-              @click="showUpgradeTip('title-generator')"
-            >
-              升级无限使用
-            </el-button>
-          </div>
-        </div>
+        <h1 class="tool-title">标题生成器</h1>
+        <p class="tool-description">
+          基于 AI 的智能标题生成工具，帮助你创作吸引眼球的小红书标题
+        </p>
       </div>
 
       <div class="tool-content">
@@ -36,15 +18,9 @@
               <template #header>
                 <div class="card-header">
                   <span>输入内容信息</span>
-                  <div class="header-actions">
-                    <el-button type="info" size="small" @click="fillExample">
-                      <el-icon><DocumentAdd /></el-icon>
-                      快速填充示例
-                    </el-button>
-                    <el-button type="primary" size="small" @click="showExamples = true">
-                      查看示例
-                    </el-button>
-                  </div>
+                  <el-button type="primary" size="small" @click="showExamples = true">
+                    查看示例
+                  </el-button>
                 </div>
               </template>
               
@@ -100,24 +76,15 @@
               <template #header>
                 <div class="card-header">
                   <span>生成结果</span>
-                  <div class="header-actions" v-if="titles.length > 0">
-                    <el-button
-                      type="success"
-                      size="small"
-                      @click="copyAllTitles"
-                    >
-                      <el-icon><CopyDocument /></el-icon>
-                      复制全部
-                    </el-button>
-                    <el-button
-                      type="primary"
-                      size="small"
-                      @click="exportTitles"
-                    >
-                      <el-icon><Download /></el-icon>
-                      导出为文本
-                    </el-button>
-                  </div>
+                  <el-button
+                    v-if="titles.length > 0"
+                    type="success"
+                    size="small"
+                    @click="copyAllTitles"
+                  >
+                    <el-icon><CopyDocument /></el-icon>
+                    复制全部
+                  </el-button>
                 </div>
               </template>
               
@@ -158,24 +125,6 @@
               </div>
             </el-card>
           </div>
-        </div>
-
-        <!-- 安全提示 -->
-        <div class="security-notice">
-          <el-alert
-            title="数据安全保证"
-            type="info"
-            :closable="false"
-            show-icon
-          >
-            <template #default>
-              <p style="margin: 0; font-size: 14px;">
-                🔒 所有数据在本地处理，不会上传到服务器<br>
-                🔒 生成的内容仅保存在您的浏览器中<br>
-                🔒 我们不会收集或存储您的任何个人信息
-              </p>
-            </template>
-          </el-alert>
         </div>
 
         <!-- 使用说明 -->
@@ -250,12 +199,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { MagicStick, CopyDocument, Star, DocumentAdd, Download } from '@element-plus/icons-vue'
+import { MagicStick, CopyDocument, Star } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { analytics } from '@/utils/analytics'
+import { aiService } from '@/services/aiService'
 import Breadcrumb from '@/components/Breadcrumb.vue'
-import { useToolLimit } from '@/composables/useToolLimit'
-import { useUserStore } from '@/stores/userStore'
 
 interface TitleResult {
   text: string
@@ -275,9 +223,6 @@ const generating = ref(false)
 const titles = ref<TitleResult[]>([])
 const showExamples = ref(false)
 
-const { canUseTool, getRemainingUsageTip, showUpgradeTip } = useToolLimit()
-const userStore = useUserStore()
-
 const breadcrumbItems = computed(() => [
   { label: '首页', path: '/' },
   { label: '工具矩阵', path: '/tools' },
@@ -290,54 +235,53 @@ const getScoreType = (score: number) => {
   return 'info'
 }
 
-const generateTitles = async () => {
-  // 检查使用权限
-  const canUse = await canUseTool('title-generator')
-  if (!canUse) {
-    return
-  }
-  
-  generating.value = true
-  
+function parseTitleJson(text: string): TitleResult[] {
   try {
-    // 生成标题
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    const generatedTitles: TitleResult[] = []
-    const styles = {
-      catchy: ['🔥', '💥', '⚡️', '✨'],
-      professional: ['📊', '📈', '💼', '🎯'],
-      emotional: ['❤️', '💕', '😊', '🥰'],
-      question: ['❓', '🤔', '💭', '❔'],
-      numeric: ['1️⃣', '2️⃣', '3️⃣', '🔢']
-    }
-    
-    const emoji = styles[form.value.style as keyof typeof styles] || ['✨']
-    
-    for (let i = 0; i < form.value.count; i++) {
-      const randomEmoji = emoji[Math.floor(Math.random() * emoji.length)]
-      const titleText = `${randomEmoji} ${form.value.topic}必看！超实用${form.value.keywords ? form.value.keywords.split(',')[0] : '技巧'}分享 ${i + 1}`
-      
-      generatedTitles.push({
-        text: titleText,
-        length: titleText.length,
-        score: Math.floor(Math.random() * 30) + 70,
+    const match = text.match(/\[[\s\S]*\]/)
+    if (!match) return []
+    const arr = JSON.parse(match[0])
+    if (!Array.isArray(arr)) return []
+    return arr.map((item: any) => {
+      const text = typeof item.text === 'string' ? item.text.trim() : String(item.text || '').trim()
+      return {
+        text,
+        length: text.length,
+        score: typeof item.score === 'number' ? Math.min(99, Math.max(0, item.score)) : 80,
         liked: false
-      })
-    }
-    
-    titles.value = generatedTitles
-    
-    analytics.track('title_generated', {
-      topic: form.value.topic,
+      }
+    }).filter((t: TitleResult) => t.text.length > 0)
+  } catch {
+    return []
+  }
+}
+
+const generateTitles = async () => {
+  if (!form.value.topic?.trim()) return
+  generating.value = true
+  titles.value = []
+  try {
+    const res: any = await aiService.generateTitles({
+      topic: form.value.topic.trim(),
+      keywords: form.value.keywords?.trim() || undefined,
       style: form.value.style,
       count: form.value.count
     })
-    
-    ElMessage.success('标题生成成功！')
-  } catch (error) {
-    console.error('Failed to generate titles:', error)
-    ElMessage.error('生成失败，请重试')
+    const rawText = res?.choices?.[0]?.message?.content || res?.content || ''
+    const parsed = parseTitleJson(rawText)
+    if (parsed.length > 0) {
+      titles.value = parsed
+      analytics.track('title_generated', {
+        topic: form.value.topic,
+        style: form.value.style,
+        count: parsed.length
+      })
+      ElMessage.success('标题生成成功！')
+    } else {
+      ElMessage.error('AI 返回格式异常，请重试')
+    }
+  } catch (e: any) {
+    console.error('Failed to generate titles:', e)
+    ElMessage.error(e?.message || '生成失败，请检查网络或后端 AI 配置（DeepSeek）')
   } finally {
     generating.value = false
   }
@@ -369,50 +313,6 @@ const toggleLike = (index: number) => {
     analytics.track('title_liked', { text: titles.value[index].text })
   }
 }
-
-// 快速填充示例数据
-const fillExample = () => {
-  const examples = [
-    { topic: '平价护肤', keywords: '学生党,好物推荐,性价比', style: 'catchy' },
-    { topic: '日常穿搭', keywords: '小个子,显瘦,百搭', style: 'numeric' },
-    { topic: '美食探店', keywords: '平价,好吃,推荐', style: 'emotional' },
-    { topic: '职场技能', keywords: '提升,效率,方法', style: 'professional' }
-  ]
-  
-  const randomExample = examples[Math.floor(Math.random() * examples.length)]
-  form.value.topic = randomExample.topic
-  form.value.keywords = randomExample.keywords
-  form.value.style = randomExample.style
-  form.value.count = 5
-  
-  ElMessage.success('已填充示例数据，可以直接生成标题')
-  analytics.track('example_filled', { example: randomExample.topic })
-}
-
-// 导出标题为文本文件
-const exportTitles = () => {
-  if (titles.value.length === 0) {
-    ElMessage.warning('没有可导出的标题')
-    return
-  }
-  
-  const content = titles.value
-    .map((title, index) => `${index + 1}. ${title.text} (${title.length}字, 评分: ${title.score})`)
-    .join('\n')
-  
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `小红书标题_${new Date().toISOString().slice(0, 10)}.txt`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-  
-  ElMessage.success('标题已导出为文本文件')
-  analytics.track('titles_exported', { count: titles.value.length })
-}
 </script>
 
 <style scoped>
@@ -429,14 +329,8 @@ const exportTitles = () => {
 }
 
 .tool-header {
+  text-align: center;
   margin: 32px 0 48px;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
 }
 
 .tool-title {
@@ -444,23 +338,14 @@ const exportTitles = () => {
   font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 16px 0;
-  text-align: left;
 }
 
 .tool-description {
   font-size: 1.125rem;
   color: var(--text-secondary);
   max-width: 600px;
+  margin: 0 auto;
   line-height: 1.6;
-  text-align: left;
-}
-
-.usage-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  flex-shrink: 0;
 }
 
 .content-grid {
@@ -474,11 +359,6 @@ const exportTitles = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.header-actions {
-  display: flex;
-  gap: 8px;
 }
 
 .generate-btn {
@@ -544,10 +424,6 @@ const exportTitles = () => {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
-}
-
-.security-notice {
-  margin: 24px 0;
 }
 
 .usage-guide {
