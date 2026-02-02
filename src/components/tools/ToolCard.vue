@@ -122,65 +122,48 @@ const handleClick = () => {
 <style scoped>
 .tool-card {
   background: white;
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-normal);
+  border-radius: var(--radius-base);
+  padding: 32px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all var(--transition-base);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 2px solid transparent;
+  border: 1px solid var(--color-gray-100);
+  position: relative;
 }
 
 .tool-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--primary-color);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-primary-200);
 }
 
 .tool-icon {
   display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+  justify-content: flex-start;
+  margin-bottom: 24px;
 }
 
 .icon-wrapper {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-lg);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-base);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.category-content-creation {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.category-image-editing {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.category-data-analysis {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.category-seo-optimization {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
-
-.category-automation {
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-}
-
-.category-promotion {
-  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-}
+.category-content-creation { background: var(--color-primary-50); color: var(--color-primary-500); }
+.category-image-editing { background: #fff5f6; color: var(--color-primary-400); }
+.category-data-analysis { background: #f5f3ff; color: var(--color-secondary-500); }
+.category-seo-optimization { background: #fff7ed; color: var(--color-warning); }
+.category-automation { background: var(--color-gray-50); color: var(--color-gray-600); }
+.category-promotion { background: #ecfdf5; color: var(--color-success); }
 
 .icon {
-  font-size: 2rem;
-  color: white;
+  font-size: 1.75rem;
 }
 
 .tool-info {

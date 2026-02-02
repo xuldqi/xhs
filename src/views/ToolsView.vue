@@ -8,7 +8,7 @@
         <div class="header-content">
           <h1 class="page-title">工具矩阵</h1>
           <p class="page-description">
-            精选实用工具，提升小红书运营效率
+            精选 AI 创作与运营工具，助力小红书账号高效增长
           </p>
         </div>
 
@@ -17,7 +17,8 @@
           <el-button
             v-for="category in categories"
             :key="category.value"
-            :type="activeCategory === category.value ? 'primary' : 'default'"
+            :class="{ active: activeCategory === category.value }"
+            class="filter-btn"
             @click="activeCategory = category.value"
           >
             <el-icon><component :is="category.icon" /></el-icon>
@@ -110,35 +111,32 @@ onMounted(() => {
 <style scoped>
 .tools-view {
   min-height: 100vh;
-  background: var(--bg-primary);
+  background: white;
 }
 
 .tools-header {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
-  padding: 32px 0 48px;
-}
-
-.container {
-  max-width: var(--container-xl);
-  margin: 0 auto;
-  padding: 0 20px;
+  background: white;
+  color: var(--text-primary);
+  padding: 60px 0 40px;
+  border-bottom: 1px solid var(--color-gray-100);
 }
 
 .header-content {
   text-align: center;
-  margin: 32px 0;
+  margin: 20px 0 40px;
 }
 
 .page-title {
   font-size: 3rem;
-  font-weight: 700;
+  font-weight: 800;
   margin: 0 0 16px 0;
+  letter-spacing: -0.02em;
+  color: var(--color-gray-900);
 }
 
 .page-description {
   font-size: 1.125rem;
-  opacity: 0.9;
+  color: var(--color-gray-500);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -146,57 +144,56 @@ onMounted(() => {
 
 .category-filter {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
-.category-filter .el-button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.filter-btn {
+  background: var(--color-gray-50) !important;
+  border: 1px solid transparent !important;
+  color: var(--color-gray-600) !important;
+  padding: 8px 20px !important;
+  border-radius: var(--radius-base) !important;
+  transition: all var(--transition-base) !important;
+  font-weight: 500 !important;
+}
+
+.filter-btn:hover {
+  background: var(--color-gray-100) !important;
+  color: var(--color-gray-900) !important;
+}
+
+.filter-btn.active {
+  background: white !important;
+  color: var(--color-primary-500) !important;
+  border-color: var(--color-primary-500) !important;
+  box-shadow: var(--shadow-sm);
 }
 
 .tools-content {
-  padding: 48px 0;
-}
-
-.loading-state,
-.empty-state {
-  padding: 48px 0;
+  padding: 60px 0;
+  background: var(--color-gray-50);
 }
 
 .tools-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 32px;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .page-title {
-    font-size: 2rem;
+    font-size: 2.25rem;
   }
   
-  .category-filter {
-    gap: 8px;
-  }
-  
-  .category-filter .el-button {
-    font-size: 0.875rem;
-    padding: 8px 12px;
+  .tools-header {
+    padding: 40px 0 30px;
   }
   
   .tools-grid {
     grid-template-columns: 1fr;
-  }
-  
-  .tools-header {
-    padding: 24px 0 32px;
-  }
-  
-  .container {
-    padding: 0 16px;
   }
 }
 </style>
