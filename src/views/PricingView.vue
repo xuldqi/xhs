@@ -16,7 +16,7 @@
           <span>即时生效</span>
         </div>
         <div class="trust-badge">
-          <el-icon><Shield /></el-icon>
+          <el-icon><Lock /></el-icon>
           <span>数据安全</span>
         </div>
         <div class="trust-badge">
@@ -143,7 +143,7 @@
       <el-card>
         <template #header>
           <div class="guarantee-header">
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
             <span>安全保证</span>
           </div>
         </template>
@@ -222,7 +222,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Check, Lock, CircleCheck, Shield, Service, Document } from '@element-plus/icons-vue'
+import { Check, Lock, CircleCheck, Service, Document } from '@element-plus/icons-vue'
 import { UserService } from '@/services/userService'
 import { useUserStore } from '@/stores/userStore'
 import type { PlanConfig } from '@/lib/supabase'
