@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="badge-item">
-      <el-icon><Shield /></el-icon>
+      <el-icon><Lock /></el-icon>
       <div class="badge-content">
         <div class="badge-title">安全可靠</div>
         <div class="badge-desc">独立开发运营</div>
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { Lock, CircleCheck, Shield, Clock } from '@element-plus/icons-vue'
+import { Lock, CircleCheck, Clock } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>
