@@ -7,7 +7,7 @@ export class UserService {
   // 获取用户资料
   static async getProfile(userId: string): Promise<Profile | null> {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('*')
       .eq('id', userId)
       .single()
@@ -33,7 +33,7 @@ export class UserService {
     if (updates.avatar_url) updateData.avatar_url = updates.avatar_url
 
     const { data, error } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .update(updateData)
       .eq('id', userId)
       .select()
@@ -52,7 +52,7 @@ export class UserService {
   // 获取用户当前订阅
   static async getCurrentSubscription(userId: string): Promise<Subscription | null> {
     const { data, error } = await supabase
-      .from('subscriptions')
+      .from('user_subscriptions')
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
@@ -147,22 +147,80 @@ export class UserService {
     return { allowed: true, remaining: limit - used }
   }
 
+  // 获取所有套餐配置
+  static async getAllPlanConfigs(): Promise<PlanConfig[]> {
+    try {
+      const { data, error } = await supabase
+        .from('plan_configs')
+        .select('*')
+        .order('price', { ascending: true })
+
+      if (!error && data && data.length > 0) {
+        return data.map((item: any) => ({
+          name: item.name,
+          plan_type: item.plan_type,
+          price: item.price,
+          duration_days: item.duration_days,
+          daily_generate_limit: item.daily_generate_limit,
+          daily_export_limit: item.daily_export_limit,
+          history_limit: item.history_limit,
+          priority: item.priority || false,
+          features: item.features || []
+        }))
+      }
+    } catch (e) {
+      console.warn('Failed to fetch all plan configs, using fallback', e)
+    }
+
+    // Fallback defaults
+    return [
+      {
+        name: '免费体验',
+        daily_generate_limit: 1,
+        daily_export_limit: 1,
+        features: ['基础功能']
+      },
+      {
+        name: '基础会员',
+        daily_generate_limit: 10,
+        daily_export_limit: 999,
+        features: ['基础功能']
+      },
+      {
+        name: '专业会员',
+        daily_generate_limit: 100,
+        daily_export_limit: 100,
+        features: ['全部功能']
+      },
+      {
+        name: '终身会员',
+        daily_generate_limit: 999,
+        daily_export_limit: 999,
+        features: ['全部功能', '优先体验']
+      }
+    ]
+  }
+
   // 获取套餐配置
   static async getPlanConfig(planType: string): Promise<PlanConfig | null> {
-    // 优先从数据库获取配置
-    const { data } = await supabase
-      .from('plan_configs')
-      .select('*')
-      .eq('plan_type', planType)
-      .single()
+    try {
+      // 优先从数据库获取配置
+      const { data, error } = await supabase
+        .from('plan_configs')
+        .select('*')
+        .eq('plan_type', planType)
+        .single()
 
-    if (data) {
-      return {
-        name: data.name,
-        daily_generate_limit: data.daily_generate_limit,
-        daily_export_limit: data.daily_export_limit,
-        features: [] // 简化处理
+      if (!error && data) {
+        return {
+          name: data.name,
+          daily_generate_limit: data.daily_generate_limit,
+          daily_export_limit: data.daily_export_limit,
+          features: [] // 简化处理
+        }
       }
+    } catch (e) {
+      console.warn('Failed to fetch plan config, using fallback', e)
     }
 
     // Fallback defaults
