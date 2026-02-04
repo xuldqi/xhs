@@ -19,14 +19,7 @@ export default defineConfig({
   ],
   server: {
     host: '0.0.0.0',
-    port: 5178,
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:3002',
-        changeOrigin: true,
-        secure: false
-      }
-    }
+    port: 5173,
   },
   resolve: {
     alias: {
@@ -38,13 +31,7 @@ export default defineConfig({
     minify: 'terser',
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules/chart.js')) return 'chart'
-          if (id.includes('node_modules/jspdf') || id.includes('node_modules/html2canvas')) return 'pdf-libs'
-          if (id.includes('node_modules/element-plus')) return 'element-plus'
-          if (id.includes('node_modules/@supabase')) return 'supabase'
-          if (id.includes('node_modules/vue') || id.includes('node_modules/vue-router') || id.includes('node_modules/pinia')) return 'vue-vendor'
-        }
+        manualChunks: undefined
       }
     }
   }

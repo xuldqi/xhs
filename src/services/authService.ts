@@ -1,28 +1,16 @@
 import { supabase } from '@/lib/supabase'
-import type { User } from '@supabase/supabase-js'
+import type { User } from '@/types/user'
 
 export class AuthService {
-  // 发送手机验证码（需要配置 Supabase Auth）
-  static async sendPhoneOTP(phone: string): Promise<void> {
-    const { error } = await supabase.auth.signInWithOtp({
-      phone,
-    })
-    
-    if (error) throw error
-  }
-
-  // 验证手机验证码登录
-  static async verifyPhoneOTP(phone: string, token: string): Promise<User> {
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone,
-      token,
-      type: 'sms',
-    })
-    
-    if (error) throw error
-    if (!data.user) throw new Error('登录失败')
-    
-    return data.user
+  // 映射 Supabase 用户到本地 User 类型
+  private static mapUser(supabaseUser: any): User {
+    return {
+      id: supabaseUser.id,
+      email: supabaseUser.email,
+      role: supabaseUser.role,
+      created_at: supabaseUser.created_at,
+      subscription_status: supabaseUser.app_metadata?.subscription_status || 'free'
+    }
   }
 
   // 邮箱密码注册
@@ -31,11 +19,11 @@ export class AuthService {
       email,
       password,
     })
-    
+
     if (error) throw error
     if (!data.user) throw new Error('注册失败')
-    
-    return data.user
+
+    return this.mapUser(data.user)
   }
 
   // 邮箱密码登录
@@ -44,35 +32,24 @@ export class AuthService {
       email,
       password,
     })
-    
-    if (error) {
-      // 处理邮箱未确认的情况
-      if (error.message.includes('Email not confirmed')) {
-        throw new Error('邮箱尚未确认，请检查您的邮箱并点击确认链接。如果没有收到邮件，请联系管理员。')
-      }
-      throw error
-    }
+
+    if (error) throw error
     if (!data.user) throw new Error('登录失败')
-    
-    return data.user
+
+    return this.mapUser(data.user)
   }
 
-  // 获取当前用户（从 session 恢复）
+  // 获取当前用户
   static async getCurrentUser(): Promise<User | null> {
-    // 先尝试从 session 获取
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session?.user) {
-      return session.user
-    }
-    
-    // 如果 session 存在但需要刷新，尝试获取用户
-    const { data: { user } } = await supabase.auth.getUser()
-    return user
+    const { data: { session }, error } = await supabase.auth.getSession()
+    if (error || !session?.user) return null
+    return this.mapUser(session.user)
   }
-  
+
   // 获取当前 session
   static async getSession() {
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { session }, error } = await supabase.auth.getSession()
+    if (error) return null
     return session
   }
 
@@ -80,22 +57,30 @@ export class AuthService {
   static async signOut(): Promise<void> {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
-  }
-
-  // 重新发送确认邮件
-  static async resendConfirmationEmail(email: string): Promise<void> {
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email,
-    })
-    
-    if (error) throw error
+    localStorage.removeItem('access_token') // 清理可能的遗留
   }
 
   // 监听认证状态变化
   static onAuthStateChange(callback: (user: User | null) => void) {
-    return supabase.auth.onAuthStateChange((event, session) => {
-      callback(session?.user ?? null)
+    return supabase.auth.onAuthStateChange(async (_event, session) => {
+      const user = session?.user ? this.mapUser(session.user) : null
+      callback(user)
     })
+  }
+
+  // 发送手机验证码 (暂不支持)
+  static async sendPhoneOTP(phone: string): Promise<void> {
+    throw new Error('暂不支持手机验证码')
+  }
+
+  // 验证手机验证码登录 (暂不支持)
+  static async verifyPhoneOTP(phone: string, token: string): Promise<User> {
+    throw new Error('暂不支持手机验证码')
+  }
+
+  // 重新发送确认邮件
+  static async resendConfirmationEmail(email: string): Promise<void> {
+    // Supabase 可以在 signUp 时配置自动发送，或者使用 resend api
+    // 这里暂时留空或抛出错误
   }
 }

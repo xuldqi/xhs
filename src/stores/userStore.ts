@@ -1,9 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User } from '@supabase/supabase-js'
 import { AuthService } from '@/services/authService'
 import { UserService } from '@/services/userService'
-import type { Profile, Subscription, PlanConfig } from '@/lib/supabase'
+import type { User, Profile, Subscription, PlanConfig } from '@/types/user'
 
 export const useUserStore = defineStore('user', () => {
   // 状态

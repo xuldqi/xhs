@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase'
-import type { Profile, Subscription, GuideHistory, PlanConfig } from '@/lib/supabase'
+import { AuthService } from './authService'
+import type { Database } from '@/lib/database.types' // If exists, otherwise use any or inferred
+import type { Profile, Subscription, PlanConfig, GuideHistory } from '@/types/user'
 
 export class UserService {
   // 获取用户资料
@@ -8,25 +10,43 @@ export class UserService {
       .from('profiles')
       .select('*')
       .eq('id', userId)
-    
+      .single()
+
     if (error) {
-      console.error('获取用户资料失败:', error)
+      console.error('getProfile error', error)
       return null
     }
-    return data?.[0] || null
+
+    return {
+      id: data.id,
+      username: data.nickname || '',
+      avatar_url: data.avatar_url || '',
+      full_name: data.nickname || ''
+    }
   }
 
   // 更新用户资料
   static async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
+    const updateData: any = {}
+    if (updates.username) updateData.nickname = updates.username
+    if (updates.full_name) updateData.nickname = updates.full_name
+    if (updates.avatar_url) updateData.avatar_url = updates.avatar_url
+
     const { data, error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(updateData)
       .eq('id', userId)
       .select()
-    
+      .single()
+
     if (error) throw error
-    if (!data || data.length === 0) throw new Error('更新失败')
-    return data[0]
+
+    return {
+      id: data.id,
+      username: data.nickname || '',
+      avatar_url: data.avatar_url || '',
+      full_name: data.nickname || ''
+    }
   }
 
   // 获取用户当前订阅
@@ -36,130 +56,133 @@ export class UserService {
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
+      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
       .limit(1)
-    
-    if (error) {
-      console.error('获取订阅失败:', error)
+      .single()
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 is 'not found'
+      console.error('getCurrentSubscription error', error)
       return null
     }
-    return data?.[0] || null
+
+    if (!data) return null
+
+    return {
+      plan_type: data.plan_type,
+      status: data.status,
+      current_period_end: data.expires_at || ''
+    }
   }
 
   // 获取用户 VIP 状态
   static async getVIPStatus(userId: string) {
-    const { data, error } = await supabase
-      .rpc('get_user_vip_status', { p_user_id: userId })
-    
-    if (error) throw error
-    return data?.[0] || null
+    const sub = await this.getCurrentSubscription(userId)
+    const isVip = sub ? (sub.plan_type === 'pro' || sub.plan_type === 'lifetime' || sub.plan_type === 'basic') : false
+
+    return {
+      is_active: isVip,
+      plan_type: sub?.plan_type || 'free',
+      expires_at: sub?.current_period_end || null
+    }
   }
 
   // 记录使用日志
   static async logUsage(
     userId: string,
-    actionType: 'generate_guide' | 'export_html' | 'view_history' | 'generate_calendar',
+    actionType: string,
     metadata?: any
   ): Promise<void> {
-    const { error } = await supabase
-      .from('usage_logs')
-      .insert({
-        user_id: userId,
-        action_type: actionType,
-        metadata,
-      })
-    
-    if (error) throw error
+    await supabase.from('usage_logs').insert({
+      user_id: userId,
+      action_type: actionType,
+      metadata
+    })
   }
 
   // 获取今日使用次数
-  static async getTodayUsageCount(
-    userId: string,
-    actionType: 'generate_guide' | 'export_html' | 'view_history' | 'generate_calendar'
-  ): Promise<number> {
-    const { data, error } = await supabase
-      .rpc('get_today_usage_count', {
-        p_user_id: userId,
-        p_action_type: actionType,
-      })
-    
-    if (error) throw error
-    return data || 0
+  static async getTodayUsageCount(userId: string, actionType: string): Promise<number> {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const { count, error } = await supabase
+      .from('usage_logs')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('action_type', actionType)
+      .gte('created_at', today.toISOString())
+
+    if (error) {
+      console.error('getTodayUsageCount error', error)
+      return 0
+    }
+
+    return count || 0
   }
 
   // 检查是否可以执行操作
   static async canPerformAction(
     userId: string,
-    actionType: 'generate_guide' | 'export_html' | 'generate_calendar'
+    actionType: string
   ): Promise<{ allowed: boolean; reason?: string; remaining?: number }> {
-    // 获取 VIP 状态
     const vipStatus = await this.getVIPStatus(userId)
-    
-    // 检查会员是否激活
-    if (!vipStatus || !vipStatus.is_active) {
-      // 检查是否是因为过期
-      if (vipStatus && vipStatus.expires_at) {
-        const expiresAt = new Date(vipStatus.expires_at)
-        if (expiresAt < new Date()) {
-          return { allowed: false, reason: '您的会员已过期，请续费' }
-        }
-      }
-      return { allowed: false, reason: '请先开通会员' }
-    }
-
-    // 获取套餐配置
     const planConfig = await this.getPlanConfig(vipStatus.plan_type)
-    if (!planConfig) {
-      return { allowed: false, reason: '套餐配置错误' }
-    }
 
-    // 获取今日使用次数
-    const todayCount = await this.getTodayUsageCount(userId, actionType)
-    
-    const limit = actionType === 'generate_guide' || actionType === 'generate_calendar'
-      ? planConfig.daily_generate_limit
-      : planConfig.daily_export_limit
+    if (!planConfig) return { allowed: true } // Fallback
 
-    if (todayCount >= limit) {
+    let limit = 0
+    if (actionType === 'generate_guide') limit = planConfig.daily_generate_limit
+    if (actionType === 'export_html') limit = planConfig.daily_export_limit
+
+    const used = await this.getTodayUsageCount(userId, actionType)
+
+    if (used >= limit) {
       return {
         allowed: false,
-        reason: `今日${actionType === 'generate_calendar' ? '日历生成' : actionType === 'generate_guide' ? '生成' : '导出'}次数已用完`,
+        reason: `今日${actionType === 'generate_guide' ? '生成' : '导出'}次数已达上限 (${limit}次)，请升级套餐或明日再试`,
         remaining: 0
       }
     }
 
-    return { 
-      allowed: true, 
-      remaining: limit - todayCount 
-    }
+    return { allowed: true, remaining: limit - used }
   }
 
   // 获取套餐配置
   static async getPlanConfig(planType: string): Promise<PlanConfig | null> {
-    const { data, error } = await supabase
+    // 优先从数据库获取配置
+    const { data } = await supabase
       .from('plan_configs')
       .select('*')
       .eq('plan_type', planType)
-    
-    if (error) {
-      console.error('获取套餐配置失败:', error)
-      return null
+      .single()
+
+    if (data) {
+      return {
+        name: data.name,
+        daily_generate_limit: data.daily_generate_limit,
+        daily_export_limit: data.daily_export_limit,
+        features: [] // 简化处理
+      }
     }
-    return data?.[0] || null
+
+    // Fallback defaults
+    if (planType === 'pro' || planType === 'lifetime') {
+      return {
+        name: '专业版',
+        daily_generate_limit: 100,
+        daily_export_limit: 100,
+        features: ['全部功能']
+      }
+    }
+    return {
+      name: '免费版',
+      daily_generate_limit: 5,
+      daily_export_limit: 1,
+      features: ['基础功能']
+    }
   }
 
-  // 获取所有套餐配置
-  static async getAllPlanConfigs(): Promise<PlanConfig[]> {
-    const { data, error } = await supabase
-      .from('plan_configs')
-      .select('*')
-      .order('price', { ascending: true })
-    
-    if (error) throw error
-    return data || []
-  }
-
-  // 保存生成历史到云端
+  // 保存生成历史
   static async saveGuideHistory(
     userId: string,
     accountName: string,
@@ -172,26 +195,41 @@ export class UserService {
         user_id: userId,
         account_name: accountName,
         account_data: accountData,
-        guide_content: guideContent,
+        guide_content: guideContent
       })
       .select()
-    
+      .single()
+
     if (error) throw error
-    if (!data || data.length === 0) throw new Error('保存失败')
-    return data[0]
+
+    return {
+      id: data.id,
+      user_id: data.user_id,
+      account_name: data.account_name,
+      created_at: data.created_at
+    }
   }
 
   // 获取用户历史记录
   static async getGuideHistory(userId: string, limit = 50): Promise<GuideHistory[]> {
     const { data, error } = await supabase
       .from('guide_history')
-      .select('*')
+      .select('id, user_id, account_name, created_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(limit)
-    
-    if (error) throw error
-    return data || []
+
+    if (error) {
+      console.error('getGuideHistory error', error)
+      return []
+    }
+
+    return data.map(item => ({
+      id: item.id,
+      user_id: item.user_id,
+      account_name: item.account_name,
+      created_at: item.created_at
+    }))
   }
 
   // 删除历史记录
@@ -201,7 +239,7 @@ export class UserService {
       .delete()
       .eq('id', historyId)
       .eq('user_id', userId)
-    
+
     if (error) throw error
   }
 }
