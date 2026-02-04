@@ -175,27 +175,41 @@ export class UserService {
     // Fallback defaults
     return [
       {
+        plan_type: 'free',
         name: '免费体验',
+        price: 0,
+        duration_days: null,
         daily_generate_limit: 1,
         daily_export_limit: 1,
         features: ['基础功能']
       },
       {
+        plan_type: 'basic',
         name: '基础会员',
+        price: 29.9,
+        duration_days: 30,
         daily_generate_limit: 10,
         daily_export_limit: 999,
         features: ['基础功能']
       },
       {
+        plan_type: 'pro',
         name: '专业会员',
+        price: 99,
+        duration_days: 90,
         daily_generate_limit: 100,
         daily_export_limit: 100,
+        priority: true,
         features: ['全部功能']
       },
       {
+        plan_type: 'lifetime',
         name: '终身会员',
+        price: 299,
+        duration_days: null,
         daily_generate_limit: 999,
         daily_export_limit: 999,
+        priority: true,
         features: ['全部功能', '优先体验']
       }
     ]
