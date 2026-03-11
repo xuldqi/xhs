@@ -7,7 +7,7 @@
         <p>{{ studioPack.summary }}</p>
       </div>
       <el-tag :type="studioPack.source === 'ai' ? 'success' : 'warning'" effect="dark">
-        {{ studioPack.source === 'ai' ? 'AI Studio' : 'Mock Studio' }}
+        {{ studioPack.source === 'ai' ? 'AI Studio' : '演示 Studio' }}
       </el-tag>
     </div>
 

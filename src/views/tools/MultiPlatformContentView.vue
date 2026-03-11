@@ -801,8 +801,8 @@ async function generatePack() {
       }
     })
 
-    if (pack.source === 'mock') {
-      ElMessage.warning('当前后端未连通，已为你生成离线演示版')
+    if (pack.source === 'mock' || studioPack.source === 'mock') {
+      ElMessage.warning('当前为演示模式：请配置后端与 API 密钥以输出真实生产内容')
     } else if (isPremiumUnlocked.value) {
       ElMessage.success('多平台 + 多模态资产包已生成')
     } else {

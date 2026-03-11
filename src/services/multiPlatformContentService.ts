@@ -59,6 +59,8 @@ export interface MultiPlatformPack {
   platforms: PlatformDraft[]
 }
 
+const ALLOW_MOCK_FALLBACK = import.meta.env.VITE_ALLOW_MOCK_FALLBACK === 'true'
+
 export const PLATFORM_META: Record<PlatformKey, {
   label: string
   language: string
@@ -473,7 +475,13 @@ export async function generateMultiPlatformPack(input: MultiPlatformGenerationIn
       platforms: normalizedPlatforms
     }
   } catch (error) {
-    console.error('generateMultiPlatformPack failed, fallback to mock pack:', error)
-    return buildMockPack(input)
+    if (ALLOW_MOCK_FALLBACK) {
+      console.warn('generateMultiPlatformPack failed, fallback to mock pack:', error)
+      return buildMockPack(input)
+    }
+
+    console.error('generateMultiPlatformPack failed:', error)
+    const reason = error instanceof Error ? error.message : 'unknown_error'
+    throw new Error(`多平台内容生成失败（未启用演示兜底）：${reason}`)
   }
 }

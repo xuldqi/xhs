@@ -45,6 +45,8 @@ export interface FactoryStudioPack {
   modes: StudioModePack[]
 }
 
+const ALLOW_MOCK_FALLBACK = import.meta.env.VITE_ALLOW_MOCK_FALLBACK === 'true'
+
 export const STUDIO_MODE_META: Record<StudioModeKey, StudioModeMeta> = {
   image: {
     label: '图片工位',
@@ -439,7 +441,13 @@ CTA：${input.callToAction || '收藏并评论领取模板'}
       modes: [...accessiblePacks, ...lockedModes]
     }
   } catch (error) {
-    console.error('generateFactoryStudioPack failed, fallback to mock pack:', error)
-    return buildMockPack(input)
+    if (ALLOW_MOCK_FALLBACK) {
+      console.warn('generateFactoryStudioPack failed, fallback to mock pack:', error)
+      return buildMockPack(input)
+    }
+
+    console.error('generateFactoryStudioPack failed:', error)
+    const reason = error instanceof Error ? error.message : 'unknown_error'
+    throw new Error(`五模态工作台生成失败（未启用演示兜底）：${reason}`)
   }
 }
