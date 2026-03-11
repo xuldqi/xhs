@@ -478,7 +478,7 @@ export const knowledgeArticles: Article[] = [
 
 **我的内容模板：**
 
-```
+~~~
 【开头】
 - 抛出问题或痛点
 - 给出解决方案预告
@@ -492,7 +492,7 @@ export const knowledgeArticles: Article[] = [
 - 总结要点
 - 行动号召
 - 引导互动
-```
+~~~
 
 ### 技巧4：互动引导
 

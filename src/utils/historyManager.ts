@@ -275,7 +275,7 @@ export class HistoryManager {
         // 压缩 accountData：移除详细的 recentPosts 图片
         accountData: {
           ...record.accountData,
-          recentPosts: record.accountData.recentPosts.map(post => ({
+          recentPosts: (record.accountData.recentPosts || []).map(post => ({
             ...post,
             imageUrl: '' // 移除图片URL以节省空间
           }))

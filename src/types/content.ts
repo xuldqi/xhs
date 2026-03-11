@@ -40,6 +40,12 @@ export interface CaseStudy {
   keyStrategies: string[]
   timeline?: TimelineEvent[]
   dataPoints?: DataPoint[]
+  metrics?: {
+    totalPosts?: number | string
+    avgEngagementRate?: number | string
+    topPerformingPostType?: string
+    bestPostingTime?: string
+  }
   lessons?: string[]
   publishDate: string
   featured: boolean
@@ -52,8 +58,14 @@ export interface CaseStudy {
 export interface TimelineEvent {
   date: string
   milestone: string
+  title?: string
   description: string
   followers: number
+  metrics?: {
+    followers?: number
+    engagement?: number
+    posts?: number
+  }
 }
 
 // 数据点
@@ -104,5 +116,4 @@ export interface ContentCategory {
 
 // 情报类型（别名，用于兼容）
 export type IntelligencePost = Intelligence
-
 

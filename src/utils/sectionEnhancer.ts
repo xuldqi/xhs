@@ -433,6 +433,7 @@ export function enhanceSection(sectionId: number, title: string, content: string
       title: '涨粉渠道来源分析',
       labels: ['内容推荐', '搜索发现', '互动关注', '外部引流', '其他'],
       datasets: [{
+        label: '渠道占比',
         data: [45, 25, 20, 8, 2],
         backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#e5e7eb']
       }]

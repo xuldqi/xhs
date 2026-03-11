@@ -1,6 +1,4 @@
 import { supabase } from '@/lib/supabase'
-import { AuthService } from './authService'
-import type { Database } from '@/lib/database.types' // If exists, otherwise use any or inferred
 import type { Profile, Subscription, PlanConfig, GuideHistory } from '@/types/user'
 
 export class UserService {
@@ -51,28 +49,42 @@ export class UserService {
 
   // 获取用户当前订阅
   static async getCurrentSubscription(userId: string): Promise<Subscription | null> {
-    const { data, error } = await supabase
-      .from('user_subscriptions')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
+    // 兼容历史表名：优先新表 subscriptions，回退到 user_subscriptions
+    const subscriptionTables = ['subscriptions', 'user_subscriptions']
+    const now = Date.now()
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 is 'not found'
-      console.error('getCurrentSubscription error', error)
-      return null
+    for (const tableName of subscriptionTables) {
+      try {
+        const { data, error } = await (supabase as any)
+          .from(tableName)
+          .select('*')
+          .eq('user_id', userId)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .limit(20)
+
+        if (error) {
+          console.warn(`[getCurrentSubscription] query ${tableName} failed`, error)
+          continue
+        }
+
+        const rows = Array.isArray(data) ? data : []
+        const validSub = rows.find((row: any) => !row.expires_at || new Date(row.expires_at).getTime() > now)
+        if (!validSub) {
+          continue
+        }
+
+        return {
+          plan_type: validSub.plan_type,
+          status: validSub.status,
+          current_period_end: validSub.expires_at || ''
+        }
+      } catch (error) {
+        console.warn(`[getCurrentSubscription] query ${tableName} exception`, error)
+      }
     }
 
-    if (!data) return null
-
-    return {
-      plan_type: data.plan_type,
-      status: data.status,
-      current_period_end: data.expires_at || ''
-    }
+    return null
   }
 
   // 获取用户 VIP 状态
@@ -157,13 +169,13 @@ export class UserService {
 
       if (!error && data && data.length > 0) {
         return data.map((item: any) => ({
-          name: item.name,
           plan_type: item.plan_type,
+          name: item.name,
           price: item.price,
           duration_days: item.duration_days,
           daily_generate_limit: item.daily_generate_limit,
           daily_export_limit: item.daily_export_limit,
-          history_limit: item.history_limit,
+          history_limit: item.history_limit || 100,
           priority: item.priority || false,
           features: item.features || []
         }))
@@ -181,6 +193,8 @@ export class UserService {
         duration_days: null,
         daily_generate_limit: 1,
         daily_export_limit: 1,
+        history_limit: 20,
+        priority: false,
         features: ['基础功能']
       },
       {
@@ -190,6 +204,8 @@ export class UserService {
         duration_days: 30,
         daily_generate_limit: 10,
         daily_export_limit: 999,
+        history_limit: 200,
+        priority: false,
         features: ['基础功能']
       },
       {
@@ -199,6 +215,7 @@ export class UserService {
         duration_days: 90,
         daily_generate_limit: 100,
         daily_export_limit: 100,
+        history_limit: 1000,
         priority: true,
         features: ['全部功能']
       },
@@ -209,6 +226,7 @@ export class UserService {
         duration_days: null,
         daily_generate_limit: 999,
         daily_export_limit: 999,
+        history_limit: 9999,
         priority: true,
         features: ['全部功能', '优先体验']
       }
@@ -227,10 +245,15 @@ export class UserService {
 
       if (!error && data) {
         return {
+          plan_type: planType,
           name: data.name,
+          price: data.price || 0,
+          duration_days: data.duration_days ?? null,
           daily_generate_limit: data.daily_generate_limit,
           daily_export_limit: data.daily_export_limit,
-          features: [] // 简化处理
+          history_limit: data.history_limit || 100,
+          priority: Boolean(data.priority),
+          features: data.features || []
         }
       }
     } catch (e) {
@@ -240,16 +263,26 @@ export class UserService {
     // Fallback defaults
     if (planType === 'pro' || planType === 'lifetime') {
       return {
+        plan_type: planType,
         name: '专业版',
+        price: planType === 'lifetime' ? 299 : 99,
+        duration_days: planType === 'lifetime' ? null : 90,
         daily_generate_limit: 100,
         daily_export_limit: 100,
+        history_limit: 1000,
+        priority: true,
         features: ['全部功能']
       }
     }
     return {
+      plan_type: 'free',
       name: '免费版',
+      price: 0,
+      duration_days: null,
       daily_generate_limit: 5,
       daily_export_limit: 1,
+      history_limit: 20,
+      priority: false,
       features: ['基础功能']
     }
   }

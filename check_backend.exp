@@ -1,0 +1,20 @@
+#!/usr/bin/expect
+set timeout 30
+set password "1q2ws3edcQ123"
+set host "root@115.191.56.242"
+set ssh_opts "-o StrictHostKeyChecking=no -o GSSAPIAuthentication=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30"
+
+spawn ssh {*}$ssh_opts $host
+expect {
+    -re ".*assword:" {
+        send "$password\r"
+    }
+}
+
+expect -re {.*[#$] }
+# Check backend health/root endpoint
+send "curl -v http://127.0.0.1:3002/\r"
+expect -re {.*[#$] }
+
+send "exit\r"
+expect eof

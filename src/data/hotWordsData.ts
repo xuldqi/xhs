@@ -73,7 +73,7 @@ function extractXHSKeywords(concept: any): string[] {
     const summaryKeywords = concept.summary
       .replace(/[，。！？、；：]/g, ' ')
       .split(' ')
-      .filter(word => word.length >= 2 && word.length <= 6)
+      .filter((word: string) => word.length >= 2 && word.length <= 6)
       .slice(0, 3);
     keywords.push(...summaryKeywords);
   }
@@ -488,4 +488,3 @@ export function getRandomHotWords(hotWords: HotWord[], limit: number = 6): HotWo
   const shuffled = [...hotWords].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, limit);
 }
-

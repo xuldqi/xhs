@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, type CSSProperties } from 'vue'
 
 interface Props {
   src: string
@@ -42,9 +42,9 @@ const currentSrc = computed(() => {
   return props.src
 })
 
-const wrapperStyle = computed(() => ({
+const wrapperStyle = computed<CSSProperties>(() => ({
   aspectRatio: props.aspectRatio,
-  position: 'relative',
+  position: 'relative' as const,
   overflow: 'hidden',
   backgroundColor: 'var(--bg-secondary)'
 }))

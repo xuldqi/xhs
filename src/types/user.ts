@@ -9,6 +9,10 @@ export interface User {
 export interface Profile {
     id: string
     username?: string
+    nickname?: string
+    email?: string
+    phone?: string
+    currentPlan?: string
     avatar_url?: string
     full_name?: string
     website?: string
@@ -21,10 +25,15 @@ export interface Subscription {
 }
 
 export interface PlanConfig {
+    plan_type: string
     name: string
+    price: number
+    duration_days: number | null
     daily_generate_limit: number
     daily_export_limit: number
-    features: string[]
+    history_limit: number
+    priority: boolean
+    features: string[] | { customTemplate?: boolean; [key: string]: any }
 }
 
 export interface GuideHistory {

@@ -56,7 +56,15 @@ import { CircleCheck } from '@element-plus/icons-vue'
 const visible = ref(false)
 const currentStep = ref(0)
 
-const steps = [
+interface OnboardingStep {
+  icon: string
+  title: string
+  description: string
+  tips: string[]
+  image?: string
+}
+
+const steps: OnboardingStep[] = [
   {
     icon: '📸',
     title: '第一步：准备截图',

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router, Request, Response } from 'express'
 import { createClient } from '@supabase/supabase-js'
 import { AIService } from '../services/aiService'

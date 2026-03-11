@@ -1,0 +1,29 @@
+#!/usr/bin/expect
+set timeout 30
+set password "1q2ws3edcQ123"
+set host "root@115.191.56.242"
+set ssh_opts "-o StrictHostKeyChecking=no -o GSSAPIAuthentication=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30"
+
+spawn ssh {*}$ssh_opts $host
+expect {
+    -re ".*assword:" {
+        send "$password\r"
+    }
+}
+
+expect -re {.*[#$] }
+# 1. Update server_name to be all-encompassing
+# server_name www.xiaoshongshu.college xiaoshongshu.college www.xiaohongshu.college xiaohongshu.college _;
+send "sed -i 's/server_name .*/server_name www.xiaoshongshu.college xiaoshongshu.college www.xiaohongshu.college xiaohongshu.college _;/g' /etc/nginx/sites-available/xhs\r"
+expect -re {.*[#$] }
+
+# 2. Check index.html content (head)
+send "head -n 5 /var/www/xhs-frontend/index.html\r"
+expect -re {.*[#$] }
+
+# 3. Reload Nginx
+send "nginx -t && systemctl reload nginx\r"
+expect -re {.*[#$] }
+
+send "exit\r"
+expect eof

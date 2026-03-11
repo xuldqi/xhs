@@ -135,6 +135,54 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/tools/TitleGeneratorView.vue')
   },
   {
+    path: '/tools/viral-generator',
+    name: 'ViralGenerator',
+    component: () => import('@/views/tools/ViralGeneratorView.vue'),
+    meta: { title: '爆款生成器 - 一站式生成标题、封面与文案' }
+  },
+  {
+    path: '/tools/hot-words-insight',
+    name: 'HotWordsInsight',
+    component: () => import('@/views/tools/HotWordsInsightView.vue'),
+    meta: { title: '热词洞察工具 - 热点选题与趋势词' }
+  },
+  {
+    path: '/tools/topic-inspiration',
+    name: 'TopicInspiration',
+    component: () => import('@/views/tools/TopicInspirationView.vue'),
+    meta: { title: '灵感话题库 - 高转化小红书选题' }
+  },
+  {
+    path: '/tools/background-remover',
+    name: 'BackgroundRemover',
+    component: () => import('@/views/tools/BackgroundRemoverView.vue'),
+    meta: { title: '图片背景移除工具 - 本地去背景' }
+  },
+  {
+    path: '/tools/manga-generator',
+    name: 'MangaGenerator',
+    component: () => import('@/views/tools/MangaGeneratorView.vue'),
+    meta: { title: '漫画风生成器 - 图片风格化处理' }
+  },
+  {
+    path: '/tools/multi-platform-content',
+    name: 'MultiPlatformContent',
+    component: () => import('@/views/tools/MultiPlatformContentView.vue'),
+    meta: {
+      title: 'AI 多平台内容生成器 - 一键生成小红书 / Twitter / LinkedIn / 博客内容',
+      description: '输入一个主题，自动生成多平台内容、SEO 关键词、图片提示词和短视频开场。'
+    }
+  },
+  {
+    path: '/tools/content-automation-history',
+    name: 'ContentAutomationHistory',
+    component: () => import('@/views/tools/AutomationHistoryView.vue'),
+    meta: {
+      title: '内容工厂执行历史 - 自动化任务回放',
+      description: '查看内容工厂任务执行历史、回写结果、错误信息与产物链接。'
+    }
+  },
+  {
     path: '/tools/topic-analyzer',
     name: 'TopicAnalyzer',
     component: () => import('@/views/tools/TopicAnalyzerView.vue'),

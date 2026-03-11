@@ -33,9 +33,10 @@ export class PerformanceOptimizer {
     
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
     if (navigation) {
+      const start = navigation.startTime || 0
       this.metrics.set('ttfb', navigation.responseStart - navigation.requestStart)
-      this.metrics.set('domLoad', navigation.domContentLoadedEventEnd - navigation.navigationStart)
-      this.metrics.set('load', navigation.loadEventEnd - navigation.navigationStart)
+      this.metrics.set('domLoad', navigation.domContentLoadedEventEnd - start)
+      this.metrics.set('load', navigation.loadEventEnd - start)
     }
 
     // FCP

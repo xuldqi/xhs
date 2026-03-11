@@ -14,6 +14,8 @@ export const navigationStructure: NavigationItem[] = [
     children: [
       { id: 'diagnosis', label: '账号诊断', path: '/analysis' },
       { id: 'calendar', label: 'AI 内容日历', path: '/calendar', badge: 'new' },
+      { id: 'multi-platform-content', label: '多平台内容生成器', path: '/tools/multi-platform-content', badge: 'vip' },
+      { id: 'content-automation-history', label: '内容工厂执行历史', path: '/tools/content-automation-history', badge: 'new' },
       { id: 'title-generator', label: '标题生成器', path: '/tools/title-generator' },
       { id: 'topic-analyzer', label: '话题分析工具', path: '/tools/topic-analyzer' },
       { id: 'competitor-analyzer', label: '竞品分析工具', path: '/tools/competitor-analyzer' },
@@ -45,6 +47,8 @@ export const mobileNavigationStructure: NavigationItem[] = [
   { id: 'home', label: '首页', path: '/' },
   { id: 'diagnosis', label: '账号诊断', path: '/analysis' },
   { id: 'calendar', label: '内容日历', path: '/calendar' },
+  { id: 'multi-platform-content', label: '内容生成器', path: '/tools/multi-platform-content' },
+  { id: 'content-automation-history', label: '执行历史', path: '/tools/content-automation-history' },
   { id: 'tools', label: '工具箱', path: '/tools' },
   { id: 'pricing', label: '价格', path: '/pricing' },
   { id: 'resources', label: '资源中心', path: '/knowledge' },

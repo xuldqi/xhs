@@ -268,7 +268,6 @@ onMounted(async () => {
     
     const hasPermission = await checkGeneratePermission()
     if (!hasPermission) {
-      await router.push('/login?redirect=/')
       return
     }
     

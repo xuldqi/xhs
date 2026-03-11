@@ -231,7 +231,7 @@
                 class="topic-option"
                 @click="useTopicTitleForGenerator(topic)"
               >
-                <el-icon><Lightbulb /></el-icon>
+                <el-icon><MagicStick /></el-icon>
                 <span>{{ topic }}</span>
                 <el-button
                   type="primary"
@@ -295,7 +295,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, InfoFilled, Star, List, Lightbulb } from '@element-plus/icons-vue'
+import { Search, InfoFilled, Star, List, MagicStick } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import {
@@ -372,21 +372,21 @@ const copyToClipboard = async (text: string) => {
 const useTopicForGenerator = (topic: TopicInspiration) => {
   // 跳转到爆款生成器，使用话题标题作为主题
   router.push({
-    path: '/tools/viral-generator',
+    path: '/tools/multi-platform-content',
     query: { topic: topic.xhsTitle }
   })
   detailDialogVisible.value = false
-  ElMessage.success('已跳转到爆款生成器')
+  ElMessage.success('已跳转到内容工厂')
 }
 
 const useTopicTitleForGenerator = (topicTitle: string) => {
   // 跳转到爆款生成器，使用选题方向作为主题
   router.push({
-    path: '/tools/viral-generator',
+    path: '/tools/multi-platform-content',
     query: { topic: topicTitle }
   })
   detailDialogVisible.value = false
-  ElMessage.success('已跳转到爆款生成器')
+  ElMessage.success('已跳转到内容工厂')
 }
 
 // 初始化

@@ -37,10 +37,10 @@ const drawChart = () => {
   
   // 提取数据
   const data = props.timeline
-    .filter(event => event.metrics?.followers)
+    .filter(event => (event.metrics?.followers || event.followers))
     .map(event => ({
       date: new Date(event.date),
-      followers: event.metrics!.followers!
+      followers: event.metrics?.followers || event.followers || 0
     }))
   
   if (data.length === 0) return

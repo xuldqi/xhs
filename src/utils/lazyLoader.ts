@@ -48,7 +48,14 @@ export function preloadRouteComponents(routeName: string) {
       () => import('@/views/intelligence/IntelligenceDetailView.vue')
     ],
     'Tools': [
-      () => import('@/views/tools/TitleGeneratorView.vue')
+      () => import('@/views/tools/TitleGeneratorView.vue'),
+      () => import('@/views/tools/MultiPlatformContentView.vue')
+    ],
+    'MultiPlatformContent': [
+      () => import('@/views/tools/AutomationHistoryView.vue')
+    ],
+    'ContentAutomationHistory': [
+      () => import('@/views/tools/MultiPlatformContentView.vue')
     ]
   }
   

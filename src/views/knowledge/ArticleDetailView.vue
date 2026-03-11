@@ -211,7 +211,8 @@ const getCategoryName = (category: string) => {
   return map[category] || category
 }
 
-const getDifficultyText = (difficulty: string) => {
+const getDifficultyText = (difficulty?: string) => {
+  if (!difficulty) return '未分级'
   const map: Record<string, string> = {
     beginner: '新手',
     intermediate: '进阶',
@@ -220,7 +221,8 @@ const getDifficultyText = (difficulty: string) => {
   return map[difficulty] || difficulty
 }
 
-const getDifficultyType = (difficulty: string) => {
+const getDifficultyType = (difficulty?: string) => {
+  if (!difficulty) return 'info'
   const map: Record<string, any> = {
     beginner: 'success',
     intermediate: 'warning',

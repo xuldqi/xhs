@@ -25,6 +25,7 @@ export interface BasicHealthResponse {
   uptime: number
   services: {
     supabase: ServiceStatusInfo
+    localdb: ServiceStatusInfo
     alipay: ServiceStatusInfo
     deepseek: ServiceStatusInfo
     gemini: ServiceStatusInfo
@@ -45,6 +46,7 @@ export interface ServiceStatusInfo {
 export interface DetailedHealthResponse extends BasicHealthResponse {
   diagnostics: {
     supabase: SupabaseDiagnostics
+    localdb: ServiceDiagnostics
     alipay: AlipayDiagnostics
     deepseek: DeepSeekDiagnostics
     gemini: GeminiDiagnostics
@@ -257,7 +259,7 @@ export class HealthCheckError extends Error {
   ) {
     super(message)
     this.name = 'HealthCheckError'
-    
+
     // 保持正确的原型链
     Object.setPrototypeOf(this, HealthCheckError.prototype)
   }
@@ -275,7 +277,7 @@ export interface IHealthCheckController {
    * 基础健康检查 - 快速返回系统整体状态
    */
   getBasicHealth(): Promise<BasicHealthResponse>
-  
+
   /**
    * 详细健康检查 - 返回所有服务的详细状态
    */
@@ -290,13 +292,13 @@ export interface IServiceHealthChecker {
    * 服务名称
    */
   readonly serviceName: string
-  
+
   /**
    * 检查服务健康状态
    * @param timeout 超时时间（毫秒）
    */
   check(timeout?: number): Promise<ServiceHealthResult>
-  
+
   /**
    * 获取详细诊断信息
    */
@@ -311,17 +313,17 @@ export interface IConfigurationValidator {
    * 验证所有必需的环境变量
    */
   validateEnvironment(): ValidationResult
-  
+
   /**
    * 验证特定服务的配置
    */
   validateServiceConfig(serviceName: string): ValidationResult
-  
+
   /**
    * 获取缺失的配置项
    */
   getMissingConfigs(): string[]
-  
+
   /**
    * 获取配置修复建议
    */

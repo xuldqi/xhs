@@ -64,7 +64,7 @@
               增长曲线
             </h2>
             <div class="chart-container">
-              <GrowthChart :timeline="caseStudy.timeline" />
+              <GrowthChart :timeline="caseStudy.timeline || []" />
             </div>
           </section>
 
@@ -83,11 +83,11 @@
                 <div class="timeline-marker"></div>
                 <div class="timeline-content">
                   <div class="timeline-date">{{ formatDate(event.date) }}</div>
-                  <h3 class="timeline-title">{{ event.title }}</h3>
+                  <h3 class="timeline-title">{{ event.title || event.milestone }}</h3>
                   <p class="timeline-description">{{ event.description }}</p>
                   <div v-if="event.metrics" class="timeline-metrics">
-                    <span v-if="event.metrics.followers" class="metric">
-                      粉丝: {{ formatNumber(event.metrics.followers) }}
+                    <span v-if="event.metrics.followers || event.followers" class="metric">
+                      粉丝: {{ formatNumber(event.metrics.followers || event.followers) }}
                     </span>
                     <span v-if="event.metrics.engagement" class="metric">
                       互动率: {{ event.metrics.engagement }}%
@@ -126,21 +126,13 @@
               数据指标
             </h2>
             <div class="metrics-grid">
-              <div class="metric-card">
-                <div class="metric-label">总发布笔记</div>
-                <div class="metric-value">{{ caseStudy.metrics.totalPosts }}</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">平均互动率</div>
-                <div class="metric-value">{{ caseStudy.metrics.avgEngagementRate }}%</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">最佳笔记类型</div>
-                <div class="metric-value">{{ caseStudy.metrics.topPerformingPostType }}</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">最佳发布时间</div>
-                <div class="metric-value">{{ caseStudy.metrics.bestPostingTime }}</div>
+              <div
+                v-for="point in (caseStudy.dataPoints || []).slice(0, 4)"
+                :key="point.metric"
+                class="metric-card"
+              >
+                <div class="metric-label">{{ point.metric }}</div>
+                <div class="metric-value">{{ point.value }}</div>
               </div>
             </div>
           </section>
@@ -248,14 +240,16 @@ const loadCase = async () => {
   try {
     const caseId = route.params.id as string
     caseStudy.value = await contentService.getContentById<CaseStudy>('case_studies', caseId)
-    likeCount.value = caseStudy.value.likeCount
+    likeCount.value = caseStudy.value?.likeCount || 0
     
     // 追踪案例浏览
-    analytics.track('case_view', {
-      caseId: caseStudy.value.id,
-      title: caseStudy.value.title,
-      accountType: caseStudy.value.accountType
-    })
+    if (caseStudy.value) {
+      analytics.track('case_view', {
+        caseId: caseStudy.value.id,
+        title: caseStudy.value.title,
+        accountType: caseStudy.value.accountType
+      })
+    }
   } catch (error) {
     console.error('Failed to load case:', error)
     ElMessage.error('加载案例失败')

@@ -14,6 +14,7 @@ import {
   Recommendation
 } from '../types/health'
 import { SupabaseChecker } from '../services/healthCheckers/supabaseChecker'
+import { LocalDbChecker } from '../services/healthCheckers/localDbChecker'
 import { AlipayChecker } from '../services/healthCheckers/alipayChecker'
 import { DeepSeekChecker, GeminiChecker } from '../services/healthCheckers/aiChecker'
 import { ConfigurationValidator } from '../services/configValidator'
@@ -28,6 +29,7 @@ interface CacheEntry<T> {
 
 export class HealthCheckController implements IHealthCheckController {
   private supabaseChecker = new SupabaseChecker()
+  private localDbChecker = new LocalDbChecker()
   private alipayChecker = new AlipayChecker()
   private deepseekChecker = new DeepSeekChecker()
   private geminiChecker = new GeminiChecker()
@@ -52,9 +54,9 @@ export class HealthCheckController implements IHealthCheckController {
 
     const startTime = Date.now()
 
-    // 并行检查所有服务
-    const [supabaseResult, alipayResult, deepseekResult, geminiResult] = await Promise.all([
+    const [supabaseResult, localDbResult, alipayResult, deepseekResult, geminiResult] = await Promise.all([
       this.supabaseChecker.check(500),
+      this.localDbChecker.check(2000),
       this.alipayChecker.check(500),
       this.deepseekChecker.check(500),
       this.geminiChecker.check(500)
@@ -64,6 +66,7 @@ export class HealthCheckController implements IHealthCheckController {
     const response: BasicHealthResponse = {
       status: this.calculateOverallStatus([
         supabaseResult.status,
+        localDbResult.status,
         alipayResult.status,
         deepseekResult.status,
         geminiResult.status
@@ -74,6 +77,10 @@ export class HealthCheckController implements IHealthCheckController {
         supabase: {
           status: supabaseResult.status,
           message: supabaseResult.message
+        },
+        localdb: {
+          status: localDbResult.status,
+          message: localDbResult.message
         },
         alipay: {
           status: alipayResult.status,
@@ -113,8 +120,9 @@ export class HealthCheckController implements IHealthCheckController {
     const startTime = Date.now()
 
     // 并行获取所有诊断信息
-    const [supabaseDiag, alipayDiag, deepseekDiag, geminiDiag] = await Promise.all([
+    const [supabaseDiag, localDbDiag, alipayDiag, deepseekDiag, geminiDiag] = await Promise.all([
       this.supabaseChecker.diagnose(),
+      this.localDbChecker.diagnose(),
       this.alipayChecker.diagnose(),
       this.deepseekChecker.diagnose(),
       this.geminiChecker.diagnose()
@@ -136,6 +144,7 @@ export class HealthCheckController implements IHealthCheckController {
     // 收集所有建议
     const allRecommendations: Recommendation[] = [
       ...supabaseDiag.recommendations,
+      ...localDbDiag.recommendations,
       ...alipayDiag.recommendations,
       ...deepseekDiag.recommendations,
       ...geminiDiag.recommendations
@@ -156,6 +165,7 @@ export class HealthCheckController implements IHealthCheckController {
     const response: DetailedHealthResponse = {
       status: this.calculateOverallStatus([
         supabaseDiag.healthy ? 'ok' : 'error',
+        localDbDiag.healthy ? 'ok' : 'error',
         alipayDiag.healthy ? 'ok' : 'error',
         deepseekDiag.healthy ? 'ok' : 'error',
         geminiDiag.healthy ? 'ok' : 'error'
@@ -166,6 +176,10 @@ export class HealthCheckController implements IHealthCheckController {
         supabase: {
           status: supabaseDiag.healthy ? 'ok' : 'error',
           message: supabaseDiag.healthy ? 'Supabase is healthy' : 'Supabase has issues'
+        },
+        localdb: {
+          status: localDbDiag.healthy ? 'ok' : 'error',
+          message: localDbDiag.healthy ? 'Local DB is healthy' : 'Local DB has issues'
         },
         alipay: {
           status: alipayDiag.healthy ? 'ok' : 'error',
@@ -182,6 +196,7 @@ export class HealthCheckController implements IHealthCheckController {
       },
       diagnostics: {
         supabase: supabaseDiag.details as any,
+        localdb: localDbDiag.details as any,
         alipay: alipayDiag.details as any,
         deepseek: deepseekDiag.details as any,
         gemini: geminiDiag.details as any

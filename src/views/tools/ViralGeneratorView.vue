@@ -443,9 +443,9 @@ const generateTitles = async () => {
       } catch (e) {
         // 如果不是 JSON，尝试按行分割
         titles.value = response.data.split('\n')
-          .map(line => line.trim())
-          .filter(line => line && !line.startsWith('[') && !line.startsWith(']'))
-          .map(line => line.replace(/^["']|["']$/g, '').replace(/^-\s*/, ''))
+          .map((line: string) => line.trim())
+          .filter((line: string) => line && !line.startsWith('[') && !line.startsWith(']'))
+          .map((line: string) => line.replace(/^["']|["']$/g, '').replace(/^-\s*/, ''))
           .slice(0, 10)
       }
       
@@ -496,9 +496,9 @@ const generateCoverTexts = async () => {
         coverTexts.value = Array.isArray(parsed) ? parsed : [parsed]
       } catch (e) {
         coverTexts.value = response.data.split('\n')
-          .map(line => line.trim())
-          .filter(line => line && !line.startsWith('[') && !line.startsWith(']'))
-          .map(line => line.replace(/^["']|["']$/g, '').replace(/^-\s*/, ''))
+          .map((line: string) => line.trim())
+          .filter((line: string) => line && !line.startsWith('[') && !line.startsWith(']'))
+          .map((line: string) => line.replace(/^["']|["']$/g, '').replace(/^-\s*/, ''))
           .slice(0, 5)
       }
       
@@ -987,4 +987,3 @@ const goToNextStep = () => {
   }
 }
 </style>
-

@@ -337,6 +337,105 @@ ${params.keywords ? `关键词（可融入标题）：${params.keywords}` : ''}
 生成数量：${params.count} 个标题。请直接输出 JSON 数组。`
         return apiPost('/generate', { systemPrompt, userPrompt })
     },
+    async generateMultiPlatformPack(params: {
+        topic: string
+        audience: string
+        goal: string
+        tone: string
+        offer?: string
+        callToAction?: string
+        trendContext?: string
+        platforms: string[]
+        premium: boolean
+        languageMode?: 'zh' | 'bilingual'
+        includeSeoKeywords?: boolean
+        includeImagePrompts?: boolean
+        includeVideoHooks?: boolean
+        includeMusicIdeas?: boolean
+    }) {
+        const systemPrompt = `你是顶级内容总编、增长策略师、多平台本地化编辑。
+请根据用户输入，生成一个“多平台内容资产包”。
+
+必须严格返回 JSON 对象，不要包含任何额外说明，格式如下：
+{
+  "strategy": {
+    "campaignAngle": "20-40字",
+    "audienceLens": "20-40字",
+    "trendSummary": "20-50字",
+    "seoFocus": "20-50字",
+    "translationNote": "20-40字",
+    "monetizationHint": "20-40字"
+  },
+  "assets": {
+    "seoKeywords": ["关键词1", "关键词2", "关键词3"],
+    "imagePrompts": ["配图提示词1", "配图提示词2"],
+    "videoHooks": ["短视频开场1", "短视频开场2"],
+    "musicIdeas": ["BGM 灵感1", "BGM 灵感2"]
+  },
+  "platforms": {
+    "xiaohongshu": {
+      "title": "",
+      "hook": "",
+      "body": ["段落1", "段落2", "段落3"],
+      "hashtags": ["#标签1", "#标签2"],
+      "cta": "",
+      "formatTips": ["建议1", "建议2"],
+      "coverLines": ["封面短句1", "封面短句2"]
+    },
+    "twitter": {
+      "title": "",
+      "hook": "",
+      "body": ["tweet1", "tweet2", "tweet3"],
+      "hashtags": ["#tag1", "#tag2"],
+      "cta": "",
+      "formatTips": ["建议1", "建议2"]
+    },
+    "linkedin": {
+      "title": "",
+      "hook": "",
+      "body": ["段落1", "段落2", "段落3"],
+      "hashtags": ["#tag1", "#tag2"],
+      "cta": "",
+      "formatTips": ["建议1", "建议2"]
+    },
+    "blog": {
+      "title": "",
+      "hook": "",
+      "body": ["小标题或段落1", "小标题或段落2", "小标题或段落3"],
+      "hashtags": ["关键词1", "关键词2"],
+      "cta": "",
+      "formatTips": ["建议1", "建议2"]
+    }
+  }
+}
+
+要求：
+1. 只输出用户请求的平台内容；未请求的平台可以省略。
+2. 小红书和博客默认中文；当 languageMode=bilingual 时，Twitter / LinkedIn 默认英文表达。
+3. 每个平台都要适配语气、长度、结构、CTA。
+4. seoKeywords、imagePrompts、videoHooks、musicIdeas 仅在用户要求时输出；未要求则返回空数组。
+5. 内容要具体、可直接发布、避免空话。
+6. 不能出现 Markdown 代码块。`
+
+        const userPrompt = `主题：${params.topic}
+目标受众：${params.audience}
+商业目标：${params.goal}
+语气风格：${params.tone}
+产品/服务：${params.offer || '未提供'}
+行动引导：${params.callToAction || '引导用户收藏、评论或私信'}
+趋势背景：${params.trendContext || '无'}
+输出平台：${params.platforms.join('、')}
+套餐模式：${params.premium ? '专业版（完整内容工厂）' : '试用版（基础 starter pack）'}
+语言模式：${params.languageMode || 'bilingual'}
+输出 SEO 关键词：${params.includeSeoKeywords ? '是' : '否'}
+输出图片提示词：${params.includeImagePrompts ? '是' : '否'}
+输出短视频钩子：${params.includeVideoHooks ? '是' : '否'}
+输出音乐灵感：${params.includeMusicIdeas ? '是' : '否'}
+
+请直接输出 JSON 对象。`
+
+        return apiPost('/generate', { systemPrompt, userPrompt })
+    },
     async analyzeTopics(domain: string, timeRange?: string) {
         const systemPrompt = `你是小红书运营专家。根据用户提供的内容领域，输出近期热门话题趋势分析。
 必须严格返回 JSON 格式，不要包含任何其他文字：

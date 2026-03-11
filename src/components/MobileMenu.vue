@@ -81,7 +81,7 @@
                 </el-avatar>
                 <div class="user-details">
                   <div class="user-name">{{ userStore.profile?.nickname || '用户' }}</div>
-                  <div class="user-plan">{{ userStore.currentPlan?.name || '免费版' }}</div>
+                  <div class="user-plan">{{ userStore.planName || '免费版' }}</div>
                 </div>
               </div>
               <el-button type="primary" plain @click="handleUserCenter">个人中心</el-button>
@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Close, ArrowDown } from '@element-plus/icons-vue'
 import BrandLogo from './BrandLogo.vue'
@@ -168,13 +168,6 @@ watch(() => props.isOpen, (newVal) => {
     expandedItems.value = []
   }
 })
-</script>
-
-<script lang="ts">
-import { watch } from 'vue'
-export default {
-  name: 'MobileMenu'
-}
 </script>
 
 <style scoped>

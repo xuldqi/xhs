@@ -135,7 +135,7 @@ const loadStats = async () => {
   loading.value = true
   try {
     // 更新限制（根据会员状态）
-    const planType = userStore.planType
+    const planType = userStore.planType as keyof typeof TOOL_LIMITS
     const limits = TOOL_LIMITS[planType] || TOOL_LIMITS.free
     
     toolStats.value = toolStats.value.map(tool => ({
@@ -274,4 +274,3 @@ const goToPricing = () => {
   color: #667eea;
 }
 </style>
-

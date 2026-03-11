@@ -79,7 +79,10 @@
             <el-icon><Check /></el-icon>
             <span>新功能优先体验</span>
           </div>
-          <div class="benefit-item" v-if="userStore.isVIP && planConfig?.features?.customTemplate">
+          <div
+            class="benefit-item"
+            v-if="userStore.isVIP && typeof planConfig?.features === 'object' && !Array.isArray(planConfig.features) && planConfig.features?.customTemplate"
+          >
             <el-icon><Check /></el-icon>
             <span>自定义模板</span>
           </div>

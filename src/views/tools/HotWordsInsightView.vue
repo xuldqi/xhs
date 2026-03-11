@@ -211,7 +211,7 @@
                 class="topic-item"
                 @click="useTopicForGenerator(topic)"
               >
-                <el-icon><Lightbulb /></el-icon>
+                <el-icon><MagicStick /></el-icon>
                 <span>{{ topic }}</span>
                 <el-button
                   type="primary"
@@ -259,7 +259,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, InfoFilled, TrendCharts, Lightbulb } from '@element-plus/icons-vue'
+import { Search, InfoFilled, TrendCharts, MagicStick } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import {
@@ -335,10 +335,10 @@ const copyToClipboard = async (text: string) => {
 const useTopicForGenerator = (topic: string) => {
   // 跳转到爆款生成器，并传递话题
   router.push({
-    path: '/tools/viral-generator',
+    path: '/tools/multi-platform-content',
     query: { topic }
   })
-  ElMessage.success('已跳转到爆款生成器')
+  ElMessage.success('已跳转到内容工厂')
 }
 
 const useHotWordForGenerator = () => {
@@ -346,11 +346,11 @@ const useHotWordForGenerator = () => {
   
   // 使用热词标题作为主题
   router.push({
-    path: '/tools/viral-generator',
+    path: '/tools/multi-platform-content',
     query: { topic: selectedHotWord.value.title }
   })
   detailDialogVisible.value = false
-  ElMessage.success('已跳转到爆款生成器')
+  ElMessage.success('已跳转到内容工厂')
 }
 
 // 初始化

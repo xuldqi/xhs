@@ -1,0 +1,36 @@
+#!/usr/bin/expect
+set timeout 30
+set password "1q2ws3edcQ123"
+set host "root@115.191.56.242"
+set ssh_opts "-o StrictHostKeyChecking=no -o GSSAPIAuthentication=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30"
+
+spawn ssh {*}$ssh_opts $host
+expect {
+    -re ".*assword:" {
+        send "$password\r"
+    }
+}
+
+expect -re {.*[#$] }
+# Check backend port 3002
+send "netstat -tulpn | grep :3002\r"
+expect -re {.*[#$] }
+
+# Check nginx error log (last 20 lines)
+send "tail -n 20 /var/log/nginx/error.log\r"
+expect -re {.*[#$] }
+
+# Check nginx access log (last 20 lines) - to see if requests are hitting it
+send "tail -n 20 /var/log/nginx/access.log\r"
+expect -re {.*[#$] }
+
+# Check UFW/Firewall status
+send "ufw status\r"
+expect -re {.*[#$] }
+
+# Check curl localhost to see if it works locally
+send "curl -I -H 'Host: www.xiaoshongshu.college' http://127.0.0.1\r"
+expect -re {.*[#$] }
+
+send "exit\r"
+expect eof

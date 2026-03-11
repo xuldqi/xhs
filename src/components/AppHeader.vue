@@ -72,7 +72,7 @@
         </template>
         
         <template v-else>
-          <el-dropdown @command="(c) => c === 'login' && router.push('/login')">
+          <el-dropdown @command="(c: string) => c === 'login' && router.push('/login')">
             <div class="guest-avatar" @click="router.push('/login')">
               <el-avatar :size="32" :icon="UserFilled" />
               <el-icon class="dropdown-icon"><ArrowDown /></el-icon>

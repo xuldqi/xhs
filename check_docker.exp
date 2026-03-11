@@ -1,0 +1,11 @@
+#!/usr/bin/expect
+exp_internal 1
+set timeout 30
+spawn ssh -o StrictHostKeyChecking=no novcat@115.191.56.242 "docker ps"
+expect {
+    -re ".*assword:" {
+        send "1q2ws3edcQ123\r"
+        exp_continue
+    }
+    eof
+}

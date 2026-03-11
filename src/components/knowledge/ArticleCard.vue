@@ -94,7 +94,8 @@ const emit = defineEmits<{
 }>()
 
 // 难度文本映射
-const getDifficultyText = (difficulty: string) => {
+const getDifficultyText = (difficulty?: string) => {
+  if (!difficulty) return '未分级'
   const map: Record<string, string> = {
     beginner: '新手',
     intermediate: '进阶',

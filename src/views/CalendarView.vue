@@ -576,7 +576,7 @@ const compareB = ref<string | null>(null)
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 const canGenerate30 = computed(() => {
-  const plan = userStore.user?.planType
+  const plan = userStore.planType
   return plan === 'basic' || plan === 'pro' || plan === 'lifetime'
 })
 
@@ -1048,10 +1048,10 @@ function handleExportPDF() {
       pdf.addPage()
       y = 20
     }
-    pdf.setFont(undefined, 'bold')
+    pdf.setFont('helvetica', 'bold')
     pdf.text(day.date, 20, y)
     y += 8
-    pdf.setFont(undefined, 'normal')
+    pdf.setFont('helvetica', 'normal')
     for (const item of day.items || []) {
       if (y > 270) {
         pdf.addPage()

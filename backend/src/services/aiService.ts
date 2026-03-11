@@ -300,8 +300,6 @@ export class AIService {
    */
   async generateContent(systemPrompt: string, userPrompt: string): Promise<any> {
     console.log('📡 调用 DeepSeek API...');
-    console.log('🔑 API Key:', this.deepseekApiKey ? `${this.deepseekApiKey.substring(0, 10)}...` : 'NOT SET');
-    console.log('🔗 Base URL:', this.baseUrl);
     
     if (!this.deepseekApiKey) {
       throw this.createErrorResponse(new Error('DeepSeek API key is not configured'));
@@ -316,8 +314,6 @@ export class AIService {
       max_tokens: 2000,
       temperature: 0.7
     };
-    
-    console.log('📤 请求体:', JSON.stringify(requestBody).substring(0, 200) + '...');
     
     try {
       const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {

@@ -134,7 +134,7 @@
             <div class="sections">
               <el-collapse v-model="activeNames" accordion>
                 <el-collapse-item
-                  v-for="section in limitedGuideContent.sections"
+                  v-for="section in (limitedGuideContent?.sections || [])"
                   :key="section.id"
                   :name="section.id"
                 >
@@ -185,7 +185,7 @@
           <ProfessionalDocument
             :account-data="professionalAccountData"
             :content="allSectionsContent"
-            :sections="limitedGuideContent.sections"
+            :sections="limitedGuideContent?.sections || []"
           />
           
           <!-- 付费墙遮罩 -->
@@ -276,10 +276,12 @@ import { saveGuide, generateShareLink } from '@/services/guideService'
 import { useUserStore } from '@/stores/userStore'
 import { HistoryManager } from '@/utils/historyManager'
 import type { DocumentFormat } from '@/types/models'
+import { usePermission } from '@/composables/usePermission'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const { checkExportPermission, logUsage } = usePermission()
 
 // 状态
 const isGenerating = ref(true)
@@ -303,7 +305,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 // 权限检查 - 基础会员及以上可以查看完整内容
 const canViewFullContent = computed(() => {
-  const planType = userStore.user?.planType
+  const planType = userStore.planType
   return planType === 'basic' || planType === 'pro' || planType === 'lifetime'
 })
 
@@ -343,8 +345,13 @@ const professionalAccountData = computed<AccountData>(() => {
   return {
     username: metadata?.accountName || accountData.value.username || '未知账号',
     followerCount: metadata?.accountData?.followerCount || accountData.value.followers || 0,
+    followers: metadata?.accountData?.followerCount || accountData.value.followers || 0,
     postCount: metadata?.accountData?.postCount || accountData.value.notes || 0,
-    contentCategory: metadata?.accountData?.contentCategory || accountData.value.category || '未分类'
+    notes: metadata?.accountData?.postCount || accountData.value.notes || 0,
+    contentCategory: metadata?.accountData?.contentCategory || accountData.value.category || '未分类',
+    category: metadata?.accountData?.contentCategory || accountData.value.category || '未分类',
+    recentPosts: [],
+    analysisDate: new Date()
   }
 })
 
@@ -490,6 +497,11 @@ const generateGuide = async () => {
     guideContent.value = content
     
     store.setGuideContent(guideContent.value)
+    await logUsage('generate_guide', {
+      source: 'guide_view',
+      accountName: store.accountData.username,
+      sections: content.sections.length
+    })
     generationProgress.value = 100
     currentSection.value = 12
     
@@ -628,13 +640,13 @@ const handleExport = async () => {
       
       // 章节标题
       pdf.setFontSize(14)
-      pdf.setFont(undefined, 'bold')
+      pdf.setFont('helvetica', 'bold')
       pdf.text(`${section.id}. ${section.title}`, margin, yPosition)
       yPosition += 8
       
       // 章节内容 - 移除 HTML 标签
       pdf.setFontSize(10)
-      pdf.setFont(undefined, 'normal')
+      pdf.setFont('helvetica', 'normal')
       
       const cleanContent = stripHtmlTags(section.content)
       
@@ -674,8 +686,10 @@ const handleExport = async () => {
 }
 
 // 导出 HTML
-const handleExportHTML = () => {
+const handleExportHTML = async () => {
   if (!guideContent.value) return
+  const canExport = await checkExportPermission()
+  if (!canExport) return
   
   // 根据当前格式选择导出内容
   let htmlContent = ''
@@ -1164,6 +1178,11 @@ const handleExportHTML = () => {
   a.download = `小红书涨粉指南_${guideContent.value.metadata.accountName}_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.html`
   a.click()
   URL.revokeObjectURL(url)
+  await logUsage('export_html', {
+    source: 'guide_view',
+    format: 'html',
+    accountName: guideContent.value.metadata.accountName
+  })
   
   console.log('✅ HTML 导出成功')
 }
@@ -1171,6 +1190,8 @@ const handleExportHTML = () => {
 // 导出 PDF（新方法）
 const handleExportPDF = async () => {
   if (!guideContent.value) return
+  const canExport = await checkExportPermission()
+  if (!canExport) return
   
   try {
     ElMessage.info('正在生成 PDF，请稍候...')
@@ -1203,6 +1224,11 @@ const handleExportPDF = async () => {
     
     // 恢复原始状态
     restore()
+    await logUsage('export_html', {
+      source: 'guide_view',
+      format: 'pdf',
+      accountName: guideContent.value.metadata.accountName
+    })
     
     ElMessage.success('PDF 导出成功！')
   } catch (error) {

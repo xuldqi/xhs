@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "externalId": "n8n-execution-123456",
+  "resultPayload": {
+    "message": "自动内容生产流水线执行成功",
+    "publishedPlatforms": ["xiaohongshu", "twitter"],
+    "artifactUrls": [
+      "https://example.com/assets/content-pack-001.json",
+      "https://example.com/assets/cover-image-001.png"
+    ],
+    "summary": "已完成内容抓取、文案改写、配图和发布。"
+  }
+}

@@ -21,6 +21,7 @@ export const useUserStore = defineStore('user', () => {
   })
   const planType = computed(() => vipStatus.value?.plan_type || 'free')
   const planName = computed(() => planConfig.value?.name || '免费体验')
+  const currentPlan = computed(() => planConfig.value)
 
   // 初始化用户状态
   async function init() {
@@ -207,6 +208,7 @@ export const useUserStore = defineStore('user', () => {
     isVIP,
     planType,
     planName,
+    currentPlan,
     // 方法
     init,
     login,

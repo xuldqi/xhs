@@ -11,6 +11,23 @@
           <p class="hero-subtitle">
             上传主页截图 → 秒出12章涨粉指南 + 你的专属30天内容日历（免费预览前几天）
           </p>
+
+          <div class="hero-capability-strip">
+            <button
+              v-for="item in heroQuickTools"
+              :key="`hero-${item.id}`"
+              class="capability-chip"
+              @click="handleHeroQuickClick(item)"
+            >
+              <span class="capability-title">{{ item.title }}</span>
+              <span class="capability-desc">{{ item.description }}</span>
+              <span v-if="item.badge" class="capability-badge">{{ item.badge }}</span>
+            </button>
+          </div>
+
+          <p class="hero-feature-summary">
+            不止一个诊断入口：内容工厂、多平台生成、执行历史、话题分析、关键词工具等都可直接使用
+          </p>
           
           <div class="hero-actions">
             <CTAButton
@@ -18,8 +35,8 @@
               size="large"
               @click="scrollToUpload"
             />
-            <button class="btn-secondary" @click="goToCalendar">
-              先生成我的内容日历试试
+            <button class="btn-secondary" @click="goToContentFactory">
+              先生成一套内容试试
             </button>
           </div>
 
@@ -47,7 +64,7 @@
             :key="item.id"
             class="feature-card"
             :class="{ 'feature-emphasized': item.emphasized }"
-            @click="navigateTo(item.link)"
+            @click="handleToolMatrixClick(item)"
           >
             <div class="feature-icon" v-html="item.svg"></div>
             <div class="feature-header">
@@ -103,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
@@ -115,8 +132,27 @@ import { analyticsService } from '@/services/analyticsService'
 
 const router = useRouter()
 
+interface HomeTool {
+  id: string
+  svg: string
+  title: string
+  description: string
+  link: string
+  badge?: string
+  emphasized: boolean
+}
+
 // 首页工具矩阵（与核心功能同款卡片形式：图标 + 标题 + 描述 + 了解更多）
-const homeTools = ref([
+const homeTools = ref<HomeTool[]>([
+  {
+    id: 'content-factory',
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3L4 7v10l8 4 8-4V7l-8-4z"></path><path d="M12 12l8-5"></path><path d="M12 12L4 7"></path><path d="M12 21V12"></path></svg>`,
+    title: '多平台内容生成器',
+    description: '一个主题输出小红书、Twitter、LinkedIn、博客与素材包',
+    link: '/tools/multi-platform-content',
+    badge: '新',
+    emphasized: true
+  },
   {
     id: 'calendar',
     svg: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
@@ -159,6 +195,8 @@ const homeTools = ref([
     emphasized: false
   }
 ])
+
+const heroQuickTools = computed(() => homeTools.value.slice(0, 4))
 
 // 保留原 features 供其他区块使用
 const features = ref([
@@ -208,21 +246,27 @@ function scrollToUpload() {
   analyticsService.trackCTAClick('hero-cta', '立即开始', 'hero-section')
 }
 
-function navigateTo(path: string) {
+function navigateTo(path: string, ctaId?: string, ctaText?: string, location?: string) {
+  if (ctaId && ctaText) {
+    analyticsService.trackCTAClick(ctaId, ctaText, location || 'unknown')
+  }
   router.push(path)
 }
 
-function goToKnowledge() {
-  router.push('/knowledge')
+function handleHeroQuickClick(item: HomeTool) {
+  navigateTo(item.link, `hero-quick-${item.id}`, item.title, 'hero-capability-strip')
 }
 
-function goToCalendar() {
-  router.push('/calendar')
-  analyticsService.trackCTAClick('hero-secondary', '先生成我的内容日历试试', 'hero-section')
+function handleToolMatrixClick(item: HomeTool) {
+  navigateTo(item.link, `tool-matrix-${item.id}`, item.title, 'tool-matrix')
+}
+
+function goToContentFactory() {
+  navigateTo('/tools/multi-platform-content', 'hero-secondary', '先生成一套内容试试', 'hero-section')
 }
 
 function goToTools() {
-  router.push('/tools')
+  navigateTo('/tools', 'tools-cta', '探索更多工具', 'tool-matrix')
 }
 
 onMounted(() => {
@@ -275,8 +319,66 @@ onMounted(() => {
 .hero-subtitle {
   font-size: 1.2rem;
   line-height: 1.8;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.2rem;
   color: #555;
+}
+
+.hero-capability-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0 auto 1rem;
+  max-width: 860px;
+}
+
+.capability-chip {
+  position: relative;
+  text-align: left;
+  border: 1px solid #f1d5db;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.capability-chip:hover {
+  border-color: #ff2442;
+  box-shadow: 0 8px 18px rgba(255, 36, 66, 0.12);
+  transform: translateY(-1px);
+}
+
+.capability-title {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #222;
+  margin-bottom: 0.25rem;
+}
+
+.capability-desc {
+  display: block;
+  font-size: 0.78rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.capability-badge {
+  position: absolute;
+  right: 0.6rem;
+  top: 0.55rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #fff;
+  background: #ff2442;
+  padding: 0.12rem 0.35rem;
+  border-radius: 4px;
+}
+
+.hero-feature-summary {
+  margin: 0 0 1.25rem;
+  font-size: 0.88rem;
+  color: #666;
 }
 
 .hero-actions {
@@ -535,6 +637,15 @@ onMounted(() => {
 
   .hero-subtitle {
     font-size: 1rem;
+  }
+
+  .hero-capability-strip {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .hero-feature-summary {
+    font-size: 0.82rem;
   }
 
   .hero-visual {

@@ -131,7 +131,7 @@ class MobileOptimizer {
       document.documentElement.style.scrollBehavior = 'smooth'
       
       // 优化iOS滚动
-      document.body.style.webkitOverflowScrolling = 'touch'
+      ;(document.body.style as any).webkitOverflowScrolling = 'touch'
       
       // 防止橡皮筋效果
       document.addEventListener('touchmove', (e) => {

@@ -94,7 +94,8 @@ const emit = defineEmits<{
   click: []
 }>()
 
-const getInitial = (name: string) => {
+const getInitial = (name?: string) => {
+  if (!name) return 'C'
   return name.charAt(0).toUpperCase()
 }
 

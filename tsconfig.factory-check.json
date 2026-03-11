@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["vite/client"],
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [
+    "src/env.d.ts",
+    "src/types/**/*.ts",
+    "src/composables/usePermission.ts",
+    "src/services/automationTaskService.ts",
+    "src/services/automationService.ts",
+    "src/services/multiPlatformContentService.ts",
+    "src/services/factoryStudioService.ts",
+    "src/services/analyticsService.ts",
+    "src/services/userService.ts",
+    "src/stores/userStore.ts",
+    "src/components/content/**/*.vue",
+    "src/views/tools/MultiPlatformContentView.vue",
+    "src/views/tools/AutomationHistoryView.vue",
+    "src/views/PricingView.vue"
+  ]
+}
+

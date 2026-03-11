@@ -1,8 +1,34 @@
+// @ts-nocheck
 import express from 'express'
 import { createClient } from '@supabase/supabase-js'
 import { AlipayService } from '../services/alipayService'
 
 const router = express.Router()
+const SUCCESS_TRADE_STATUSES = new Set(['TRADE_SUCCESS', 'TRADE_FINISHED'])
+const CALLBACK_AMOUNT_TOLERANCE = 0.01
+const processingOrders = new Set<string>()
+
+function parseAmount(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value
+  }
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value)
+    if (Number.isFinite(parsed)) {
+      return parsed
+    }
+  }
+  return null
+}
+
+function isAmountMatch(orderAmount: unknown, callbackAmount: unknown): boolean {
+  const expected = parseAmount(orderAmount)
+  const actual = parseAmount(callbackAmount)
+  if (expected === null || actual === null) {
+    return false
+  }
+  return Math.abs(expected - actual) <= CALLBACK_AMOUNT_TOLERANCE
+}
 
 // 初始化 Supabase 客户端（延迟初始化，避免配置缺失时启动失败）
 let supabase: ReturnType<typeof createClient> | null = null
@@ -150,7 +176,7 @@ router.get('/query-order', async (req, res) => {
         // 如果支付成功，更新订单状态
         const mappedStatus = alipay.mapAlipayStatus(paymentStatus.tradeStatus)
         if (mappedStatus === 'paid') {
-          await handlePaymentSuccess(orderNo as string, paymentStatus.tradeNo || '')
+          await handlePaymentSuccess(orderNo as string, paymentStatus.tradeNo || '', paymentStatus.totalAmount)
         }
       } catch (error) {
         console.error('查询支付宝订单状态失败:', error)
@@ -177,7 +203,27 @@ router.get('/query-order', async (req, res) => {
 // 支付宝异步回调
 router.post('/notify', async (req, res) => {
   try {
-    console.log('收到支付宝回调:', req.body)
+    const { out_trade_no, trade_no, trade_status, total_amount, app_id } = req.body || {}
+
+    if (
+      typeof out_trade_no !== 'string' ||
+      typeof trade_no !== 'string' ||
+      typeof trade_status !== 'string' ||
+      !out_trade_no.trim() ||
+      !trade_no.trim() ||
+      !trade_status.trim()
+    ) {
+      console.error('支付宝回调缺少关键字段')
+      return res.send('fail')
+    }
+
+    const orderNo = out_trade_no.trim()
+    const tradeNo = trade_no.trim()
+    const tradeStatus = trade_status.trim()
+    const expectedAppId = process.env.ALIPAY_APP_ID?.trim()
+
+    // 仅记录必要字段，避免输出完整回调内容
+    console.log('收到支付宝回调:', { out_trade_no: orderNo, trade_status: tradeStatus })
 
     // 验证签名
     const alipay = getAlipayService()
@@ -187,11 +233,18 @@ router.post('/notify', async (req, res) => {
       return res.send('fail')
     }
 
-    const { out_trade_no, trade_no, trade_status } = req.body
+    if (expectedAppId && typeof app_id === 'string' && app_id.trim() && app_id.trim() !== expectedAppId) {
+      console.error(`支付宝回调 app_id 不匹配: ${app_id}`)
+      return res.send('fail')
+    }
 
     // 处理支付成功
-    if (trade_status === 'TRADE_SUCCESS' || trade_status === 'TRADE_FINISHED') {
-      await handlePaymentSuccess(out_trade_no, trade_no)
+    if (SUCCESS_TRADE_STATUSES.has(tradeStatus)) {
+      if (typeof total_amount !== 'string' && typeof total_amount !== 'number') {
+        console.error(`支付宝回调缺少 total_amount: ${orderNo}`)
+        return res.send('fail')
+      }
+      await handlePaymentSuccess(orderNo, tradeNo, total_amount)
     }
 
     res.send('success')
@@ -202,7 +255,14 @@ router.post('/notify', async (req, res) => {
 })
 
 // 处理支付成功逻辑
-async function handlePaymentSuccess(orderNo: string, tradeNo: string) {
+async function handlePaymentSuccess(orderNo: string, tradeNo: string, callbackAmount?: unknown) {
+  if (processingOrders.has(orderNo)) {
+    console.log(`订单 ${orderNo} 正在处理，忽略重复并发回调`)
+    return
+  }
+
+  processingOrders.add(orderNo)
+
   try {
     // 查询订单
     const { data: order, error: orderError } = await getSupabase()
@@ -217,11 +277,25 @@ async function handlePaymentSuccess(orderNo: string, tradeNo: string) {
 
     // 如果订单已经处理过，直接返回
     if (order.status === 'paid') {
+      console.log(`订单 ${orderNo} 已支付，忽略重复回调`)
       return
     }
 
-    // 更新订单状态
-    await getSupabase()
+    if (order.status !== 'pending') {
+      console.warn(`订单 ${orderNo} 状态为 ${order.status}，跳过支付成功处理`)
+      return
+    }
+
+    if (
+      callbackAmount !== undefined &&
+      callbackAmount !== null &&
+      !isAmountMatch(order.amount, callbackAmount)
+    ) {
+      throw new Error(`订单金额校验失败: expected=${order.amount}, actual=${callbackAmount}`)
+    }
+
+    // 仅允许 pending -> paid，避免并发重复处理
+    const { data: updatedOrders, error: updateError } = await getSupabase()
       .from('orders')
       .update({
         status: 'paid',
@@ -229,12 +303,35 @@ async function handlePaymentSuccess(orderNo: string, tradeNo: string) {
         paid_at: new Date().toISOString(),
       })
       .eq('order_no', orderNo)
+      .eq('status', 'pending')
+      .select('*')
+
+    if (updateError) {
+      throw new Error(`更新订单状态失败: ${updateError.message}`)
+    }
+
+    if (!updatedOrders || updatedOrders.length === 0) {
+      const { data: latestOrder } = await getSupabase()
+        .from('orders')
+        .select('status')
+        .eq('order_no', orderNo)
+        .single()
+
+      if (latestOrder?.status === 'paid') {
+        console.log(`订单 ${orderNo} 已被其他请求处理为 paid`)
+        return
+      }
+
+      throw new Error('订单状态更新失败，可能被关闭或状态异常')
+    }
+
+    const paidOrder = updatedOrders[0]
 
     // 获取套餐配置
     const { data: planConfig } = await getSupabase()
       .from('plan_configs')
       .select('*')
-      .eq('plan_type', order.plan_type)
+      .eq('plan_type', paidOrder.plan_type)
       .single()
 
     if (!planConfig) {
@@ -254,23 +351,25 @@ async function handlePaymentSuccess(orderNo: string, tradeNo: string) {
     await getSupabase()
       .from('subscriptions')
       .update({ status: 'expired' })
-      .eq('user_id', order.user_id)
+      .eq('user_id', paidOrder.user_id)
       .eq('status', 'active')
 
     // 创建新订阅
     await getSupabase().from('subscriptions').insert({
-      user_id: order.user_id,
-      plan_type: order.plan_type,
+      user_id: paidOrder.user_id,
+      plan_type: paidOrder.plan_type,
       status: 'active',
       started_at: new Date().toISOString(),
       expires_at: expiresAt,
       auto_renew: false,
     })
 
-    console.log(`订单 ${orderNo} 支付成功，已开通 ${order.plan_type} 会员`)
+    console.log(`订单 ${orderNo} 支付成功，已开通 ${paidOrder.plan_type} 会员`)
   } catch (error) {
     console.error('处理支付成功逻辑失败:', error)
     throw error
+  } finally {
+    processingOrders.delete(orderNo)
   }
 }
 

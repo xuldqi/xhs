@@ -1,6 +1,6 @@
 import { aiService } from './aiService'
 import { getSectionTemplate, getAllTemplates } from './promptTemplates'
-import type { AccountData, GuideContent, Section } from '@/types'
+import type { AccountData, GuideContent, Section, Checklist } from '@/types'
 
 /**
  * 生成完整指南
@@ -119,24 +119,22 @@ function extractTables(content: string): { headers: string[]; rows: string[][] }
  * 从内容中提取清单（Markdown 任务列表）
  * 支持 - [ ] / - [x] 或 * [ ] / * [x]
  */
-function extractChecklists(content: string): { text: string; checked: boolean }[][] {
-  const checklists: { text: string; checked: boolean }[][] = []
+function extractChecklists(content: string): Checklist[] {
+  const checklists: Checklist[] = []
   const lines = content.split(/\r?\n/)
-  let current: { text: string; checked: boolean }[] = []
+  let index = 0
   const checkboxRe = /^(\s*[-*])\s*\[([ xX])\]\s*(.*)$/
   for (const line of lines) {
     const m = line.match(checkboxRe)
     if (m) {
       const checked = m[2].toLowerCase() === 'x'
       const text = m[3].trim()
-      current.push({ text, checked })
-    } else {
-      if (current.length > 0) {
-        checklists.push(current)
-        current = []
-      }
+      checklists.push({
+        id: `checklist-${index++}`,
+        text,
+        checked
+      })
     }
   }
-  if (current.length > 0) checklists.push(current)
   return checklists
 }

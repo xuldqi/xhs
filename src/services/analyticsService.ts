@@ -107,6 +107,14 @@ class AnalyticsService {
     console.log('[Analytics] Tool usage tracked:', toolName, action)
   }
 
+  trackUpload(fileCount: number) {
+    this.trackEvent('upload', { file_count: fileCount, timestamp: Date.now() })
+  }
+
+  trackFunnelStep(step: string, stage: number) {
+    this.trackConversionFunnel(step, 'progress', stage)
+  }
+
   // 资源下载追踪
   trackResourceDownload(resourceId: string, resourceType: string, resourceName: string) {
     const data: ResourceDownloadData = {

@@ -6,9 +6,9 @@
       <div class="doc-cover-divider"></div>
       <div class="doc-cover-subtitle">{{ accountData.username }}</div>
       <div class="doc-cover-info">
-        <p>当前粉丝数：{{ accountData.followers || 0 }}</p>
-        <p>发布笔记数：{{ accountData.notes || 0 }}</p>
-        <p>内容类别：{{ accountData.category || '未分类' }}</p>
+        <p>当前粉丝数：{{ accountData.followerCount || accountData.followers || 0 }}</p>
+        <p>发布笔记数：{{ accountData.postCount || accountData.notes || 0 }}</p>
+        <p>内容类别：{{ accountData.contentCategory || accountData.category || '未分类' }}</p>
         <p>生成日期：{{ formatDate(guideContent.metadata.generatedAt) }}</p>
       </div>
     </div>
@@ -60,8 +60,8 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
+const formatDate = (dateInput: string | Date) => {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'long',
@@ -69,7 +69,7 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const scrollToSection = (sectionId: string) => {
+const scrollToSection = (sectionId: string | number) => {
   const element = document.getElementById(`section-${sectionId}`)
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' })

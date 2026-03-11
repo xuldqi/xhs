@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue'
+import { computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import { useHead } from '@vueuse/head'
 
 interface Props {
   title?: string
@@ -40,107 +39,41 @@ const fullUrl = computed(() => {
   return `https://yourdomain.com${route.fullPath}`
 })
 
-// 使用 @vueuse/head 管理 head 标签
-useHead({
-  title: fullTitle,
-  meta: [
-    // 基础 meta 标签
-    {
-      name: 'description',
-      content: computed(() => props.description || defaultDescription)
-    },
-    {
-      name: 'keywords',
-      content: computed(() => props.keywords || defaultKeywords)
-    },
-    {
-      name: 'author',
-      content: computed(() => props.author || siteName)
-    },
-    
-    // Open Graph 标签
-    {
-      property: 'og:title',
-      content: fullTitle
-    },
-    {
-      property: 'og:description',
-      content: computed(() => props.description || defaultDescription)
-    },
-    {
-      property: 'og:type',
-      content: computed(() => props.type)
-    },
-    {
-      property: 'og:url',
-      content: fullUrl
-    },
-    {
-      property: 'og:image',
-      content: computed(() => props.image || defaultImage)
-    },
-    {
-      property: 'og:site_name',
-      content: siteName
-    },
-    
-    // Twitter Card 标签
-    {
-      name: 'twitter:card',
-      content: 'summary_large_image'
-    },
-    {
-      name: 'twitter:title',
-      content: fullTitle
-    },
-    {
-      name: 'twitter:description',
-      content: computed(() => props.description || defaultDescription)
-    },
-    {
-      name: 'twitter:image',
-      content: computed(() => props.image || defaultImage)
-    },
-    
-    // 文章特定标签
-    ...(props.type === 'article' ? [
-      {
-        property: 'article:published_time',
-        content: computed(() => props.publishedTime || '')
-      },
-      {
-        property: 'article:modified_time',
-        content: computed(() => props.modifiedTime || '')
-      },
-      {
-        property: 'article:author',
-        content: computed(() => props.author || siteName)
-      }
-    ] : [])
-  ],
-  
-  // 结构化数据
-  script: [
-    {
-      type: 'application/ld+json',
-      children: computed(() => JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': props.type === 'article' ? 'Article' : 'WebSite',
-        name: fullTitle.value,
-        description: props.description || defaultDescription,
-        url: fullUrl.value,
-        image: props.image || defaultImage,
-        ...(props.type === 'article' && {
-          datePublished: props.publishedTime,
-          dateModified: props.modifiedTime,
-          author: {
-            '@type': 'Organization',
-            name: props.author || siteName
-          }
-        })
-      }))
-    }
-  ]
+function upsertMeta(selector: string, attrs: Record<string, string>) {
+  let el = document.head.querySelector(selector) as HTMLMetaElement | null
+  if (!el) {
+    el = document.createElement('meta')
+    document.head.appendChild(el)
+  }
+  Object.entries(attrs).forEach(([key, value]) => el!.setAttribute(key, value))
+}
+
+watchEffect(() => {
+  if (typeof document === 'undefined') return
+
+  document.title = fullTitle.value
+
+  const description = props.description || defaultDescription
+  const keywords = props.keywords || defaultKeywords
+  const author = props.author || siteName
+  const image = props.image || defaultImage
+  const type = props.type || 'website'
+
+  upsertMeta('meta[name="description"]', { name: 'description', content: description })
+  upsertMeta('meta[name="keywords"]', { name: 'keywords', content: keywords })
+  upsertMeta('meta[name="author"]', { name: 'author', content: author })
+
+  upsertMeta('meta[property="og:title"]', { property: 'og:title', content: fullTitle.value })
+  upsertMeta('meta[property="og:description"]', { property: 'og:description', content: description })
+  upsertMeta('meta[property="og:type"]', { property: 'og:type', content: type })
+  upsertMeta('meta[property="og:url"]', { property: 'og:url', content: fullUrl.value })
+  upsertMeta('meta[property="og:image"]', { property: 'og:image', content: image })
+  upsertMeta('meta[property="og:site_name"]', { property: 'og:site_name', content: siteName })
+
+  upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' })
+  upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: fullTitle.value })
+  upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description })
+  upsertMeta('meta[name="twitter:image"]', { name: 'twitter:image', content: image })
 })
 </script>
 

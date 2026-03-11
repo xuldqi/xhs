@@ -31,7 +31,7 @@ export function useToolLimit() {
 
   // 获取工具的使用限制
   const getToolLimit = (toolId: ToolId): number => {
-    const planType = userStore.planType
+    const planType = userStore.planType as keyof typeof TOOL_LIMITS
     const limits = TOOL_LIMITS[planType] || TOOL_LIMITS.free
     return limits[toolId] || 0
   }
@@ -142,4 +142,3 @@ export function useToolLimit() {
     showUpgradeTip,
   }
 }
-

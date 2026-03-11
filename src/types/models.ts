@@ -2,18 +2,21 @@
 export interface AccountData {
   username: string              // 账号名称
   followerCount: number         // 当前粉丝数
+  followers?: number            // 兼容旧字段
   followingCount?: number       // 关注数
   likesCount?: number           // 获赞与收藏数
   postCount: number            // 发布笔记数
+  notes?: number               // 兼容旧字段
   contentCategory: string      // 内容类别
+  category?: string            // 兼容旧字段
   contentStyle?: string        // 内容风格（干货型/种草型/教程型等）
   contentDirection?: string    // 内容方向描述（可选）
   exampleTitles?: string       // 示例标题列表（可选）
   bio?: string                 // 个人简介
   accountLevel?: string        // 账号阶段（新手/成长期/成熟期）
   updateFrequency?: string     // 更新频率（日更/隔日更/周更）
-  recentPosts: PostInfo[]      // 最近发布的笔记
-  analysisDate: Date           // 分析日期
+  recentPosts?: PostInfo[]     // 最近发布的笔记
+  analysisDate?: Date          // 分析日期
   
   // 计算得出的派生指标
   avgLikes?: number            // 平均点赞数
@@ -40,6 +43,7 @@ export interface GuideMetadata {
   generatedAt: Date
   accountName: string
   targetFollowers: number
+  accountData?: Partial<AccountData>
 }
 
 // 指南章节

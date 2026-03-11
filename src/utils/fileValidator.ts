@@ -5,7 +5,7 @@ import { FILE_CONFIG, ERROR_MESSAGES } from '@/types'
  */
 export function validateFile(file: File): { valid: boolean; error?: string } {
   // 验证文件类型
-  if (!FILE_CONFIG.ALLOWED_TYPES.includes(file.type)) {
+  if (!(FILE_CONFIG.ALLOWED_TYPES as readonly string[]).includes(file.type)) {
     return {
       valid: false,
       error: ERROR_MESSAGES.INVALID_FILE_TYPE
@@ -28,7 +28,7 @@ export function validateFile(file: File): { valid: boolean; error?: string } {
  */
 export function checkFileExtension(filename: string): boolean {
   const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'))
-  return FILE_CONFIG.ALLOWED_EXTENSIONS.includes(ext)
+  return (FILE_CONFIG.ALLOWED_EXTENSIONS as readonly string[]).includes(ext)
 }
 
 /**

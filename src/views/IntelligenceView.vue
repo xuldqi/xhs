@@ -29,7 +29,7 @@
               <el-option label="低" value="low" />
             </el-select>
             
-            <el-button :icon="Rss" @click="handleSubscribe">
+            <el-button :icon="Link" @click="handleSubscribe">
               RSS 订阅
             </el-button>
           </div>

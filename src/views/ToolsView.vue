@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Edit, TrendCharts, DataAnalysis, Setting, Promotion } from '@element-plus/icons-vue'
+import { Edit, TrendCharts, DataAnalysis, Setting, Promotion, Camera } from '@element-plus/icons-vue'
 import { analytics } from '@/utils/analytics'
 import { toolsList, type ToolItem } from '@/data/toolsData'
 import Breadcrumb from '@/components/Breadcrumb.vue'
@@ -68,6 +68,7 @@ const categories = [
   { label: '全部', value: 'all', icon: Setting },
   { label: '内容创作', value: 'content-creation', icon: Edit },
   { label: '数据分析', value: 'data-analysis', icon: TrendCharts },
+  { label: '图片处理', value: 'image-editing', icon: Camera },
   { label: 'SEO优化', value: 'seo-optimization', icon: DataAnalysis },
   { label: '自动化', value: 'automation', icon: Setting },
   { label: '推广', value: 'promotion', icon: Promotion }

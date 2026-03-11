@@ -1,0 +1,14 @@
+#!/usr/bin/expect
+set timeout 60
+spawn ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 novcat@115.191.56.242 "whoami && sudo -n true && echo SUDO_OK"
+expect {
+    -re "(?i)password:" {
+        send "1q2ws3edcQ123\r"
+        exp_continue
+    }
+    timeout {
+        puts "Connection timed out waiting for prompt"
+        exit 1
+    }
+    eof
+}

@@ -386,8 +386,6 @@ onMounted(() => {
 .guide-content li {
   margin-bottom: 6px;
 }
-  margin: 0 auto;
-}
 
 .tool-content {
   display: grid;

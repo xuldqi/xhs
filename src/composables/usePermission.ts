@@ -10,22 +10,10 @@ export function usePermission() {
    * 检查是否可以生成指南
    */
   const checkGeneratePermission = async (): Promise<boolean> => {
-    // 检查是否登录
+    // 未登录用户允许体验基础生成功能，避免首屏漏斗阻断。
+    // 登录后再走套餐次数限制。
     if (!userStore.isLoggedIn) {
-      const result = await ElMessageBox.confirm(
-        '请先登录后再使用生成功能',
-        '需要登录',
-        {
-          confirmButtonText: '去登录',
-          cancelButtonText: '取消',
-          type: 'warning',
-        }
-      ).catch(() => false)
-
-      if (result) {
-        router.push('/login?redirect=/upload')
-      }
-      return false
+      return true
     }
 
     // 检查使用次数
@@ -43,7 +31,13 @@ export function usePermission() {
       ).catch(() => false)
 
       if (result) {
-        router.push('/pricing')
+        router.push({
+          path: '/pricing',
+          query: {
+            source: 'permission-gate',
+            feature: 'usage-limit-generate'
+          }
+        })
       }
       return false
     }
@@ -74,7 +68,13 @@ export function usePermission() {
       ).catch(() => false)
 
       if (result) {
-        router.push('/pricing')
+        router.push({
+          path: '/pricing',
+          query: {
+            source: 'permission-gate',
+            feature: 'usage-limit-export'
+          }
+        })
       }
       return false
     }
