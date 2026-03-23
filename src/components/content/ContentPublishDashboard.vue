@@ -62,6 +62,14 @@
               <span>失败</span>
               <strong>{{ dashboard.totals.failed }}</strong>
             </li>
+            <li>
+              <span>驳回</span>
+              <strong>{{ dashboard.totals.rejected }}</strong>
+            </li>
+            <li>
+              <span>替换</span>
+              <strong>{{ dashboard.totals.replaced }}</strong>
+            </li>
           </ul>
         </article>
 
@@ -94,7 +102,7 @@
               <p>{{ task.topic }}</p>
             </div>
             <div class="recent-meta">
-              <span class="status" :class="task.status">{{ task.status }}</span>
+              <span class="status" :class="task.status">{{ statusLabel(task.status) }}</span>
               <span>{{ formatDate(task.updated_at) }}</span>
             </div>
           </div>
@@ -123,6 +131,15 @@ function formatDate(value: string | null) {
 function calcBar(value: number, total: number) {
   if (!total) return '0%'
   return `${Math.max(8, Math.round((value / total) * 100))}%`
+}
+
+function statusLabel(status: string) {
+  if (status === 'completed') return '已完成'
+  if (status === 'failed') return '失败'
+  if (status === 'rejected') return '已驳回'
+  if (status === 'replaced') return '已替换'
+  if (status === 'dispatched') return '已派发'
+  return '待派发'
 }
 
 async function loadDashboard() {
@@ -331,6 +348,14 @@ onMounted(loadDashboard)
 
 .status.failed {
   color: #b42318;
+}
+
+.status.rejected {
+  color: #b42318;
+}
+
+.status.replaced {
+  color: #64748b;
 }
 
 .status.dispatched {

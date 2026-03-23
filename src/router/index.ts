@@ -211,6 +211,24 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '定时发布计划 - 规划发帖时间' }
   },
   {
+    path: '/tools/matrix-publisher',
+    name: 'MatrixPublisher',
+    component: () => import('@/views/tools/MatrixPublisherView.vue'),
+    meta: {
+      title: '矩阵发布台 - 多账号内容分发编排',
+      description: '一个主题生成多份差异化小红书稿件，按账号人设、图片风格和时间窗编排发布队列。'
+    }
+  },
+  {
+    path: '/tools/matrix-review',
+    name: 'MatrixReview',
+    component: () => import('@/views/tools/MatrixReviewView.vue'),
+    meta: {
+      title: '矩阵审核台 - 待审任务与派发决策',
+      description: '集中审核需要人工把关的矩阵任务，支持通过并保留定时或驳回重写。'
+    }
+  },
+  {
     path: '/community',
     name: 'Community',
     component: () => import('@/views/CommunityView.vue'),

@@ -183,3 +183,18 @@ export function getTaskScheduleCron(payload?: Record<string, any>): string | nul
   const trimmed = cron.trim()
   return trimmed || null
 }
+
+export function getTaskScheduleRunAt(payload?: Record<string, any>): string | null {
+  const runAt = payload?.schedule?.runAt ?? payload?.plannedAt
+  if (typeof runAt !== 'string') return null
+
+  const trimmed = runAt.trim()
+  if (!trimmed) return null
+
+  const timestamp = Date.parse(trimmed)
+  if (!Number.isFinite(timestamp)) {
+    return null
+  }
+
+  return new Date(timestamp).toISOString()
+}

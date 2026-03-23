@@ -252,6 +252,8 @@ const statusTypeMap: Record<string, string> = {
   dispatched: 'primary',
   completed: 'success',
   failed: 'danger',
+  rejected: 'danger',
+  replaced: 'info',
 }
 
 const statusLabelMap: Record<string, string> = {
@@ -259,6 +261,8 @@ const statusLabelMap: Record<string, string> = {
   dispatched: '已派发',
   completed: '已完成',
   failed: '失败',
+  rejected: '已驳回',
+  replaced: '已替换',
 }
 
 const triggerLabelMap: Record<string, string> = {
@@ -301,7 +305,7 @@ function scheduleSummary(schedule: any) {
 }
 
 function progressClass(task: AutomationTask, step: 'queued' | 'dispatched' | 'completed') {
-  if (task.status === 'failed') {
+  if (task.status === 'failed' || task.status === 'rejected' || task.status === 'replaced') {
     return step === 'queued' || step === 'dispatched' ? 'done' : 'failed'
   }
   if (step === 'queued') return 'done'

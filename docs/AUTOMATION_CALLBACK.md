@@ -61,18 +61,43 @@ curl -X POST http://localhost:3001/api/automation/tasks/TASK_ID/status \
 
 ## Server Scheduler
 
-- 后端已支持服务端定时调度：`trigger_mode=scheduled` 的任务会按 `payload.schedule.cron` 自动派发
+- 后端已支持服务端定时调度：`trigger_mode=scheduled` 的任务可以按 `payload.schedule.cron` 循环执行，也可以按 `payload.schedule.runAt` 一次性自动派发
 - 可通过以下环境变量控制：
   - `AUTOMATION_SCHEDULER_ENABLED`
   - `AUTOMATION_SCHEDULER_INTERVAL_MS`
   - `AUTOMATION_SCHEDULER_BATCH_SIZE`
 - 每个 scheduled 任务会维护 `next_run_at`，用于下一次自动执行时间
 
+一次性定时任务示例：
+
+```json
+{
+  "workflowId": "auto-content-engine",
+  "topic": "矩阵发布计划",
+  "triggerMode": "scheduled",
+  "payload": {
+    "selectedPlatforms": ["xiaohongshu"],
+    "schedule": {
+      "id": "matrix-run-at-001",
+      "label": "Matrix Planned Dispatch",
+      "runAt": "2026-03-21T12:30:00.000Z",
+      "type": "runAt"
+    }
+  }
+}
+```
+
 ## Dashboard & History API
 
 - `GET /api/automation/dashboard`：发布结果看板数据（成功率、失败率、最近执行、平台分布）
 - `GET /api/automation/history`：执行历史分页与筛选（支持 `status/workflowId/triggerMode/q/limit/offset`）
 - `GET /api/automation/tasks/:id`：单任务详情
+- `POST /api/automation/tasks/:id/review`：审核动作入口，支持 `approved` / `rejected` / `replaced`
+
+审核型状态说明：
+
+- `rejected`：审核驳回，不再继续执行
+- `replaced`：原任务被新的审核通过任务替换，通常用于“保留原计划时间重建定时任务”
 
 ## Provider Adapters
 

@@ -1,10 +1,10 @@
 import { query } from '../db'
-import { getNextCronRunAt, getTaskScheduleCron, isValidCronExpression } from './cronSchedule'
+import { getNextCronRunAt, getTaskScheduleCron, getTaskScheduleRunAt, isValidCronExpression } from './cronSchedule'
 import { createAutomationSignedHeaders } from './automationWebhookSecurity'
 import { executeAutomationProviderChain } from './providerAdapters'
 
 export type AutomationWorkflowId = 'trend-scraper' | 'multi-platform-remix' | 'auto-content-engine'
-export type AutomationTaskStatus = 'queued' | 'dispatched' | 'completed' | 'failed'
+export type AutomationTaskStatus = 'queued' | 'dispatched' | 'completed' | 'failed' | 'rejected' | 'replaced'
 export type AutomationTriggerMode = 'manual' | 'scheduled'
 
 export interface AutomationTaskPayload {
@@ -75,6 +75,8 @@ export interface AutomationDashboardResult {
     dispatched: number
     completed: number
     failed: number
+    rejected: number
+    replaced: number
   }
   rates: {
     successRate: number
@@ -130,6 +132,15 @@ function getCallbackBaseUrl(): string {
 }
 
 function getNextRunAtFromPayload(payload?: Record<string, any>, fromDate = new Date()): string | null {
+  const runAt = getTaskScheduleRunAt(payload)
+  if (runAt) {
+    const runAtMs = Date.parse(runAt)
+    if (Number.isFinite(runAtMs) && runAtMs > fromDate.getTime()) {
+      return new Date(runAtMs).toISOString()
+    }
+    return null
+  }
+
   const cron = getTaskScheduleCron(payload)
   if (!cron) return null
 
@@ -361,11 +372,16 @@ export async function createAutomationTask(input: AutomationTaskPayload): Promis
 
   if (input.triggerMode === 'scheduled') {
     const cron = getTaskScheduleCron(input.payload)
-    if (!cron) {
-      throw new Error('Scheduled task requires payload.schedule.cron')
+    const runAt = getTaskScheduleRunAt(input.payload)
+
+    if (!cron && !runAt) {
+      throw new Error('Scheduled task requires payload.schedule.cron or payload.schedule.runAt')
     }
-    if (!isValidCronExpression(cron)) {
+    if (cron && !isValidCronExpression(cron)) {
       throw new Error('Invalid schedule cron expression')
+    }
+    if (runAt && Date.parse(runAt) <= Date.now()) {
+      throw new Error('Scheduled task runAt must be in the future')
     }
   }
 
@@ -401,6 +417,7 @@ export async function dispatchAutomationTask(id: string): Promise<AutomationTask
       status: providerSummary.success ? 'completed' : 'failed',
       errorMessage: providerSummary.success ? null : providerSummary.message,
       resultPayload: {
+        ...(task.result_payload || {}),
         callbackUrl,
         dispatchAccepted: providerSummary.success,
         ...providerSummary,
@@ -441,6 +458,7 @@ export async function dispatchAutomationTask(id: string): Promise<AutomationTask
       externalId: data?.id || data?.executionId || null,
       errorMessage: null,
       resultPayload: {
+        ...(task.result_payload || {}),
         dispatchAccepted: true,
         callbackUrl,
         response: data,
@@ -452,6 +470,7 @@ export async function dispatchAutomationTask(id: string): Promise<AutomationTask
       status: 'failed',
       errorMessage: error instanceof Error ? error.message : 'Dispatch failed',
       resultPayload: {
+        ...(task.result_payload || {}),
         callbackUrl,
         dispatchAccepted: false,
       }
@@ -694,6 +713,8 @@ export async function getAutomationDashboard(windowDays = 7, recentLimit = 12): 
     dispatched: 0,
     completed: 0,
     failed: 0,
+    rejected: 0,
+    replaced: 0,
   }
 
   const workflowMap = new Map<AutomationWorkflowId, { workflowTitle: string; total: number; completed: number; failed: number }>()
@@ -704,6 +725,8 @@ export async function getAutomationDashboard(windowDays = 7, recentLimit = 12): 
     if (task.status === 'dispatched') totals.dispatched += 1
     if (task.status === 'completed') totals.completed += 1
     if (task.status === 'failed') totals.failed += 1
+    if (task.status === 'rejected') totals.rejected += 1
+    if (task.status === 'replaced') totals.replaced += 1
 
     if (!workflowMap.has(task.workflow_id)) {
       workflowMap.set(task.workflow_id, {

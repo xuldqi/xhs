@@ -198,5 +198,33 @@ export const toolsList: ToolItem[] = [
     viewCount: 3088,
     likeCount: 926,
     tags: ['内容工厂', '历史', '看板']
+  },
+  {
+    id: 'matrix-publisher',
+    name: '矩阵发布台',
+    description: '多账号配置、多版本文案与图片资产编排，一次性生成分发队列并推入自动化任务',
+    category: 'automation',
+    url: '/tools/matrix-publisher',
+    isFree: false,
+    isRecommended: true,
+    rating: 4.9,
+    features: ['多账号画像', '多版本拆稿', '错峰排班', '任务入队'],
+    viewCount: 1820,
+    likeCount: 516,
+    tags: ['矩阵运营', '自动化', '多账号']
+  },
+  {
+    id: 'matrix-review',
+    name: '矩阵审核台',
+    description: '集中审核需要人工把关的矩阵任务，未来计划通过后保留定时，到点自动派发',
+    category: 'automation',
+    url: '/tools/matrix-review',
+    isFree: false,
+    isRecommended: true,
+    rating: 4.8,
+    features: ['待审队列', '账号/文案预览', '通过保留定时', '驳回重写'],
+    viewCount: 1260,
+    likeCount: 344,
+    tags: ['审核流', '矩阵运营', '待审']
   }
 ]

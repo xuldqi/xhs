@@ -21,6 +21,8 @@
           <el-option label="已派发" value="dispatched" />
           <el-option label="已完成" value="completed" />
           <el-option label="失败" value="failed" />
+          <el-option label="已驳回" value="rejected" />
+          <el-option label="已替换" value="replaced" />
         </el-select>
         <el-select v-model="filters.workflowId" clearable placeholder="流水线筛选">
           <el-option label="趋势抓取" value="trend-scraper" />
@@ -45,7 +47,7 @@
             <el-table-column prop="topic" label="主题" min-width="220" show-overflow-tooltip />
             <el-table-column label="状态" width="110">
               <template #default="{ row }">
-                <el-tag :type="statusTagType(row.status)" size="small">{{ row.status }}</el-tag>
+                <el-tag :type="statusTagType(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="平台结果" min-width="150">
@@ -81,7 +83,7 @@
       <div v-if="selectedTask" class="detail-grid">
         <div class="detail-row"><strong>任务 ID：</strong><span>{{ selectedTask.id }}</span></div>
         <div class="detail-row"><strong>流水线：</strong><span>{{ selectedTask.workflow_title }}</span></div>
-        <div class="detail-row"><strong>状态：</strong><span>{{ selectedTask.status }}</span></div>
+        <div class="detail-row"><strong>状态：</strong><span>{{ statusLabel(selectedTask.status) }}</span></div>
         <div class="detail-row"><strong>触发方式：</strong><span>{{ selectedTask.trigger_mode }}</span></div>
         <div class="detail-row"><strong>主题：</strong><span>{{ selectedTask.topic }}</span></div>
         <div class="detail-row"><strong>创建时间：</strong><span>{{ formatDate(selectedTask.created_at) }}</span></div>
@@ -175,8 +177,19 @@ function formatJson(value: unknown) {
 function statusTagType(status: AutomationTaskStatus) {
   if (status === 'completed') return 'success'
   if (status === 'failed') return 'danger'
+  if (status === 'rejected') return 'danger'
+  if (status === 'replaced') return 'info'
   if (status === 'dispatched') return 'primary'
   return 'warning'
+}
+
+function statusLabel(status: AutomationTaskStatus) {
+  if (status === 'completed') return '已完成'
+  if (status === 'failed') return '失败'
+  if (status === 'rejected') return '已驳回'
+  if (status === 'replaced') return '已替换'
+  if (status === 'dispatched') return '已派发'
+  return '待派发'
 }
 
 function normalizeStringArray(value: unknown): string[] {

@@ -51,6 +51,20 @@ async function createTask(input) {
   return json?.task
 }
 
+async function reviewTask(taskId, body) {
+  const rawBody = JSON.stringify(body)
+  const { response, json, text } = await requestJson(`/api/automation/tasks/${taskId}/review`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: rawBody,
+  })
+
+  if (!response.ok) {
+    throw new Error(`review task failed (${response.status}): ${text}`)
+  }
+  return json?.task
+}
+
 async function getTask(taskId) {
   const { response, json, text } = await requestJson(`/api/automation/tasks/${taskId}`)
   if (!response.ok) {
@@ -151,6 +165,27 @@ async function main() {
 
   await testSignedCallback(callbackTask.id, statusSnapshot)
 
+  const reviewTaskRecord = await createTask({
+    workflowId: 'auto-content-engine',
+    topic: `smoke-review-${Date.now()}`,
+    triggerMode: 'manual',
+    source: 'matrix-publisher-ui',
+    autoDispatch: false,
+    payload: {
+      reviewRequired: true,
+      workflowHint: 'matrix-publisher',
+      accountProfile: { name: 'Smoke Account' },
+      variant: { title: 'Smoke Variant', angleLabel: '教程型' },
+    },
+  })
+  assert(reviewTaskRecord?.id, 'create review task returned empty id')
+  const reviewed = await reviewTask(reviewTaskRecord.id, {
+    action: 'rejected',
+    note: 'smoke reject',
+  })
+  assert(reviewed?.status === 'rejected', `review action expected rejected but got ${reviewed?.status}`)
+  console.log('[ok] review route rejected queued task')
+
   const scheduledTopic = `smoke-scheduler-${Date.now()}`
   const scheduledTask = await createTask({
     workflowId: 'trend-scraper',
@@ -174,6 +209,31 @@ async function main() {
   const scheduledAfterDispatch = await waitForScheduledDispatch(scheduledTask.id)
   console.log(`[ok] scheduler dispatched scheduled task, status=${scheduledAfterDispatch.status}`)
 
+  const runAtIso = new Date(Date.now() + 12_000).toISOString()
+  const oneShotTopic = `smoke-runat-${Date.now()}`
+  const oneShotTask = await createTask({
+    workflowId: 'trend-scraper',
+    topic: oneShotTopic,
+    triggerMode: 'scheduled',
+    source: 'automation-smoke',
+    autoDispatch: false,
+    payload: {
+      dispatchMode: 'provider',
+      schedule: {
+        id: 'smoke-run-at',
+        label: 'Smoke One Shot',
+        runAt: runAtIso,
+        type: 'runAt',
+      },
+    },
+  })
+  assert(oneShotTask?.id, 'create one-shot scheduled task returned empty id')
+  assert(oneShotTask?.next_run_at, 'one-shot scheduled task next_run_at should not be empty')
+  console.log(`[ok] one-shot scheduled task created: ${oneShotTask.id}, nextRunAt=${oneShotTask.next_run_at}`)
+
+  const oneShotAfterDispatch = await waitForScheduledDispatch(oneShotTask.id)
+  console.log(`[ok] one-shot scheduler dispatched task, status=${oneShotAfterDispatch.status}`)
+
   const dashboardResult = await requestJson('/api/automation/dashboard?windowDays=7&recentLimit=20')
   assert(dashboardResult.response.ok, `dashboard failed: ${dashboardResult.response.status}`)
   const dashboard = dashboardResult.json?.dashboard
@@ -191,6 +251,8 @@ async function main() {
     callbackTaskId: callbackTask.id,
     scheduledTaskId: scheduledTask.id,
     scheduledTaskStatus: scheduledAfterDispatch.status,
+    oneShotTaskId: oneShotTask.id,
+    oneShotTaskStatus: oneShotAfterDispatch.status,
     dashboardTotals: dashboard.totals,
   }, null, 2))
 }

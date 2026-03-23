@@ -222,6 +222,113 @@ automationRouter.post('/tasks/:id/retry', async (req, res) => {
   }
 })
 
+automationRouter.post('/tasks/:id/review', async (req, res) => {
+  try {
+    const existing = await getAutomationTask(req.params.id)
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Task not found' })
+    }
+
+    if (existing.status !== 'queued') {
+      return res.status(409).json({ success: false, error: 'Only queued tasks can be reviewed' })
+    }
+
+    const action = typeof req.body?.action === 'string' ? req.body.action.trim() : ''
+    const note = typeof req.body?.note === 'string' ? req.body.note.trim() : ''
+    const replacementTaskId = typeof req.body?.replacementTaskId === 'string'
+      ? req.body.replacementTaskId.trim()
+      : ''
+
+    if (!['approved', 'rejected', 'replaced'].includes(action)) {
+      return res.status(400).json({ success: false, error: 'Invalid review action' })
+    }
+
+    const baseResultPayload = {
+      ...(existing.result_payload || {}),
+      reviewAction: action,
+      reviewNote: note || null,
+      reviewedAt: new Date().toISOString(),
+    }
+
+    const updateInput = action === 'approved'
+      ? {
+          status: 'queued' as const,
+          errorMessage: null,
+          resultPayload: baseResultPayload,
+        }
+      : action === 'replaced'
+        ? {
+            status: 'replaced' as const,
+            errorMessage: note || null,
+            resultPayload: {
+              ...baseResultPayload,
+              replacementTaskId: replacementTaskId || null,
+            },
+            completed: true,
+          }
+        : {
+            status: 'rejected' as const,
+            errorMessage: note || 'Rejected in review queue',
+            resultPayload: baseResultPayload,
+            completed: true,
+          }
+
+    const task = await updateAutomationTask(req.params.id, updateInput)
+    if (!task) {
+      return res.status(404).json({ success: false, error: 'Task not found' })
+    }
+
+    res.json({ success: true, task })
+  } catch (error) {
+    console.error('❌ Failed to review automation task:', error)
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to review automation task'
+    })
+  }
+})
+
+automationRouter.post('/tasks/:id/reject', async (req, res) => {
+  try {
+    const existing = await getAutomationTask(req.params.id)
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Task not found' })
+    }
+
+    if (existing.status !== 'queued') {
+      return res.status(409).json({ success: false, error: 'Only queued tasks can be rejected' })
+    }
+
+    const reason = typeof req.body?.reason === 'string' && req.body.reason.trim()
+      ? req.body.reason.trim()
+      : 'Rejected in review queue'
+
+    const task = await updateAutomationTask(req.params.id, {
+      status: 'rejected',
+      errorMessage: reason,
+      resultPayload: {
+        ...(existing.result_payload || {}),
+        reviewAction: 'rejected',
+        reviewReason: reason,
+        rejectedAt: new Date().toISOString(),
+      },
+      completed: true,
+    })
+
+    if (!task) {
+      return res.status(404).json({ success: false, error: 'Task not found' })
+    }
+
+    res.json({ success: true, task })
+  } catch (error) {
+    console.error('❌ Failed to reject automation task:', error)
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to reject automation task'
+    })
+  }
+})
+
 automationRouter.post('/tasks/:id/status', async (req, res) => {
   try {
     const verification = verifyAutomationCallbackRequest(req)

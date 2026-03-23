@@ -1,5 +1,5 @@
 export type AutomationWorkflowId = 'trend-scraper' | 'multi-platform-remix' | 'auto-content-engine'
-export type AutomationTaskStatus = 'queued' | 'dispatched' | 'completed' | 'failed'
+export type AutomationTaskStatus = 'queued' | 'dispatched' | 'completed' | 'failed' | 'rejected' | 'replaced'
 
 export interface AutomationTask {
   id: string
@@ -33,6 +33,8 @@ export interface AutomationDashboard {
     dispatched: number
     completed: number
     failed: number
+    rejected: number
+    replaced: number
   }
   rates: {
     successRate: number
@@ -87,6 +89,17 @@ function writeLocalTasks(tasks: AutomationTask[]) {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks.slice(0, 30)))
 }
 
+function getLocalNextRunAt(payload?: Record<string, any>): string | null {
+  const runAt = payload?.schedule?.runAt || payload?.plannedAt
+  if (typeof runAt === 'string') {
+    const timestamp = Date.parse(runAt)
+    if (Number.isFinite(timestamp) && timestamp > Date.now()) {
+      return new Date(timestamp).toISOString()
+    }
+  }
+  return null
+}
+
 export async function getAutomationTasks(limit = 20): Promise<AutomationTask[]> {
   if (!API_BASE) {
     return readLocalTasks().slice(0, limit)
@@ -133,6 +146,8 @@ export async function getAutomationDashboard(windowDays = 7, recentLimit = 12): 
         dispatched: tasks.filter((item) => item.status === 'dispatched').length,
         completed,
         failed,
+        rejected: tasks.filter((item) => item.status === 'rejected').length,
+        replaced: tasks.filter((item) => item.status === 'replaced').length,
       },
       rates: {
         successRate: total > 0 ? Math.round((completed / total) * 10000) / 100 : 0,
@@ -242,7 +257,7 @@ export async function createAutomationTask(input: CreateAutomationTaskInput): Pr
       updated_at: now,
       dispatched_at: input.autoDispatch ? now : null,
       completed_at: null,
-      next_run_at: null,
+      next_run_at: input.triggerMode === 'scheduled' ? getLocalNextRunAt(input.payload) : null,
     }
     writeLocalTasks([task, ...readLocalTasks()])
     return task
@@ -300,6 +315,101 @@ export async function retryAutomationTask(taskId: string): Promise<AutomationTas
 
   const response = await fetch(`${API_BASE}/api/automation/tasks/${taskId}/retry`, {
     method: 'POST'
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.error || `status ${response.status}`)
+  }
+
+  const data = await response.json()
+  return data.task
+}
+
+export async function rejectAutomationTask(taskId: string, reason = 'Rejected in review queue'): Promise<AutomationTask> {
+  if (!API_BASE) {
+    const tasks = readLocalTasks()
+    const nextTasks = tasks.map((task) => task.id === taskId
+      ? {
+          ...task,
+          status: 'rejected' as const,
+          error_message: reason,
+          result_payload: {
+            ...(task.result_payload || {}),
+            reviewAction: 'rejected',
+            reviewReason: reason,
+          },
+          completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      : task)
+    writeLocalTasks(nextTasks)
+    const updated = nextTasks.find((task) => task.id === taskId)
+    if (!updated) throw new Error('Task not found')
+    return updated
+  }
+
+  const response = await fetch(`${API_BASE}/api/automation/tasks/${taskId}/reject`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason })
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.error || `status ${response.status}`)
+  }
+
+  const data = await response.json()
+  return data.task
+}
+
+export async function reviewAutomationTask(
+  taskId: string,
+  action: 'approved' | 'rejected' | 'replaced',
+  options: { note?: string; replacementTaskId?: string } = {}
+): Promise<AutomationTask> {
+  if (!API_BASE) {
+    const tasks = readLocalTasks()
+    const now = new Date().toISOString()
+    const nextTasks = tasks.map((task) => {
+      if (task.id !== taskId) return task
+
+      const nextStatus: AutomationTaskStatus =
+        action === 'rejected' ? 'rejected'
+          : action === 'replaced' ? 'replaced'
+            : 'queued'
+
+      return {
+        ...task,
+        status: nextStatus,
+        error_message: action === 'approved' ? null : (options.note || task.error_message),
+        result_payload: {
+          ...(task.result_payload || {}),
+          reviewAction: action,
+          reviewNote: options.note || null,
+          reviewedAt: now,
+          replacementTaskId: options.replacementTaskId || null,
+        },
+        completed_at: action === 'approved' ? task.completed_at : now,
+        updated_at: now,
+      }
+    })
+
+    writeLocalTasks(nextTasks)
+    const updated = nextTasks.find((task) => task.id === taskId)
+    if (!updated) throw new Error('Task not found')
+    return updated
+  }
+
+  const response = await fetch(`${API_BASE}/api/automation/tasks/${taskId}/review`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action,
+      note: options.note,
+      replacementTaskId: options.replacementTaskId,
+    })
   })
 
   if (!response.ok) {
